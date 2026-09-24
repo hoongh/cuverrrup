@@ -60,7 +60,7 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 @media (prefers-reduced-motion:reduce){#me::after{animation:none;opacity:.35;transform:none}.sheet{transition:none}}
 .map-hdr{position:absolute;top:0;left:0;right:0;padding:16px 18px 30px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:linear-gradient(rgba(31,27,23,.97),rgba(31,27,23,.85) 55%,rgba(31,27,23,0));pointer-events:none;z-index:6}
 .brand{font-size:13px;font-weight:500;letter-spacing:.22em;color:var(--sky);margin-bottom:10px;line-height:1;display:flex;align-items:center;gap:8px}
-.brand::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--sky);box-shadow:inset 0 0 0 2px var(--map),inset 0 0 0 5px var(--sky)}
+.brand .logo{width:20px;height:20px;flex:none}
 .place b{display:block;font-size:22px;font-weight:400;letter-spacing:-.01em;line-height:1.15}
 .place span{display:block;margin-top:5px;font-size:12px;color:var(--ink-2)}
 .lvl{font-size:11px;font-weight:400;border:1px solid var(--line-2);color:var(--ink-2);padding:6px 10px;border-radius:999px;white-space:nowrap;margin-top:32px}
@@ -180,12 +180,13 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 /* camera */
 .cam{background:#000;color:#fff}
 .cam-top{position:absolute;top:0;left:0;right:0;padding:14px 16px;z-index:5;display:flex;justify-content:center;pointer-events:none}
+.cam-status{z-index:5;bottom:auto;top:56px}
 .chip{background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-size:12px;color:#fff;max-width:100%;text-align:center;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
 .chip .mono{color:#B7ADA2}
 .chip .st{color:var(--mint)}
 .cam-stage{position:relative;flex:1;overflow:hidden;background:#000}
-#video,#shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-#video.show,#shot.show{display:block}
+#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#video.show{display:block}
 .fx-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,var(--vig,0)) 100%)}
 .fx-tint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:var(--tint,transparent)}
 .cam-stage.fb .fx-vig,.cam-stage.fb .fx-tint{display:none}
@@ -200,7 +201,28 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:rgba(255,255,255,.8);pointer-events:none}
-.cam-bottom{padding:12px 12px calc(12px + var(--safe));background:#000}
+.cam-ui{position:absolute;left:0;right:0;bottom:0;padding:10px 12px calc(10px + var(--safe));background:linear-gradient(transparent,rgba(0,0,0,.75) 40%);z-index:4}
+.shot-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);aspect-ratio:3/4;height:100%;max-width:100%;display:none;overflow:hidden;background:#000}
+.shot-box.show{display:block}
+.shot-box #shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.stickers{position:absolute;inset:0;touch-action:none;z-index:3}
+.stk{position:absolute;transform:translate(-50%,-50%);white-space:pre;font-weight:700;line-height:1.15;cursor:grab;user-select:none;text-align:center;padding:2px 6px;border-radius:6px;border:1.5px dashed transparent;text-shadow:0 1px 6px rgba(0,0,0,.55)}
+.stk.emoji{text-shadow:none}
+.stk.sel{border-color:rgba(255,255,255,.75)}
+.tools{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+.tool{border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(6px)}
+.tool.on{background:#fff;color:#000;border-color:#fff}
+.edit-panel{background:rgba(20,18,16,.92);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px;margin-bottom:8px}
+.prow3{display:flex;gap:8px;align-items:center}.prow3 .email-in{margin-top:0;flex:1}.prow3 input[type=range]{flex:1;accent-color:var(--flag)}
+.prow3 .like{color:#fff;border-color:rgba(255,255,255,.35)}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-height:160px;overflow-y:auto}
+.emo{border:0;background:none;font-size:26px;padding:4px;cursor:pointer;border-radius:8px}.emo:active{background:rgba(255,255,255,.15)}
+.swatches{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.swatches .sw{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer}.swatches .sw.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.caption-row{margin-bottom:8px}.caption-row .email-in{margin-top:0;width:100%;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.3);color:#fff}
+.cap{margin:4px 0 2px;font-size:13px;color:var(--ink);line-height:1.45;white-space:pre-wrap}
+.cap.big{font-size:14px;margin-top:12px}
+.cam-actions{min-height:72px}
 .filters{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 10px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
 .fchip{flex:none;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:#7E756D;padding:0}
@@ -214,7 +236,7 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .shutter{grid-column:2;width:72px;height:72px;border-radius:50%;border:3px solid #fff;background:radial-gradient(circle,#fff 0 58%,transparent 60%);position:relative}
 .shutter:active{transform:scale(.94)}
 .shutter[disabled]{opacity:.35;cursor:default}
-.cam-note{text-align:center;font-size:11px;color:#7E756D;margin-top:10px}
+.cam-note{text-align:center;font-size:11px;color:#B7ADA2;margin-top:8px}
 
 /* profile */
 .pf-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:14px}
@@ -354,6 +376,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .up-head b{font-size:20px;font-weight:400}
 .ulink{cursor:pointer}
 .geo:empty::before{content:"…";color:var(--muted)}
+.place b .dim{font-size:13px;font-weight:400;margin-left:4px}
 .dim{color:var(--muted);font-size:.8em}
 .like.fol{flex:none;white-space:nowrap;margin-top:2px}
 .like.fol.on{border-color:var(--mint);color:var(--mint);background:transparent}
@@ -365,7 +388,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .av{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#3A332D;color:var(--ink);font-size:11px;align-items:center;justify-content:center;overflow:hidden;vertical-align:-6px;margin-right:6px;flex:none}
 .av img{width:100%;height:100%;object-fit:cover}
 .reel-info .av{width:26px;height:26px;vertical-align:-7px}
-.orig-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;text-align:center}
+.orig-row{display:flex;justify-content:center;margin-top:8px}
 .orig-row .hint{color:#7E756D;font-size:11px}
 .chip-btn.tog{display:inline-flex;align-items:center;gap:8px;color:#B7ADA2;border-color:rgba(255,255,255,.3)}
 .chip-btn.tog i{width:30px;height:18px;border-radius:9px;background:#3A332D;position:relative;transition:.2s}
@@ -385,7 +408,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <canvas id="map"></canvas>
       <div id="me"><i></i></div>
       <header class="map-hdr">
-        <div class="place"><div class="brand">Coverrrup</div><b id="hdr-place">불러오는 중</b><span class="mono" id="hdr-code"></span></div>
+        <div class="place"><div class="brand"><svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><clipPath id="lc"><circle cx="24" cy="24" r="21"/></clipPath></defs><circle cx="24" cy="24" r="22" fill="#3A2A1F"/><path d="M-3.90 0V48M0 -3.90H48M2.30 0V48M0 2.30H48M8.50 0V48M0 8.50H48M14.70 0V48M0 14.70H48M20.90 0V48M0 20.90H48M27.10 0V48M0 27.10H48M33.30 0V48M0 33.30H48M39.50 0V48M0 39.50H48M45.70 0V48M0 45.70H48M51.90 0V48M0 51.90H48" stroke="#5A4A3E" stroke-width=".6" fill="none" clip-path="url(#lc)"/><g fill="#8FB6E8"><rect x="15.44" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="21.64" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="27.84" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="34.04" y="15.44" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="15.44" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="21.64" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="27.84" width="4.71" height="4.71" rx="1.1"/><rect x="15.44" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="21.64" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="27.84" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="34.04" y="27.84" width="4.71" height="4.71" rx="1.1"/></g><circle cx="24" cy="24" r="22" fill="none" stroke="#8FB6E8" stroke-width="2"/></svg>Coverrrup</div><b id="hdr-place">불러오는 중</b><span class="mono" id="hdr-code"></span></div>
         <span class="lvl" id="lvl"></span>
       </header>
       <div class="map-ctl">
@@ -414,29 +437,30 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 
   <!-- 3. 촬영 -->
   <section id="screen-camera" class="screen cam">
-    <div class="cam-top"><div class="chip" id="cam-place"></div></div>
     <div class="cam-stage" id="cam-stage">
       <video id="video" playsinline muted autoplay></video>
-      <img id="shot" alt="">
-      <div class="fx-vig" id="fx-vig"></div>
-      <div class="fx-tint" id="fx-tint"></div>
+      <div class="shot-box" id="shot-box"><img id="shot" alt=""><div class="stickers" id="stickers"></div><div class="fx-vig" id="fx-vig"></div><div class="fx-tint" id="fx-tint"></div></div>
       <div class="flash" id="flash"></div>
       <div class="cam-fallback" id="cam-fallback">
         <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
         <p data-i18n="cam_fb"></p>
         <label class="btn light"><span data-i18n="cam_fb_btn"></span><input type="file" accept="image/*" capture="environment" id="file-in" hidden></label>
       </div>
+      <div class="cam-top"><div class="chip" id="cam-place"></div></div>
       <div class="cam-status" id="cam-status"></div>
-    </div>
-    <div class="cam-bottom">
-      <div class="filters" id="filters"></div>
-      <div class="cam-actions">
-        <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
-        <button class="shutter" id="shutter" aria-label="촬영"></button>
-        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
+      <div class="cam-ui">
+        <div class="tools" id="tools" hidden><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
+        <div class="edit-panel" id="edit-panel" hidden></div>
+        <div class="filters" id="filters"></div>
+        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+        <div class="cam-actions">
+          <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
+          <button class="shutter" id="shutter" aria-label="촬영"></button>
+          <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
+        </div>
+        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+        <div class="cam-note" id="cam-note" data-i18n="cam_note"></div>
       </div>
-      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button><span class="hint" data-i18n="orig_hint"></span></div>
-      <div class="cam-note" data-i18n="cam_note"></div>
     </div>
   </section>
 
@@ -504,7 +528,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
   <div id="viewer" class="overlay"><div class="ov-bar"><button class="link" id="viewer-close" data-i18n="back"></button><span id="viewer-title" class="hint"></span></div><div id="vreels" class="reels vreels"></div><div id="vreels-dist" class="reel-dist" hidden></div></div>
   <div id="login">
     <div class="login-card">
-      <div class="brand">Coverrrup</div>
+      <div class="brand"><svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><clipPath id="lc"><circle cx="24" cy="24" r="21"/></clipPath></defs><circle cx="24" cy="24" r="22" fill="#3A2A1F"/><path d="M-3.90 0V48M0 -3.90H48M2.30 0V48M0 2.30H48M8.50 0V48M0 8.50H48M14.70 0V48M0 14.70H48M20.90 0V48M0 20.90H48M27.10 0V48M0 27.10H48M33.30 0V48M0 33.30H48M39.50 0V48M0 39.50H48M45.70 0V48M0 45.70H48M51.90 0V48M0 51.90H48" stroke="#5A4A3E" stroke-width=".6" fill="none" clip-path="url(#lc)"/><g fill="#8FB6E8"><rect x="15.44" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="21.64" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="27.84" y="9.24" width="4.71" height="4.71" rx="1.1"/><rect x="34.04" y="15.44" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="15.44" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="21.64" width="4.71" height="4.71" rx="1.1"/><rect x="9.24" y="27.84" width="4.71" height="4.71" rx="1.1"/><rect x="15.44" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="21.64" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="27.84" y="34.04" width="4.71" height="4.71" rx="1.1"/><rect x="34.04" y="27.84" width="4.71" height="4.71" rx="1.1"/></g><circle cx="24" cy="24" r="22" fill="none" stroke="#8FB6E8" stroke-width="2"/></svg>Coverrrup</div>
       <div class="chips lang-top"><button class="chip-btn" data-lang="ko">한국어</button><button class="chip-btn" data-lang="en">English</button><button class="chip-btn" data-lang="zh">中文</button></div>
       <h1 data-i18n="login_h"></h1>
       <p class="sub" data-i18n="login_p"></p>
@@ -618,7 +642,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',
  need_loc:'위치를 먼저 받아야 올릴 수 있어요',up_first:'첫 사진이에요. 이 칸은 이제 내가 덮었어요',up_ok:'올렸어요 ({n}장째)',up_fail:'올리지 못했어요: {e}',
  loading_fail:'데이터를 불러오지 못했어요: {e}',like_fail:'좋아요를 저장하지 못했어요',name_saved:'이름을 저장했어요',name_fail:'이름을 저장하지 못했어요',no_geo:'이 브라우저는 위치 기능이 없어요',locating:'위치를 확인하고 있어요',geo_denied:'위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요',server_fail:'서버 설정을 불러오지 못했어요',
- orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',likes_sum:'좋아요',people:'참여',all_photos:'모든 사진',covers_only:'커버만',sub_covers:'이 안의 커버들',edit:'수정',tab_follow:'팔로우',follow:'팔로우',following:'팔로우 중',follow_empty:'팔로우한 지역이 없어요',follow_empty_p:'커버맵에서 구역을 열고 팔로우를 누르면<br>그 지역의 새 사진이 여기에 모여요.',followed_regions:'팔로우한 지역',follow_fail:'팔로우를 저장하지 못했어요',user_photos:'사진',user_cells:'칸',back:'뒤로',geo_loading:'지역명 찾는 중',viewer_of:'{name}의 사진',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
+ orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',likes_sum:'좋아요',people:'참여',all_photos:'모든 사진',covers_only:'커버만',sub_covers:'이 안의 커버들',edit:'수정',tab_follow:'팔로우',follow:'팔로우',following:'팔로우 중',follow_empty:'팔로우한 지역이 없어요',follow_empty_p:'커버맵에서 구역을 열고 팔로우를 누르면<br>그 지역의 새 사진이 여기에 모여요.',followed_regions:'팔로우한 지역',follow_fail:'팔로우를 저장하지 못했어요',user_photos:'사진',user_cells:'칸',back:'뒤로',geo_loading:'지역명 찾는 중',viewer_of:'{name}의 사진',tool_text:'글씨',tool_emoji:'이모지',tool_filter:'필터',caption_ph:'문구를 남겨요 (선택)',add_text_ph:'글씨를 입력',done:'완료',size:'크기',color:'색',remove:'삭제',tap_to_edit:'스티커를 끌어 옮기고, 누르면 크기·색을 바꿀 수 있어요',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
  ago_now:'방금',ago_m:'{n}분 전',ago_h:'{n}시간 전',ago_d:'{n}일 전',ago_mo:'{n}달 전',traveler:'여행자'},
 en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab_me:'Me',
  lvl1:'2,200 km region',lvl2:'110 km region',lvl3:'5.5 km area',lvl4:'275 m block',lvl5:'14 m cell',zone:'block',cell:'cell',
@@ -643,7 +667,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',
  need_loc:'Location is required to upload',up_first:'First photo! This cell is now yours',up_ok:'Uploaded (photo #{n})',up_fail:'Upload failed: {e}',
  loading_fail:'Could not load data: {e}',like_fail:'Could not save the like',name_saved:'Name saved',name_fail:'Could not save the name',no_geo:'This browser has no location support',locating:'Finding your location',geo_denied:'Location permission is needed. Allow it in browser settings.',server_fail:'Could not load server settings',
- orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',likes_sum:'Likes',people:'People',all_photos:'All photos',covers_only:'Covers only',sub_covers:'Covers inside',edit:'Edit',tab_follow:'Follow',follow:'Follow',following:'Following',follow_empty:'No followed areas yet',follow_empty_p:'Open a block on the map and tap Follow.<br>New photos from those areas gather here.',followed_regions:'Followed areas',follow_fail:'Could not save the follow',user_photos:'Photos',user_cells:'Cells',back:'Back',geo_loading:'Finding place name',viewer_of:'Photos by {name}',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
+ orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',likes_sum:'Likes',people:'People',all_photos:'All photos',covers_only:'Covers only',sub_covers:'Covers inside',edit:'Edit',tab_follow:'Follow',follow:'Follow',following:'Following',follow_empty:'No followed areas yet',follow_empty_p:'Open a block on the map and tap Follow.<br>New photos from those areas gather here.',followed_regions:'Followed areas',follow_fail:'Could not save the follow',user_photos:'Photos',user_cells:'Cells',back:'Back',geo_loading:'Finding place name',viewer_of:'Photos by {name}',tool_text:'Text',tool_emoji:'Emoji',tool_filter:'Filter',caption_ph:'Write a caption (optional)',add_text_ph:'Type your text',done:'Done',size:'Size',color:'Color',remove:'Remove',tap_to_edit:'Drag stickers to move; tap to change size and color',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
  ago_now:'just now',ago_m:'{n}m ago',ago_h:'{n}h ago',ago_d:'{n}d ago',ago_mo:'{n}mo ago',traveler:'Traveler'},
 zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',tab_me:'我',
  lvl1:'2,200公里区域',lvl2:'110公里区域',lvl3:'5.5公里地区',lvl4:'275米街区',lvl5:'14米格子',zone:'街区',cell:'格子',
@@ -668,7 +692,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',
  need_loc:'需要先获取位置才能上传',up_first:'第一张！这个格子现在是你的了',up_ok:'已上传（第{n}张）',up_fail:'上传失败：{e}',
  loading_fail:'数据加载失败：{e}',like_fail:'点赞保存失败',name_saved:'名字已保存',name_fail:'名字保存失败',no_geo:'此浏览器不支持定位',locating:'正在定位',geo_denied:'需要位置权限，请在浏览器设置中允许',server_fail:'无法加载服务器设置',
- orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',likes_sum:'点赞',people:'参与者',all_photos:'全部照片',covers_only:'仅封面',sub_covers:'内部封面',edit:'编辑',tab_follow:'关注',follow:'关注',following:'已关注',follow_empty:'还没有关注的地区',follow_empty_p:'在地图上打开街区并点击关注，<br>这些地区的新照片会汇集在这里。',followed_regions:'关注的地区',follow_fail:'关注保存失败',user_photos:'照片',user_cells:'格子',back:'返回',geo_loading:'正在查找地名',viewer_of:'{name}的照片',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
+ orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',likes_sum:'点赞',people:'参与者',all_photos:'全部照片',covers_only:'仅封面',sub_covers:'内部封面',edit:'编辑',tab_follow:'关注',follow:'关注',following:'已关注',follow_empty:'还没有关注的地区',follow_empty_p:'在地图上打开街区并点击关注，<br>这些地区的新照片会汇集在这里。',followed_regions:'关注的地区',follow_fail:'关注保存失败',user_photos:'照片',user_cells:'格子',back:'返回',geo_loading:'正在查找地名',viewer_of:'{name}的照片',tool_text:'文字',tool_emoji:'表情',tool_filter:'滤镜',caption_ph:'写点什么（可选）',add_text_ph:'输入文字',done:'完成',size:'大小',color:'颜色',remove:'删除',tap_to_edit:'拖动贴纸移动，点击可改大小和颜色',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
  ago_now:'刚刚',ago_m:'{n}分钟前',ago_h:'{n}小时前',ago_d:'{n}天前',ago_mo:'{n}个月前',traveler:'旅行者'}};
 let LANG=localStorage.getItem('ctw-lang')||(navigator.language.startsWith('ko')?'ko':navigator.language.startsWith('zh')?'zh':'en');
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ko[k]||k;if(vars)for(const v in vars)s=s.replace(new RegExp('\\{'+v+'\\}','g'),vars[v]);return s}
@@ -691,17 +715,20 @@ function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map()
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
 const thumbPath=path=>path.replace(/\.jpg$/,'_t.jpg');
-// 지역명 (OpenStreetMap Nominatim, 275m 구역 단위로 캐시)
+// 지역명 (OpenStreetMap Nominatim). 레벨별로 캐시: 칸/구역=동 단위(zoom16), 5.5km=구(12), 110km=시/도(8), 그 이상=국가(5)
 const GEO=JSON.parse(localStorage.getItem('ctw-geo')||'{}'),geoQ=[];let geoBusy=false;
-function geoName(key){const k8=key.slice(0,8),ck=k8+':'+LANG;if(GEO[ck])return GEO[ck];if(!geoQ.includes(ck)){geoQ.push(ck);pumpGeo()}return null}
-async function pumpGeo(){if(geoBusy||!geoQ.length)return;geoBusy=true;const ck=geoQ.shift(),[k8,lang]=ck.split(':'),b=OLC.bounds(k8);
-  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&lat=${b.lat}&lon=${b.lng}&accept-language=${lang==='zh'?'zh-CN':lang}`,{headers:{'Accept':'application/json'}});const j=await r.json();const a=j.address||{};
-    const parts=[a.city||a.state||a.province||a.county,a.borough||a.city_district||a.district||a.county,a.suburb||a.quarter||a.neighbourhood||a.village||a.town||a.hamlet].filter((v,i,arr)=>v&&arr.indexOf(v)===i);
+const GEO_ZOOM={5:16,4:16,3:12,2:8,1:5};
+function geoKey(key,p){p=p||Math.min(5,key.length/2);const lvl=Math.min(4,p);return{k:key.slice(0,2*lvl),z:GEO_ZOOM[p]||16}}
+function geoName(key,p){const {k,z}=geoKey(key,p),id=k+':'+z,ck=id+':'+LANG;if(GEO[ck])return GEO[ck];if(!geoQ.includes(ck)){geoQ.push(ck);if(geoQ.length>6)geoQ.shift();pumpGeo()}return null}
+async function pumpGeo(){if(geoBusy||!geoQ.length)return;geoBusy=true;const ck=geoQ.shift(),[k,z,lang]=ck.split(':'),b=OLC.bounds(k);
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=${z}&lat=${b.lat}&lon=${b.lng}&accept-language=${lang==='zh'?'zh-CN':lang}`,{headers:{'Accept':'application/json'}});const j=await r.json();const a=j.address||{};
+    let parts;if(+z<=5)parts=[a.country];else if(+z<=8)parts=[a.country,a.state||a.province||a.city];else if(+z<=12)parts=[a.city||a.state||a.province,a.borough||a.city_district||a.district||a.county||a.town];else parts=[a.city||a.state||a.province||a.county,a.borough||a.city_district||a.district||a.county,a.suburb||a.quarter||a.neighbourhood||a.village||a.town||a.hamlet];
+    parts=parts.filter((v,i,arr)=>v&&arr.indexOf(v)===i);
     GEO[ck]=parts.join(' ')||(j.display_name||'').split(',').slice(0,2).join(',')||'';localStorage.setItem('ctw-geo',JSON.stringify(GEO));
-    $$(`[data-geo="${k8}"]`).forEach(el=>{if(GEO[ck])el.textContent=GEO[ck]})}
+    $$(`[data-geo="${k}:${z}"]`).forEach(el=>{if(GEO[ck])el.textContent=GEO[ck]})}
   catch(e){console.warn('geo',e)}
   setTimeout(()=>{geoBusy=false;pumpGeo()},1100)}
-const geoHTML=key=>{const n=geoName(key);return`<span class="geo" data-geo="${key.slice(0,8)}">${n?esc(n):''}</span>`};
+const geoHTML=(key,p)=>{const {k,z}=geoKey(key,p),n=geoName(key,p);return`<span class="geo" data-geo="${k}:${z}">${n?esc(n):''}</span>`};
 const placeTitle=key=>`${geoHTML(key)} <span class="mono dim">(${esc(key.slice(4,8))}${key.length>=10?'+'+esc(key.slice(8)):''})</span>`;
 const avatarHTML=u=>{const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return`<span class="av" data-user="${u.id||''}">${url?`<img src="${url}" alt="">`:esc((nm||'?')[0])}</span>`};
 const userLink=p=>`<span class="ulink" data-user="${p.user.id||''}">${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</span>`;
@@ -710,14 +737,14 @@ const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 // ---------- 데이터
 async function loadWorld(){if(!sb)return;
   const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms},{data:fls}]=await Promise.all([
-    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(8000),
+    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,caption,created_at').order('created_at',{ascending:false}).limit(8000),
     sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name,avatar_path'),sb.from('comments').select('photo_id'),S.user?sb.from('follows').select('key'):Promise.resolve({data:[]})]);
   if(error||e2){console.warn(error||e2);toast(t('loading_fail',{e:(error||e2).message||''}));return}
   const names=new Map();S.avatars=new Map();for(const p of profs||[]){names.set(p.id,p.name);if(p.avatar_path)S.avatars.set(p.id,pubUrl(p.avatar_path))}
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
   S.follows=new Set((fls||[]).map(f=>f.key));S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
   S.world=new Map();S.photos=new Map();
-  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
+  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,caption:r.caption||'',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
   rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='feed')renderFeed(true);if(S.tab==='follow')renderFollow(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
 function maybeReload(){if(Date.now()-S.lastLoad>30000)loadWorld()}
 
@@ -800,7 +827,7 @@ function drawTile(c,x,y,w,h,e,p,k){const pad=w>28?1.5:0.5,rx=x+pad,ry=y+pad,rw=w
   if(w>=44){c.font='500 10px '+SANS;const tx=p<5?e.cells+' '+t('cell'):'♥'+e.cover.likes+(e.photos>1?'  '+t('photos_n',{n:e.photos}):'');const tw=c.measureText(tx).width+10,th=16;const px=p<5?rx+rw-4-tw:rx+4,py=p<5?ry+rh-4-th:ry+4;
     c.fillStyle=C.pill;c.beginPath();roundRect(c,px,py,tw,th,8);c.fill();c.fillStyle=C.ink;c.textBaseline='middle';c.textAlign='left';c.fillText(tx,px+5,py+th/2+0.5)}}
 
-function updateMapChrome(p){const cen=center();$('#hdr-place').textContent=p>=4?OLC.short(OLC.key(cen.lat,cen.lng,4))+' '+t('zone'):labelFor(OLC.key(cen.lat,cen.lng,Math.max(1,p)))+' · '+LEVEL_NAME(p);$('#hdr-code').textContent=OLC.format(OLC.key(cen.lat,cen.lng,Math.max(2,p)));$('#lvl').textContent=LEVEL_NAME(p);
+function updateMapChrome(p){const cen=center(),key=OLC.key(cen.lat,cen.lng,Math.max(1,p)),k4=OLC.key(cen.lat,cen.lng,4);const hp=$('#hdr-place');const sig=key+':'+p+':'+LANG;if(hp.dataset.sig!==sig){hp.dataset.sig=sig;hp.innerHTML=`${geoHTML(k4,p)} <span class="mono dim">${p>=4?esc(k4.slice(4)):esc(labelFor(key))}</span>`}$('#hdr-code').textContent=OLC.format(OLC.key(cen.lat,cen.lng,Math.max(2,p)))+'  ·  '+LEVEL_NAME(p);$('#lvl').textContent=LEVEL_NAME(p);
   const P=pxPerDeg(),pxm=P.y/111320;const targets=[10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000,2000000,5000000];let best=10;for(const tg of targets)if(tg*pxm<=110)best=tg;$('#scalebar span').style.width=(best*pxm)+'px';$('#scalebar b').textContent=best>=1000?(best/1000)+'km':best+'m'}
 
 function bindMapInput(){const el=map.canvas,ptrs=new Map();let last=null,tap=null;
@@ -844,7 +871,7 @@ function blockSheetHTML(key){const b=OLC.bounds(key),e=(S.agg[b.p]||new Map()).g
   return h}
 function photoSheetHTML(ph){const b=OLC.bounds(ph.key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),cell=S.world.get(ph.key),isCover=cell&&coverOf(cell)===ph;
   return`<div class="sh-head"><div><div class="sh-title">${userLink(ph)}</div><div class="sh-sub"><span>${geoHTML(ph.key)}</span><span class="mono">${OLC.format(ph.key)}</span><span>${t('from_me',{d:fmtDist(dist)})}</span><span>${timeAgo(ph.ts)}, ${filterName(ph.filter)}</span></div></div></div>
-  <div class="cover tall"><div class="ph" data-photo="${ph.id}" data-size="large"></div><div class="cover-badges">${isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div></div>
+  <div class="cover tall"><div class="ph" data-photo="${ph.id}" data-size="large"></div><div class="cover-badges">${isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div></div>${ph.caption?`<p class="cap big">${esc(ph.caption)}</p>`:''}
   <div class="row2 acts">${likeBtn(ph)}${cmtBtn(ph)}<button class="like" data-open-key="${ph.key}">▦ ${OLC.short(ph.key)}</button>${ph.user.me?`<button class="like" data-edit="${ph.id}">✎ ${t('edit')}</button>`:''}</div>`}
 const followBtn=key=>{const k=key.length>8?key.slice(0,8):key;const on=S.follows.has(k);return`<button class="like fol ${on?'on':''}" data-follow="${k}">${on?'✓ '+t('following'):'+ '+t('follow')}</button>`};
 async function toggleFollow(k){if(!S.user)return needLogin();const on=S.follows.has(k);if(on)S.follows.delete(k);else S.follows.add(k);refreshSheet();if(S.tab==='follow')renderFollow(true);
@@ -902,7 +929,7 @@ function renderReels(id,items,reset,emptyHTML,startAt){const st=reelState(id),el
 function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
   return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}" data-open-key="${it.g}">${it.mine?t('my_zone')+' · ':''}${geoHTML(it.g)}</span><span class="badge dark mono" data-open-key="${it.c.key}">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div>
   <div class="reel-card" data-open-photo="${p.id}"><img data-src="${p.full}" src="${p.thumb}" alt="" style="filter:${cssFilter(f)}"></div>
-  <div class="reel-bottom"><div class="reel-info"><b>${userLink(p)}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
+  <div class="reel-bottom"><div class="reel-info"><b>${userLink(p)}</b>${p.caption?`<p class="cap">${esc(p.caption)}</p>`:''}<span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
   <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}</div></div></div></article>`}
 function updateReelDist(id){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');if(!el||!el.clientHeight||!st.items.length)return;const i=Math.round(el.scrollTop/el.clientHeight);st.cur=i;const it=st.items[Math.min(i,st.items.length-1)];
   if(dist)dist.innerHTML=`<small>${t('dist_label')}</small><b>${it.d<20?t('here'):fmtDist(it.d)}</b>`;
@@ -982,8 +1009,8 @@ async function signOut(){await sb.auth.signOut();toast(t('signed_out'))}
 function buildFilterChips(){const sample=sampleSwatch();$('#filters').innerHTML=FILTERS.map(f=>`<button class="fchip${f===S.filter?' on':''}" data-f="${f.id}"><span class="sw"><img src="${sample}" alt="" style="filter:${cssFilter(f)}"></span>${t('f_'+f.id)}</button>`).join('')}
 function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,'#FFD6A5');g.addColorStop(.7,'#FF8E72');x.fillStyle=g;x.fillRect(0,0,64,64);x.fillStyle='#3E3A55';x.fillRect(0,40,64,24);x.fillStyle='#FFF6DA';x.beginPath();x.arc(40,18,8,0,7);x.fill();return c.toDataURL()}
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id))}
-function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#shot').classList.toggle('show',st==='review');$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
-  $('#shutter').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=st!=='review';$('#orig-toggle').classList.toggle('on',saveOrig);
+function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
+  $('#shutter').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');$('#filters').hidden=st==='review'&&tool!=='filter';$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
   $('#cam-status').textContent=st==='starting'?t('cam_prep'):st==='review'?t('cam_review'):'';applyPreviewFilter()}
 async function startCamera(){if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
   try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:4096},height:{ideal:4096}},audio:false});
@@ -999,8 +1026,31 @@ const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==
 async function saveOriginal(){if(!saveOrig||!S.cam.orig)return;let blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);const name='coverrrup-'+new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)+'.jpg';
   if(IS_IOS){try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
-function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);setCamState('review')}
-function resetShot(){S.cam.shot=null;S.cam.orig=null;S.cam.origBlob=null;$('#shot').removeAttribute('src')}
+function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;$('#caption').value='';setTool(null);renderStickers();setCamState('review')}
+// --- 스티커(글씨/이모지)
+const EMOJIS=['😀','😂','🥹','😍','😎','🤩','😭','🥰','😴','🤔','🙌','👍','👏','🙏','✌️','🤙','💪','❤️','🧡','💛','💚','💙','💜','🔥','✨','⭐','🌟','💫','🎉','🎈','🎂','🍕','🍔','🍜','☕','🍺','🌸','🌈','☀️','🌙','⛅','🌊','🏖️','⛰️','🗼','🏙️','🚲','✈️','🚗','📍','📸','🎵','⚽','🏀','🐶','🐱','🦋','🍀','💯','🆒'];
+const COLORS=['#FFFFFF','#141A24','#E0876F','#FFC933','#9FD8B3','#8FB6E8','#FF4F8F','#A855F7'];
+let tool=null,drag=null;
+function setTool(name){tool=tool===name?null:name;$$('.tool').forEach(b=>b.classList.toggle('on',b.dataset.tool===tool));$('#filters').hidden=tool!=='filter'&&S.cam.state==='review';renderPanel()}
+function renderPanel(){const pn=$('#edit-panel');const sel=S.cam.sel!=null?S.cam.stickers.find(x=>x.id===S.cam.sel):null;
+  if(tool==='text'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><input id="stk-text" class="email-in" maxlength="60" placeholder="${t('add_text_ph')}"><button class="btn primary small" id="stk-add">${t('done')}</button></div>`;$('#stk-add').addEventListener('click',()=>{const v=$('#stk-text').value.trim();if(!v)return;addSticker({type:'text',text:v,color:'#FFFFFF',size:0.09});setTool(null)});$('#stk-text').focus();return}
+  if(tool==='emoji'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="emoji-grid">${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>`;pn.querySelectorAll('.emo').forEach(b=>b.addEventListener('click',()=>{addSticker({type:'emoji',text:b.dataset.emo,size:0.18});setTool(null)}));return}
+  if(sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><label class="hint">${t('size')}</label><input type="range" id="stk-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="stk-del">${t('remove')}</button></div>${sel.type==='text'?`<div class="swatches">${COLORS.map(c=>`<button class="sw ${sel.color===c?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>`:''}`;
+    $('#stk-size').addEventListener('input',e=>{sel.size=+e.target.value;renderStickers()});$('#stk-del').addEventListener('click',()=>{S.cam.stickers=S.cam.stickers.filter(x=>x!==sel);S.cam.sel=null;renderStickers();renderPanel()});
+    pn.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{sel.color=b.dataset.c;renderStickers();renderPanel()}));return}
+  pn.hidden=true;pn.innerHTML=''}
+function addSticker(st){st.id=Date.now()+Math.random();st.x=0.5;st.y=0.5;S.cam.stickers.push(st);S.cam.sel=st.id;renderStickers();renderPanel()}
+function renderStickers(){const box=$('#shot-box'),W=box.clientWidth,H=box.clientHeight,layer=$('#stickers');layer.innerHTML=S.cam.stickers.map(st=>`<div class="stk ${st.id===S.cam.sel?'sel':''} ${st.type}" data-id="${st.id}" style="left:${st.x*100}%;top:${st.y*100}%;font-size:${st.size*W}px;color:${st.color||'#fff'}">${esc(st.text).replace(/\n/g,'<br>')}</div>`).join('')}
+function bindStickers(){const layer=$('#stickers'),box=$('#shot-box');
+  layer.addEventListener('pointerdown',e=>{const el=e.target.closest('.stk');if(!el){S.cam.sel=null;renderStickers();renderPanel();return}const st=S.cam.stickers.find(x=>String(x.id)===el.dataset.id);if(!st)return;S.cam.sel=st.id;renderStickers();renderPanel();layer.setPointerCapture(e.pointerId);const r=box.getBoundingClientRect();drag={st,dx:(e.clientX-r.left)/r.width-st.x,dy:(e.clientY-r.top)/r.height-st.y,moved:false}});
+  layer.addEventListener('pointermove',e=>{if(!drag)return;const r=box.getBoundingClientRect();drag.st.x=clamp((e.clientX-r.left)/r.width-drag.dx,0.02,0.98);drag.st.y=clamp((e.clientY-r.top)/r.height-drag.dy,0.02,0.98);drag.moved=true;renderStickers()});
+  const up=()=>{drag=null};layer.addEventListener('pointerup',up);layer.addEventListener('pointercancel',up);
+  new ResizeObserver(()=>{if(S.cam.state==='review')renderStickers()}).observe(box)}
+function bakeStickers(src){if(!S.cam.stickers||!S.cam.stickers.length)return src;const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const x=c.getContext('2d');x.drawImage(src,0,0);
+  for(const st of S.cam.stickers){const fs=st.size*c.width;x.font=`700 ${fs}px ${SANS}`;x.textAlign='center';x.textBaseline='middle';const lines=st.text.split('\n');
+    lines.forEach((ln,i)=>{const y=st.y*c.height+(i-(lines.length-1)/2)*fs*1.15;if(st.type==='text'){x.shadowColor='rgba(0,0,0,.55)';x.shadowBlur=fs*0.12;x.shadowOffsetY=fs*0.04;x.fillStyle=st.color||'#fff'}else{x.shadowColor='transparent'}x.fillText(ln,st.x*c.width,y)})}
+  x.shadowColor='transparent';return c}
+function resetShot(){S.cam.shot=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;$('#shot').removeAttribute('src');$('#stickers').innerHTML='';$('#edit-panel').hidden=true;tool=null}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
   const st=S.me.src!=='gps'?t('cam_place_noloc'):n===0?t('cam_place_empty'):t('cam_place_n',{n});
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps'}
@@ -1008,12 +1058,12 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
   const key=OLC.key(S.me.lat,S.me.lng),cell=ensureCell(key);
   const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal();
   try{const id=crypto.randomUUID(),path=`${S.user.id}/${id}.jpg`;
-    const [fb,tb]=await Promise.all([canvasBlob(S.cam.shot,0.82),canvasBlob(makeThumbCanvas(S.cam.shot,S.filter),0.75)]);
+    const src=bakeStickers(S.cam.shot),caption=$('#caption').value.trim().slice(0,200);const [fb,tb]=await Promise.all([canvasBlob(src,0.82),canvasBlob(makeThumbCanvas(src,S.filter),0.75)]);
     const u1=await sb.storage.from('photos').upload(path,fb,{contentType:'image/jpeg'});if(u1.error)throw u1.error;
     const u2=await sb.storage.from('photos').upload(thumbPath(path),tb,{contentType:'image/jpeg'});if(u2.error)throw u2.error;
-    const {error}=await sb.from('photos').insert({id,cell:key,lat:S.me.lat,lng:S.me.lng,user_id:S.user.id,filter:S.filter.id,path});
+    const {error}=await sb.from('photos').insert({id,cell:key,lat:S.me.lat,lng:S.me.lng,user_id:S.user.id,filter:S.filter.id,path,caption:caption||null});
     if(error){await sb.storage.from('photos').remove([path,thumbPath(path)]);throw error}
-    const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:Date.now(),likes:0,filter:S.filter.id,path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path)};cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();
+    const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:Date.now(),likes:0,filter:S.filter.id,caption,path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path)};cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();
     resetShot();setCamState(S.cam.stream?'live':'fallback');switchTab('map');S.selected=key;map.anims.set(key,performance.now());const b=OLC.bounds(key);requestAnimationFrame(()=>centerOn(b.lat,b.lng,160,true));
     toast(first?t('up_first'):t('up_ok',{n:cell.photos.length}));updateCamPlace();setTimeout(()=>openCellSheet(key),600)}
   catch(e){console.warn(e);toast(t('up_fail',{e:e.message||e}))}
@@ -1056,6 +1106,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
     setOriginal(src,sw,sh);S.cam.shot=cropTo34(src,sw,sh);showReview()});
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(S.cam.stream?'live':'fallback')});
   $('#upload').addEventListener('click',uploadShot);
+  $$('.tool').forEach(b=>b.addEventListener('click',()=>{S.cam.sel=null;renderStickers();setTool(b.dataset.tool)}));bindStickers();
   $('#orig-toggle').addEventListener('click',()=>{saveOrig=!saveOrig;localStorage.setItem('ctw-saveorig',saveOrig?'1':'0');$('#orig-toggle').classList.toggle('on',saveOrig)});
   $('#file-in').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{setOriginal(im,im.naturalWidth,im.naturalHeight);S.cam.shot=cropTo34(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);showReview()};im.onerror=()=>toast(t('img_fail'));im.src=url;e.target.value=''});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();else{if(S.tab==='camera'&&S.cam.state==='live')startCamera();maybeReload()}});
