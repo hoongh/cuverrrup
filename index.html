@@ -317,6 +317,13 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .cform .email-in{margin-top:0}
 .cform .btn{white-space:nowrap}
 .lang-top{margin-bottom:6px}
+#pf-avatar-l{position:relative;cursor:pointer;overflow:visible}
+#pf-avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#pf-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.av-edit{position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:var(--flag);color:var(--bg);font-size:14px;font-style:normal;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.av{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#3A332D;color:var(--ink);font-size:11px;align-items:center;justify-content:center;overflow:hidden;vertical-align:-6px;margin-right:6px;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
+.reel-info .av{width:26px;height:26px;vertical-align:-7px}
 .orig-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;text-align:center}
 .orig-row .hint{color:#7E756D;font-size:11px}
 .chip-btn.tog{display:inline-flex;align-items:center;gap:8px;color:#B7ADA2;border-color:rgba(255,255,255,.3)}
@@ -401,7 +408,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <p class="tagline">Let's coverrrup the world!!</p>
       <p class="sub" data-i18n="me_sub"></p>
       <div class="pf-card">
-        <div class="avatar" id="pf-avatar">🧭</div>
+        <label class="avatar" id="pf-avatar-l"><span id="pf-avatar"></span><input type="file" accept="image/*" id="pf-avatar-in" hidden><i class="av-edit">+</i></label>
         <div class="pf-main"><input id="pf-name" maxlength="16" class="name-in" aria-label="이름"><div class="pf-since" id="pf-since"></div></div>
         <button class="btn small" id="pf-save" data-i18n="save"></button>
       </div>
@@ -551,10 +558,10 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  hint_map:'칸을 탭하면 사진이 열려요. 지금 있는 칸에서만 찍을 수 있어요.',legend_mine:'내가 덮음',legend_other:'다른 사람',legend_empty:'빈 칸',
  here:'지금 여기',from_me:'나에게서 {d}',photos_n:'{n}장',cover:'커버',best:'베스트',me:'나',anon:'익명',
  empty_cell:'아직 아무도 덮지 않은 칸',empty_cell_p:'첫 사진을 올리면 이 칸의 커버가 돼요. 이후엔 좋아요가 가장 많은 사진이 커버가 됩니다.',
- shoot_here:'여기서 커버럽',must_be_here:'이 칸에 직접 가야 찍을 수 있어요. 지금 위치에서 {d} 떨어져 있어요.',rule:'커버는 좋아요가 가장 많은 사진, 같으면 가장 최근 사진',
+ shoot_here:'여기서 커버럽',must_be_here:'이 칸에 직접 가야 찍을 수 있어요. 지금 위치에서 {d} 떨어져 있어요.',rule:'커버는 좋아요가 가장 많은 사진, 같으면 먼저 올린 사진',
  covered_cells:'덮인 칸',photos:'사진',coverage:'커버율',empty_zone:'아직 비어 있는 {name}',empty_zone_p:'이 안의 14m 칸 {n}개 중 덮인 곳이 없어요.',zoom_in:'확대해서 보기',
  mine_title:'내 커버',mine_stats:'덮은 칸 {n}개, 그중 내 사진이 커버인 칸 {c}개',mine_empty:'아직 덮은 칸이 없어요',mine_empty_p:"지금 있는 곳에서 첫 사진을 올리면<br>그 칸의 커버가 돼요. Let's coverrrup!",first_photo:'첫 사진 올리기',region:'지역',block:'275m 블록',my_photos_n:'내 사진 {n}',others_n:'다른 사람 {n}',none_yet:'아직 없어요',cover_is_mine:'내 사진이 커버',cover_by:'커버는 {name}',
- feed_empty:'주변에 아직 사진이 없어요',feed_empty_p:'첫 사진을 올려 이 동네를 열어 보세요.',do_cover:'커버럽 하기',feed_end:'여기까지예요. 다음 칸은 아직 아무도 덮지 않았어요.',my_zone:'내 칸',near_zone:'옆 칸',dist_label:'나에게서',
+ feed_empty:'주변에 아직 사진이 없어요',feed_empty_p:'첫 사진을 올려 이 동네를 열어 보세요.',do_cover:'커버럽 하기',feed_end:'여기까지예요. 다음 칸은 아직 아무도 덮지 않았어요.',my_zone:'내 구역',near_zone:'구역',dist_label:'나에게서',
  comments:'댓글',comment_ph:'댓글을 남겨요',send:'보내기',no_comments:'첫 댓글을 남겨보세요',comment_fail:'댓글을 저장하지 못했어요',
  edit_title:'내 사진 수정',delete:'지우기',save_filter:'필터 저장',del_confirm:'정말 지울까요? 다시 누르면 삭제',edit_rule:'다시 찍기는 없어요. 지금 그 자리에서 새로 찍어 올리면 돼요.',
  changing:'필터를 바꾸고 있어요',changed:'필터를 {f}으로 바꿨어요',change_fail:'필터를 저장하지 못했어요',del_fail:'지우지 못했어요',deleted:'사진을 지웠어요',deleted_empty:'사진을 지웠어요. 이 칸은 다시 빈 칸이 됐어요',
@@ -569,17 +576,17 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',
  need_loc:'위치를 먼저 받아야 올릴 수 있어요',up_first:'첫 사진이에요. 이 칸은 이제 내가 덮었어요',up_ok:'올렸어요 ({n}장째)',up_fail:'올리지 못했어요: {e}',
  loading_fail:'데이터를 불러오지 못했어요: {e}',like_fail:'좋아요를 저장하지 못했어요',name_saved:'이름을 저장했어요',name_fail:'이름을 저장하지 못했어요',no_geo:'이 브라우저는 위치 기능이 없어요',locating:'위치를 확인하고 있어요',geo_denied:'위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요',server_fail:'서버 설정을 불러오지 못했어요',
- save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
+ orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
  ago_now:'방금',ago_m:'{n}분 전',ago_h:'{n}시간 전',ago_d:'{n}일 전',ago_mo:'{n}달 전',traveler:'여행자'},
 en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab_me:'Me',
  lvl1:'2,200 km region',lvl2:'110 km region',lvl3:'5.5 km area',lvl4:'275 m block',lvl5:'14 m cell',zone:'block',cell:'cell',
  hint_map:'Tap a cell to see its photos. You can only shoot in the cell you are standing in.',legend_mine:'Mine',legend_other:'Others',legend_empty:'Empty',
  here:'You are here',from_me:'{d} from you',photos_n:'{n} photos',cover:'Cover',best:'Best',me:'Me',anon:'Anonymous',
  empty_cell:'Nobody has covered this cell yet',empty_cell_p:'Your first photo becomes the cover. After that, the most-liked photo is the cover.',
- shoot_here:'Coverrrup here',must_be_here:'You need to be in this cell to shoot. It is {d} from your location.',rule:'The cover is the most-liked photo; ties go to the newest.',
+ shoot_here:'Coverrrup here',must_be_here:'You need to be in this cell to shoot. It is {d} from your location.',rule:'The cover is the most-liked photo; ties go to the earliest.',
  covered_cells:'Covered cells',photos:'Photos',coverage:'Coverage',empty_zone:'Empty {name}',empty_zone_p:'None of the {n} cells inside are covered yet.',zoom_in:'Zoom in',
  mine_title:'My covers',mine_stats:'{n} cells covered, my photo is the cover in {c}',mine_empty:'No cells covered yet',mine_empty_p:"Upload your first photo where you stand<br>and it becomes the cover. Let's coverrrup!",first_photo:'Upload first photo',region:'Area',block:'275 m block',my_photos_n:'Mine {n}',others_n:'Others {n}',none_yet:'None yet',cover_is_mine:'My photo is the cover',cover_by:'Cover by {name}',
- feed_empty:'No photos nearby yet',feed_empty_p:'Upload the first photo and open this neighborhood.',do_cover:'Coverrrup now',feed_end:'That is all for now. The next cell is still uncovered.',my_zone:'My cell',near_zone:'Nearby cell',dist_label:'From you',
+ feed_empty:'No photos nearby yet',feed_empty_p:'Upload the first photo and open this neighborhood.',do_cover:'Coverrrup now',feed_end:'That is all for now. The next cell is still uncovered.',my_zone:'My block',near_zone:'Block',dist_label:'From you',
  comments:'Comments',comment_ph:'Write a comment',send:'Send',no_comments:'Be the first to comment',comment_fail:'Could not save the comment',
  edit_title:'Edit my photo',delete:'Delete',save_filter:'Save filter',del_confirm:'Delete for real? Tap again',edit_rule:'There is no retake. Shoot a new photo where you stand.',
  changing:'Changing filter',changed:'Filter changed to {f}',change_fail:'Could not save the filter',del_fail:'Could not delete',deleted:'Photo deleted',deleted_empty:'Photo deleted. The cell is empty again.',
@@ -594,17 +601,17 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',
  need_loc:'Location is required to upload',up_first:'First photo! This cell is now yours',up_ok:'Uploaded (photo #{n})',up_fail:'Upload failed: {e}',
  loading_fail:'Could not load data: {e}',like_fail:'Could not save the like',name_saved:'Name saved',name_fail:'Could not save the name',no_geo:'This browser has no location support',locating:'Finding your location',geo_denied:'Location permission is needed. Allow it in browser settings.',server_fail:'Could not load server settings',
- save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
+ orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
  ago_now:'just now',ago_m:'{n}m ago',ago_h:'{n}h ago',ago_d:'{n}d ago',ago_mo:'{n}mo ago',traveler:'Traveler'},
 zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',tab_me:'我',
  lvl1:'2,200公里区域',lvl2:'110公里区域',lvl3:'5.5公里地区',lvl4:'275米街区',lvl5:'14米格子',zone:'街区',cell:'格子',
  hint_map:'点击格子查看照片。只能在你所在的格子拍照。',legend_mine:'我的',legend_other:'他人',legend_empty:'空',
  here:'你在这里',from_me:'距你 {d}',photos_n:'{n}张',cover:'封面',best:'最佳',me:'我',anon:'匿名',
  empty_cell:'这个格子还没有人覆盖',empty_cell_p:'你的第一张照片会成为封面。之后点赞最多的照片成为封面。',
- shoot_here:'在这里覆盖',must_be_here:'需要到这个格子才能拍照。距你当前位置 {d}。',rule:'封面是点赞最多的照片，相同则取最新的一张',
+ shoot_here:'在这里覆盖',must_be_here:'需要到这个格子才能拍照。距你当前位置 {d}。',rule:'封面是点赞最多的照片，相同则取最早的一张',
  covered_cells:'已覆盖格子',photos:'照片',coverage:'覆盖率',empty_zone:'尚未覆盖的{name}',empty_zone_p:'其中 {n} 个14米格子都还没有被覆盖。',zoom_in:'放大查看',
  mine_title:'我的覆盖',mine_stats:'已覆盖 {n} 个格子，其中 {c} 个以我的照片为封面',mine_empty:'还没有覆盖任何格子',mine_empty_p:"在你所在的地方上传第一张照片<br>就会成为封面。Let's coverrrup!",first_photo:'上传第一张',region:'区域',block:'275米街区',my_photos_n:'我的 {n}',others_n:'他人 {n}',none_yet:'还没有',cover_is_mine:'我的照片是封面',cover_by:'封面来自 {name}',
- feed_empty:'附近还没有照片',feed_empty_p:'上传第一张照片，开启这个街区。',do_cover:'去覆盖',feed_end:'到此为止。下一个格子还没有人覆盖。',my_zone:'我的格子',near_zone:'相邻格子',dist_label:'距你',
+ feed_empty:'附近还没有照片',feed_empty_p:'上传第一张照片，开启这个街区。',do_cover:'去覆盖',feed_end:'到此为止。下一个格子还没有人覆盖。',my_zone:'我的街区',near_zone:'街区',dist_label:'距你',
  comments:'评论',comment_ph:'写下评论',send:'发送',no_comments:'来写第一条评论',comment_fail:'评论保存失败',
  edit_title:'编辑我的照片',delete:'删除',save_filter:'保存滤镜',del_confirm:'确定删除？再点一次',edit_rule:'不能重拍。请在原地重新拍摄上传。',
  changing:'正在更换滤镜',changed:'滤镜已改为{f}',change_fail:'滤镜保存失败',del_fail:'删除失败',deleted:'照片已删除',deleted_empty:'照片已删除，这个格子又空了',
@@ -619,7 +626,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',
  need_loc:'需要先获取位置才能上传',up_first:'第一张！这个格子现在是你的了',up_ok:'已上传（第{n}张）',up_fail:'上传失败：{e}',
  loading_fail:'数据加载失败：{e}',like_fail:'点赞保存失败',name_saved:'名字已保存',name_fail:'名字保存失败',no_geo:'此浏览器不支持定位',locating:'正在定位',geo_denied:'需要位置权限，请在浏览器设置中允许',server_fail:'无法加载服务器设置',
- save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
+ orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
  ago_now:'刚刚',ago_m:'{n}分钟前',ago_h:'{n}小时前',ago_d:'{n}天前',ago_mo:'{n}个月前',traveler:'旅行者'}};
 let LANG=localStorage.getItem('ctw-lang')||(navigator.language.startsWith('ko')?'ko':navigator.language.startsWith('zh')?'zh':'en');
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ko[k]||k;if(vars)for(const v in vars)s=s.replace(new RegExp('\\{'+v+'\\}','g'),vars[v]);return s}
@@ -629,11 +636,11 @@ function applyLang(){document.documentElement.lang=LANG==='zh'?'zh-CN':LANG;$$('
   buildFilterChips();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet();requestRender()}
 function setLang(l){LANG=l;localStorage.setItem('ctw-lang',l);applyLang()}
 
-const S={user:null,profile:{name:'여행자'},me:{lat:37.4979,lng:127.0276,src:'default',acc:null},view:{lat:37.4979,lng:127.0276,scale:2.2},
+const S={user:null,profile:{name:'여행자',avatar:null},avatars:new Map(),me:{lat:37.4979,lng:127.0276,src:'default',acc:null},view:{lat:37.4979,lng:127.0276,scale:2.2},
   myLikes:new Set(),tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null},lastLoad:0,ccount:new Map()};
 
 const nameOf=ph=>ph.user.me?S.profile.name:(ph.user.name||t('anon'));
-function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts>b.ts}
+function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts<b.ts}
 function coverOf(cell){let c=null;for(const p of cell.photos)if(!c||better(p,c))c=p;return c}
 function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map(),1:new Map()};
   for(const cell of S.world.values()){if(!cell.photos.length)continue;const cov=coverOf(cell),mine=cell.photos.some(p=>p.user.me);
@@ -642,15 +649,16 @@ function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map()
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
 const thumbPath=path=>path.replace(/\.jpg$/,'_t.jpg');
+const avatarHTML=u=>{const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return url?`<span class="av"><img src="${url}" alt=""></span>`:`<span class="av">${esc((nm||'?')[0])}</span>`};
 const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 
 // ---------- 데이터
 async function loadWorld(){if(!sb)return;
   const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms}]=await Promise.all([
     sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(8000),
-    sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name'),sb.from('comments').select('photo_id')]);
+    sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name,avatar_path'),sb.from('comments').select('photo_id')]);
   if(error||e2){console.warn(error||e2);toast(t('loading_fail',{e:(error||e2).message||''}));return}
-  const names=new Map();for(const p of profs||[])names.set(p.id,p.name);
+  const names=new Map();S.avatars=new Map();for(const p of profs||[]){names.set(p.id,p.name);if(p.avatar_path)S.avatars.set(p.id,pubUrl(p.avatar_path))}
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
   S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
   S.world=new Map();S.photos=new Map();
@@ -764,7 +772,7 @@ function cellSheetHTML(key){const cell=S.world.get(key),b=OLC.bounds(key),dist=d
   const photos=cell?sortedPhotos(cell):[],cover=photos[0]||null;
   let h=`<div class="sh-head"><div><div class="sh-title">${esc(key.slice(4,8))} ${t('zone')} <span class="mono">+${esc(key.slice(8))}</span></div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?t('here'):t('from_me',{d:fmtDist(dist)})}</span><span>${t('photos_n',{n:photos.length})}</span></div></div></div>`;
   if(cover){h+=`<div class="cover"><div class="ph" data-photo="${cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">${t('cover')}</span><span class="badge dark">${cover.user.me?t('me'):esc(nameOf(cover))} ♥ ${cover.likes}</span></div></div>`;
-    h+=`<div class="plist">${photos.map(p=>`<div class="prow"><div class="ph sm" data-photo="${p.id}" data-size="small" data-reel="${p.id}"></div><div class="pinfo"><b>${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}${p===cover?', '+t('cover'):''}</span></div>${cmtBtn(p)}${likeBtn(p)}</div>`).join('')}</div>`}
+    h+=`<div class="plist">${photos.map(p=>`<div class="prow"><div class="ph sm" data-photo="${p.id}" data-size="small" data-reel="${p.id}"></div><div class="pinfo"><b>${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}${p===cover?', '+t('cover'):''}</span></div>${cmtBtn(p)}${likeBtn(p)}</div>`).join('')}</div>`}
   else h+=`<div class="empty-cell"><div class="big">${t('empty_cell')}</div><p>${t('empty_cell_p')}</p></div>`;
   if(isHere)h+=`<button class="btn primary" data-act="shoot">${t('shoot_here')}</button>`;else h+=`<div class="note">${t('must_be_here',{d:fmtDist(dist)})}</div>`;
   h+=`<div class="rule"><span>${t('rule')}</span></div>`;return h}
@@ -813,8 +821,12 @@ function openCellFromList(key){switchTab('map');const b=OLC.bounds(key);S.select
 
 // ---------- 주변 (릴스)
 const reel={items:[],shown:0,cur:0};
-function buildReelList(){const cells=[...S.world.values()].filter(c=>c.photos.length).map(c=>({c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})).sort((a,b)=>a.d-b.d);
-  const myKey=OLC.key(S.me.lat,S.me.lng),items=[];for(const {c,d} of cells){const ps=sortedPhotos(c);ps.forEach((p,i)=>items.push({p,c,d,idx:i,n:ps.length,mine:c.key===myKey}))}return items}
+function buildReelList(){const now=Date.now(),score=p=>p.likes+2/(1+(now-p.ts)/86400000);
+  const blocks=new Map();for(const c of S.world.values()){if(!c.photos.length)continue;const g=c.key.slice(0,8);if(!blocks.has(g))blocks.set(g,{g,cells:[],d:Infinity});const b=blocks.get(g);b.cells.push(c);b.d=Math.min(b.d,distM(S.me.lat,S.me.lng,c.lat,c.lng))}
+  const myG=OLC.key(S.me.lat,S.me.lng,4),items=[];
+  for(const b of [...blocks.values()].sort((a,c)=>a.d-c.d)){const ps=[];for(const c of b.cells){const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})}
+    ps.sort((a,c)=>score(c.p)-score(a.p));ps.forEach((x,i)=>items.push({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:b.g===myG,g:b.g,isCover:x.isCover}))}
+  return items}
 function renderFeed(reset){const el=$('#reels');if(reset){reel.items=buildReelList();reel.shown=0;reel.cur=0;el.innerHTML='';el.scrollTop=0}
   if(!reel.items.length){el.innerHTML=`<div class="empty reel-empty"><div class="art"></div><h3>${t('feed_empty')}</h3><p>${t('feed_empty_p')}</p><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`;$('#reel-dist').hidden=true;return}
   $('#reel-dist').hidden=false;const end=Math.min(reel.items.length,reel.shown+12);let h='';
@@ -825,8 +837,8 @@ function renderFeed(reset){const el=$('#reels');if(reset){reel.items=buildReelLi
   reel.shown=end;updateReelDist()}
 function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
   return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><img data-src="${p.full}" src="${p.thumb}" alt="" style="filter:${cssFilter(f)}">
-  <div class="reel-top"><span class="badge ${it.mine?'gold':''}">${it.mine?t('my_zone'):t('near_zone')}</span><span class="badge dark mono">${OLC.short(it.c.key)}</span>${it.idx===0?`<span class="badge gold">${t('cover')}</span>`:`<span class="badge dark">${it.idx+1}/${it.n}</span>`}</div>
-  <div class="reel-bottom"><div class="reel-info"><b>${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
+  <div class="reel-top"><span class="badge ${it.mine?'gold':''}">${it.mine?t('my_zone'):t('near_zone')} ${esc(it.g.slice(4))}</span><span class="badge dark mono">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div>
+  <div class="reel-bottom"><div class="reel-info"><b>${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
   <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}<button class="like" data-open-cell="${it.c.key}">▦</button></div></div></article>`}
 function updateReelDist(){const el=$('#reels');if(!el.clientHeight||!reel.items.length)return;const i=Math.round(el.scrollTop/el.clientHeight);reel.cur=i;const it=reel.items[Math.min(i,reel.items.length-1)];
   $('#reel-dist').innerHTML=`<small>${t('dist_label')}</small><b>${it.d<20?t('here'):fmtDist(it.d)}</b>`;
@@ -861,7 +873,7 @@ async function deletePhoto(id){const ph=S.photos.get(id);if(!ph)return;
 
 // ---------- 나
 function renderProfile(){renderMyPhotos();const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
-  $('#pf-name').value=S.profile.name;$('#pf-avatar').textContent=(S.profile.name||'?')[0];$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
+  $('#pf-name').value=S.profile.name;$('#pf-avatar').innerHTML=S.profile.avatar?`<img src="${S.profile.avatar}" alt="">`:esc((S.profile.name||'?')[0]);$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
   const pw=(v,m)=>Math.min(100,v/m*100)+'%';$('#sb-cells').style.setProperty('--w',pw(cells.length,20));$('#sb-photos').style.setProperty('--w',pw(myPhotos.length,30));$('#sb-covers').style.setProperty('--w',cells.length?pw(covers,cells.length):'0%');$('#sb-likes').style.setProperty('--w',pw(likes,50));
   const key8=OLC.key(S.me.lat,S.me.lng,4),inBlock=cells.filter(c=>c.key.startsWith(key8)).length,z=key8.slice(4);
@@ -881,8 +893,8 @@ async function initAuth(){if(!sb){toast(t('server_fail'));return}
   const {data:{session}}=await sb.auth.getSession();await applySession(session);
   sb.auth.onAuthStateChange((_e,s)=>{applySession(s)})}
 async function applySession(session){S.user=session?session.user:null;
-  if(S.user){const {data}=await sb.from('profiles').select('name').eq('id',S.user.id).maybeSingle();
-    if(data)S.profile.name=data.name;else{const nm=(S.user.user_metadata&&(S.user.user_metadata.name||S.user.user_metadata.full_name))||t('traveler');await sb.from('profiles').upsert({id:S.user.id,name:nm});S.profile.name=nm}
+  if(S.user){const {data}=await sb.from('profiles').select('name,avatar_path').eq('id',S.user.id).maybeSingle();
+    if(data){S.profile.name=data.name;S.profile.avatar=data.avatar_path?pubUrl(data.avatar_path):null}else{const nm=(S.user.user_metadata&&(S.user.user_metadata.name||S.user.user_metadata.full_name))||t('traveler');await sb.from('profiles').upsert({id:S.user.id,name:nm});S.profile.name=nm}
     $('#login').classList.remove('show')}else{S.profile.name=t('traveler');$('#login').classList.add('show')}
   await loadWorld();renderProfile()}
 async function signInGoogle(){$('#login-msg').textContent=t('login_going');const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)$('#login-msg').textContent=t('login_gerr',{e:error.message})}
@@ -908,9 +920,10 @@ function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.wid
 function canvasBlob(c,q){return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 function setOriginal(src,sw,sh){const c=document.createElement('canvas');c.width=sw;c.height=sh;c.getContext('2d').drawImage(src,0,0,sw,sh);S.cam.orig=c;S.cam.origBlob=null;canvasBlob(c,0.92).then(b=>{S.cam.origBlob=b})}
 let saveOrig=localStorage.getItem('ctw-saveorig')!=='0';
+const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 async function saveOriginal(){if(!saveOrig||!S.cam.orig)return;let blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);const name='coverrrup-'+new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)+'.jpg';
-  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}
-  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved'))}catch(e){toast(t('orig_skip'))}}
+  if(IS_IOS){try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
 function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);setCamState('review')}
 function resetShot(){S.cam.shot=null;S.cam.orig=null;S.cam.origBlob=null;$('#shot').removeAttribute('src')}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
@@ -948,7 +961,14 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#reels').addEventListener('click',handleAction);$('#reels').addEventListener('scroll',()=>{clearTimeout(reel._t);reel._t=setTimeout(updateReelDist,60)},{passive:true});
   $('#my-photos').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]');if(ed)openEditSheet(ed.dataset.edit)});
   $('#mine-list').addEventListener('click',e=>{if(handleAction(e))return;const it=e.target.closest('[data-open]');if(it)openCellFromList(it.dataset.open)});
-  const saveName=async()=>{if(!S.user)return needLogin();const v=$('#pf-name').value.trim()||t('traveler');const {error}=await sb.from('profiles').upsert({id:S.user.id,name:v});if(error){toast(t('name_fail'));return}S.profile.name=v;for(const p of S.photos.values())if(p.user.me)p.user.name=v;renderProfile();toast(t('name_saved'))};
+  const saveName=async()=>{if(!S.user)return needLogin();const v=$('#pf-name').value.trim()||t('traveler');let {error,data}=await sb.from('profiles').update({name:v}).eq('id',S.user.id).select();if(!error&&(!data||!data.length)){({error}=await sb.from('profiles').insert({id:S.user.id,name:v}))}if(error){console.warn(error);toast(t('name_fail')+': '+error.message);return}S.profile.name=v;for(const p of S.photos.values())if(p.user.me)p.user.name=v;renderProfile();toast(t('name_saved'))};
+  $('#pf-avatar-in').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;if(!S.user)return needLogin();
+    try{const url=URL.createObjectURL(f);const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});URL.revokeObjectURL(url);
+      const c=document.createElement('canvas');c.width=c.height=256;const sz=Math.min(im.naturalWidth,im.naturalHeight);c.getContext('2d').drawImage(im,(im.naturalWidth-sz)/2,(im.naturalHeight-sz)/2,sz,sz,0,0,256,256);
+      const blob=await canvasBlob(c,0.85),path=`${S.user.id}/avatar.jpg`;const up=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',upsert:true});if(up.error)throw up.error;
+      const {error}=await sb.from('profiles').update({avatar_path:path}).eq('id',S.user.id);if(error)throw error;
+      S.profile.avatar=pubUrl(path)+'?v='+Date.now();S.avatars.set(S.user.id,S.profile.avatar);renderProfile();toast(t('avatar_saved'))}
+    catch(err){console.warn(err);toast(t('avatar_fail')+': '+(err.message||''))}});
   $('#pf-save').addEventListener('click',saveName);$('#pf-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveName();e.target.blur()}});
   $('#loc-gps').addEventListener('click',()=>locate(false));$('#locate').addEventListener('click',()=>{if(S.me.src==='gps')centerOn(S.me.lat,S.me.lng,180,true);else locate(false)});
   $('#zin').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1.7));$('#zout').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1/1.7));
