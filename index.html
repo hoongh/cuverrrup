@@ -525,13 +525,15 @@ const thumbPath=path=>path.replace(/\.jpg$/,'_t.jpg');
 
 // ---------- 데이터 불러오기
 async function loadWorld(){if(!sb)return;
-  const [{data:rows,error},{data:likes}]=await Promise.all([
-    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at,profiles(name)').order('created_at',{ascending:false}).limit(6000),
-    sb.from('likes').select('photo_id,user_id')]);
-  if(error){console.warn(error);toast('데이터를 불러오지 못했어요');return}
+  const [{data:rows,error},{data:likes,error:e2},{data:profs}]=await Promise.all([
+    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(6000),
+    sb.from('likes').select('photo_id,user_id'),
+    sb.from('profiles').select('id,name')]);
+  if(error||e2){console.warn(error||e2);toast('데이터를 불러오지 못했어요: '+((error||e2).message||''));return}
+  const names=new Map();for(const p of profs||[])names.set(p.id,p.name);
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
   S.world=new Map();S.photos=new Map();
-  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:(r.profiles&&r.profiles.name)||'익명',me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
+  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||'익명',me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
   rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed();if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
 function maybeReload(){if(Date.now()-S.lastLoad>30000)loadWorld()}
 
