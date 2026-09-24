@@ -287,6 +287,44 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .email-in{flex:1;font:inherit;font-size:14px;background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:12px 16px;color:var(--ink);outline:none;margin-top:14px}
 .login-card .row2 .btn{flex:none;width:auto;padding:12px 16px;margin-top:14px;white-space:nowrap}
 .login-card .link{display:block;margin:22px auto 0;color:var(--muted)}
+
+.reels{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;background:#000;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.reels::-webkit-scrollbar{display:none}
+.reel{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;background:#000;overflow:hidden}
+.reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.reel-top{position:absolute;top:14px;left:14px;display:flex;gap:6px;flex-wrap:wrap;max-width:60%}
+.reel-bottom{position:absolute;left:0;right:0;bottom:0;padding:60px 14px 18px;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.reel-info b{display:block;font-size:15px;font-weight:500;color:#fff}
+.reel-info span{display:block;font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
+.reel-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.reel-actions .like{background:rgba(0,0,0,.45);color:#fff;border-color:rgba(255,255,255,.35);backdrop-filter:blur(6px)}
+.reel-actions .like.on{background:var(--flag);border-color:var(--flag)}
+.reel-dist{position:absolute;top:14px;right:14px;z-index:5;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:8px 12px;text-align:right;pointer-events:none}
+.reel-dist small{display:block;font-size:10px;color:rgba(255,255,255,.65)}
+.reel-dist b{display:block;font-size:18px;font-weight:300;color:#fff;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.reel-end{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
+.reel-end .btn{width:auto;padding:12px 22px}
+.reel-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.like.cmt{color:var(--ink-2)}
+.cm-th{width:44px;height:44px;border-radius:6px;flex:none;border:1px solid var(--line)}
+.clist{max-height:40vh;overflow-y:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 0}
+.crow2{padding:10px 0;border-top:1px solid var(--line)}
+.crow2:first-child{border-top:0}
+.crow2 b{font-size:13px;font-weight:500;margin-right:8px}
+.crow2 span{font-size:14px;color:var(--ink);line-height:1.5}
+.crow2 small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.cform{display:flex;gap:8px;align-items:flex-end;margin-top:6px}
+.cform .email-in{margin-top:0}
+.cform .btn{white-space:nowrap}
+.lang-top{margin-bottom:6px}
+.orig-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;text-align:center}
+.orig-row .hint{color:#7E756D;font-size:11px}
+.chip-btn.tog{display:inline-flex;align-items:center;gap:8px;color:#B7ADA2;border-color:rgba(255,255,255,.3)}
+.chip-btn.tog i{width:30px;height:18px;border-radius:9px;background:#3A332D;position:relative;transition:.2s}
+.chip-btn.tog i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s}
+.chip-btn.tog.on{color:#fff;border-color:var(--mint)}
+.chip-btn.tog.on i{background:var(--mint)}
+.chip-btn.tog.on i::after{left:14px}
 </style>
 </head>
 <body>
@@ -307,28 +345,25 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <button id="zout" aria-label="축소">−</button>
         <button id="locate" class="loc" aria-label="내 위치">◎</button>
       </div>
-      <div class="legend"><span><i class="sw mine"></i>내가 덮음</span><span><i class="sw other"></i>다른 사람</span><span><i class="sw empty"></i>빈 칸</span></div>
+      <div class="legend"><span><i class="sw mine"></i><em data-i18n="legend_mine"></em></span><span><i class="sw other"></i><em data-i18n="legend_other"></em></span><span><i class="sw empty"></i><em data-i18n="legend_empty"></em></span></div>
       <div id="scalebar"><span></span><b></b></div>
-      <div class="hint-float" id="hint">칸을 탭하면 사진이 열려요. 지금 있는 칸에서만 찍을 수 있어요.</div>
+      <div class="hint-float" id="hint" data-i18n="hint_map"></div>
     </div>
   </section>
 
   <!-- 2. 내 지역 -->
   <section id="screen-mine" class="screen scroll">
     <div class="page">
-      <h1>내 커버</h1>
+      <h1 data-i18n="mine_title"></h1>
       <p class="sub" id="mine-stats"></p>
       <div id="mine-list"></div>
     </div>
   </section>
 
-  <!-- 주변 피드 -->
-  <section id="screen-feed" class="screen scroll">
-    <div class="page">
-      <h1>주변</h1>
-      <p class="sub" id="feed-sub">가까운 칸의 커버 사진부터 보여줘요</p>
-      <div id="feed-list"></div>
-    </div>
+  <!-- 주변 (릴스) -->
+  <section id="screen-feed" class="screen">
+    <div id="reels" class="reels"></div>
+    <div id="reel-dist" class="reel-dist" hidden></div>
   </section>
 
   <!-- 3. 촬영 -->
@@ -342,75 +377,78 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <div class="flash" id="flash"></div>
       <div class="cam-fallback" id="cam-fallback">
         <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
-        <p>이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍거나, 데모 사진으로 흐름을 확인해 보세요.</p>
-        <label class="btn light">기기 카메라로 찍기<input type="file" accept="image/*" capture="environment" id="file-in" hidden></label>
-        <button class="btn ghost" id="demo-shot">데모 사진 만들기</button>
+        <p data-i18n="cam_fb"></p>
+        <label class="btn light"><span data-i18n="cam_fb_btn"></span><input type="file" accept="image/*" capture="environment" id="file-in" hidden></label>
       </div>
       <div class="cam-status" id="cam-status"></div>
     </div>
     <div class="cam-bottom">
       <div class="filters" id="filters"></div>
       <div class="cam-actions">
-        <button class="btn ghost" id="retake" hidden>다시 찍기</button>
+        <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
         <button class="shutter" id="shutter" aria-label="촬영"></button>
-        <button class="btn primary" id="upload" hidden>올리기</button>
+        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
       </div>
-      <div class="cam-note">지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.</div>
+      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button><span class="hint" data-i18n="orig_hint"></span></div>
+      <div class="cam-note" data-i18n="cam_note"></div>
     </div>
   </section>
 
   <!-- 4. 프로필 -->
   <section id="screen-profile" class="screen scroll">
     <div class="page">
-      <h1>나</h1>
+      <h1 data-i18n="me_title"></h1>
       <p class="tagline">Let's coverrrup the world!!</p>
-      <p class="sub">이름을 바꾸면 내가 올린 사진에도 바로 반영돼요.</p>
+      <p class="sub" data-i18n="me_sub"></p>
       <div class="pf-card">
         <div class="avatar" id="pf-avatar">🧭</div>
         <div class="pf-main"><input id="pf-name" maxlength="16" class="name-in" aria-label="이름"><div class="pf-since" id="pf-since"></div></div>
-        <button class="btn small" id="pf-save">저장</button>
+        <button class="btn small" id="pf-save" data-i18n="save"></button>
       </div>
       <div class="stats">
-        <div><span>덮은 칸</span><b id="st-cells">0</b><i id="sb-cells" style="--c:var(--mint)"></i></div>
-        <div><span>올린 사진</span><b id="st-photos">0</b><i id="sb-photos" style="--c:var(--mint)"></i></div>
-        <div><span>커버 보유</span><b id="st-covers">0</b><i id="sb-covers" style="--c:var(--sky)"></i></div>
-        <div><span>받은 좋아요</span><b id="st-likes">0</b><i id="sb-likes" style="--c:var(--gold)"></i></div>
+        <div><span data-i18n="st_cells"></span><b id="st-cells">0</b><i id="sb-cells" style="--c:var(--mint)"></i></div>
+        <div><span data-i18n="st_photos"></span><b id="st-photos">0</b><i id="sb-photos" style="--c:var(--mint)"></i></div>
+        <div><span data-i18n="st_covers"></span><b id="st-covers">0</b><i id="sb-covers" style="--c:var(--sky)"></i></div>
+        <div><span data-i18n="st_likes"></span><b id="st-likes">0</b><i id="sb-likes" style="--c:var(--gold)"></i></div>
       </div>
 
-      <h2>내 사진</h2>
+      <h2 data-i18n="h_my_photos"></h2>
       <p class="hint" id="my-photos-hint" style="margin-bottom:10px">사진을 누르면 필터를 바꾸거나 지울 수 있어요.</p>
       <div class="mygrid" id="my-photos"></div>
 
-      <h2>얼마나 덮었나</h2>
+      <h2 data-i18n="h_progress"></h2>
       <div class="box">
-        <div class="ring-wrap"><div class="ring"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-val" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><small>구역 커버</small><b><span id="ring-num">0</span><em>%</em></b><span id="ring-sub"></span></div></div><div class="ring-cap" id="ring-cap"></div></div>
+        <div class="ring-wrap"><div class="ring"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-val" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><small data-i18n="ring_label"></small><b><span id="ring-num">0</span><em>%</em></b><span id="ring-sub"></span></div></div><div class="ring-cap" id="ring-cap"></div></div>
         <div class="prog-row"><span id="prog-block-label">내 구역</span><b id="prog-block-val"></b></div>
         <div class="bar"><i id="prog-block"></i></div>
-        <div class="prog-row"><span>지구 전체</span><b id="prog-earth-val"></b></div>
+        <div class="prog-row"><span data-i18n="prog_earth"></span><b id="prog-earth-val"></b></div>
         <div class="bar"><i id="prog-earth"></i></div>
         <p class="hint" id="prog-hint"></p>
       </div>
 
-      <h2>내 위치</h2>
+      <h2 data-i18n="h_loc"></h2>
       <div class="box">
-        <div class="loc-now"><span>지금 위치</span><b id="loc-label"></b><span class="mono" id="loc-code"></span></div>
-        <div class="chips"><button class="chip-btn" id="loc-gps">위치 다시 받기</button></div>
+        <div class="loc-now"><span data-i18n="loc_now"></span><b id="loc-label"></b><span class="mono" id="loc-code"></span></div>
+        <div class="chips"><button class="chip-btn" id="loc-gps" data-i18n="relocate"></button></div>
       </div>
 
-      <h2>계정</h2>
+      <h2 data-i18n="h_lang"></h2>
+      <div class="box"><div class="chips"><button class="chip-btn" data-lang="ko">한국어</button><button class="chip-btn" data-lang="en">English</button><button class="chip-btn" data-lang="zh">中文</button></div></div>
+
+      <h2 data-i18n="h_account"></h2>
       <div class="box tools">
-        <button class="btn" id="signout">로그아웃</button>
-        <p class="hint">사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.</p>
+        <button class="btn" id="signout" data-i18n="signout"></button>
+        <p class="hint" data-i18n="acct_hint"></p>
       </div>
     </div>
   </section>
 
   <nav class="tabbar">
-    <button class="tab active" data-tab="map"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>커버맵</span></button>
-    <button class="tab" data-tab="feed"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/><circle cx="15" cy="8" r="1.5"/></svg><span>주변</span></button>
-    <button class="tab cam" data-tab="camera"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span>커버럽</span></button>
-    <button class="tab" data-tab="mine"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span>내 커버</span></button>
-    <button class="tab" data-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>나</span></button>
+    <button class="tab active" data-tab="map"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span data-i18n="tab_map"></span></button>
+    <button class="tab" data-tab="feed"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/><circle cx="15" cy="8" r="1.5"/></svg><span data-i18n="tab_feed"></span></button>
+    <button class="tab cam" data-tab="camera"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span data-i18n="tab_cam"></span></button>
+    <button class="tab" data-tab="mine"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span data-i18n="tab_mine"></span></button>
+    <button class="tab" data-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span data-i18n="tab_me"></span></button>
   </nav>
 
   <div id="backdrop"></div>
@@ -418,13 +456,14 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
   <div id="login">
     <div class="login-card">
       <div class="brand">Coverrrup</div>
-      <h1>Let's coverrrup<br>the world!!</h1>
-      <p class="sub">지금 있는 곳을 사진 한 장으로 덮어요. 14m 칸마다 3장, 좋아요가 가장 많은 사진이 그 칸의 커버가 됩니다.</p>
-      <button class="btn primary" id="login-google">구글로 시작하기</button>
-      <div class="or">또는 이메일로</div>
-      <div class="row2"><input id="login-email" type="email" placeholder="이메일 주소" class="email-in"><button class="btn" id="login-email-btn">링크 받기</button></div>
+      <div class="chips lang-top"><button class="chip-btn" data-lang="ko">한국어</button><button class="chip-btn" data-lang="en">English</button><button class="chip-btn" data-lang="zh">中文</button></div>
+      <h1 data-i18n="login_h"></h1>
+      <p class="sub" data-i18n="login_p"></p>
+      <button class="btn primary" id="login-google" data-i18n="login_google"></button>
+      <div class="or" data-i18n="login_or"></div>
+      <div class="row2"><input id="login-email" type="email" data-i18n-ph="login_email_ph" class="email-in"><button class="btn" id="login-email-btn" data-i18n="login_link"></button></div>
       <p class="hint" id="login-msg"></p>
-      <button class="link" id="login-close">둘러보기만 할게요</button>
+      <button class="link" id="login-close" data-i18n="login_browse"></button>
     </div>
   </div>
   <div id="toast"></div>
@@ -439,7 +478,6 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-function timeAgo(ts){const m=Math.floor((Date.now()-ts)/60000);if(m<1)return'방금';if(m<60)return m+'분 전';const h=Math.floor(m/60);if(h<24)return h+'시간 전';const d=Math.floor(h/24);if(d<30)return d+'일 전';return Math.floor(d/30)+'달 전'}
 const fmtInt=n=>n.toLocaleString('ko-KR');
 const fmtDist=m=>m<1000?Math.round(m)+'m':(m/1000).toFixed(m<10000?1:0)+'km';
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
@@ -500,46 +538,129 @@ const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
 const MAP_STYLE='https://tiles.openfreemap.org/styles/positron';
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 const ML=!!window.maplibregl;
-const LEVEL_NAME={5:'14m 칸',4:'275m 구역',3:'5.5km 지역',2:'110km 권역'};
-const labelFor=k=>k.length===8?k.slice(4):k;
-const filterName=id=>(FILTERS.find(f=>f.id===id)||FILTERS[0]).name;
-const SANS='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif';
+const SANS='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","PingFang SC","Microsoft YaHei","Malgun Gothic",sans-serif';
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
-const C={map:'#1F1B17',line:'rgba(241,234,226,.09)',line2:'rgba(241,234,226,.24)',ink:'#F1EAE2',flag:'#E0876F',tile:'rgba(241,234,226,.8)',label:'rgba(241,234,226,.45)',label2:'rgba(241,234,226,.22)',pill:'rgba(27,23,20,.8)'};
+const C={line:'rgba(241,234,226,.09)',line2:'rgba(241,234,226,.24)',ink:'#F1EAE2',flag:'#E0876F',tile:'rgba(241,234,226,.8)',label:'rgba(241,234,226,.45)',label2:'rgba(241,234,226,.22)',pill:'rgba(27,23,20,.8)'};
+const labelFor=k=>k.length===8?k.slice(4):k;
+const filterName=id=>t('f_'+((FILTERS.find(f=>f.id===id)||FILTERS[0]).id));
+
+// ---------- 언어
+const I18N={
+ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커버',tab_me:'나',
+ lvl1:'2,200km 권역',lvl2:'110km 권역',lvl3:'5.5km 지역',lvl4:'275m 구역',lvl5:'14m 칸',zone:'구역',cell:'칸',
+ hint_map:'칸을 탭하면 사진이 열려요. 지금 있는 칸에서만 찍을 수 있어요.',legend_mine:'내가 덮음',legend_other:'다른 사람',legend_empty:'빈 칸',
+ here:'지금 여기',from_me:'나에게서 {d}',photos_n:'{n}장',cover:'커버',best:'베스트',me:'나',anon:'익명',
+ empty_cell:'아직 아무도 덮지 않은 칸',empty_cell_p:'첫 사진을 올리면 이 칸의 커버가 돼요. 이후엔 좋아요가 가장 많은 사진이 커버가 됩니다.',
+ shoot_here:'여기서 커버럽',must_be_here:'이 칸에 직접 가야 찍을 수 있어요. 지금 위치에서 {d} 떨어져 있어요.',rule:'커버는 좋아요가 가장 많은 사진, 같으면 가장 최근 사진',
+ covered_cells:'덮인 칸',photos:'사진',coverage:'커버율',empty_zone:'아직 비어 있는 {name}',empty_zone_p:'이 안의 14m 칸 {n}개 중 덮인 곳이 없어요.',zoom_in:'확대해서 보기',
+ mine_title:'내 커버',mine_stats:'덮은 칸 {n}개, 그중 내 사진이 커버인 칸 {c}개',mine_empty:'아직 덮은 칸이 없어요',mine_empty_p:"지금 있는 곳에서 첫 사진을 올리면<br>그 칸의 커버가 돼요. Let's coverrrup!",first_photo:'첫 사진 올리기',region:'지역',block:'275m 블록',my_photos_n:'내 사진 {n}',others_n:'다른 사람 {n}',none_yet:'아직 없어요',cover_is_mine:'내 사진이 커버',cover_by:'커버는 {name}',
+ feed_empty:'주변에 아직 사진이 없어요',feed_empty_p:'첫 사진을 올려 이 동네를 열어 보세요.',do_cover:'커버럽 하기',feed_end:'여기까지예요. 다음 칸은 아직 아무도 덮지 않았어요.',my_zone:'내 칸',near_zone:'옆 칸',dist_label:'나에게서',
+ comments:'댓글',comment_ph:'댓글을 남겨요',send:'보내기',no_comments:'첫 댓글을 남겨보세요',comment_fail:'댓글을 저장하지 못했어요',
+ edit_title:'내 사진 수정',delete:'지우기',save_filter:'필터 저장',del_confirm:'정말 지울까요? 다시 누르면 삭제',edit_rule:'다시 찍기는 없어요. 지금 그 자리에서 새로 찍어 올리면 돼요.',
+ changing:'필터를 바꾸고 있어요',changed:'필터를 {f}으로 바꿨어요',change_fail:'필터를 저장하지 못했어요',del_fail:'지우지 못했어요',deleted:'사진을 지웠어요',deleted_empty:'사진을 지웠어요. 이 칸은 다시 빈 칸이 됐어요',
+ me_title:'나',me_sub:'이름을 바꾸면 내가 올린 사진에도 바로 반영돼요.',save:'저장',need_login:'로그인이 필요해요',google_acct:'구글 계정',
+ st_cells:'덮은 칸',st_photos:'올린 사진',st_covers:'커버 보유',st_likes:'받은 좋아요',
+ h_my_photos:'내 사진',my_photos_hint:'사진을 누르면 필터를 바꾸거나 지울 수 있어요.',my_photos_none:'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.',
+ h_progress:'얼마나 덮었나',ring_label:'구역 커버',ring_sub:'▲ {n} 이 구역',ring_zero:'아직 0칸',ring_cap:'{z} 구역 400칸 중 내가 덮은 비율',prog_block:'지금 있는 {z} 구역 (400칸)',prog_earth:'지구 전체',prog_earth_val:'{n}칸, {p}%',prog_hint:'14m 칸 기준으로 지구 표면은 약 4조 1,472억 칸이에요. Coverrrup 전체에서 덮인 칸은 지금 {n}개.',
+ h_loc:'내 위치',loc_now:'지금 위치',loc_gps:'GPS 위치',loc_acc:' (오차 약 {m}m)',loc_none:'위치를 아직 못 받았어요 (기본 위치)',relocate:'위치 다시 받기',
+ h_lang:'언어',h_account:'계정',signout:'로그아웃',acct_hint:'사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.',
+ login_h:"Let's coverrrup<br>the world!!",login_p:'지금 있는 곳을 사진 한 장으로 덮어요. 14m 칸마다 좋아요가 가장 많은 사진이 그 칸의 커버가 됩니다.',login_google:'구글로 시작하기',login_or:'또는 이메일로',login_email_ph:'이메일 주소',login_link:'링크 받기',login_browse:'둘러보기만 할게요',
+ login_going:'구글로 이동하고 있어요',login_gerr:'구글 로그인 오류: {e}',login_sending:'메일을 보내고 있어요',login_sent:'{e}로 로그인 링크를 보냈어요. 메일을 열어 링크를 누르면 들어와요.',login_merr:'메일 오류: {e}',login_err:'로그인 오류: {e}',check_email:'이메일을 확인해 주세요',signed_out:'로그아웃했어요',
+ cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',
+ need_loc:'위치를 먼저 받아야 올릴 수 있어요',up_first:'첫 사진이에요. 이 칸은 이제 내가 덮었어요',up_ok:'올렸어요 ({n}장째)',up_fail:'올리지 못했어요: {e}',
+ loading_fail:'데이터를 불러오지 못했어요: {e}',like_fail:'좋아요를 저장하지 못했어요',name_saved:'이름을 저장했어요',name_fail:'이름을 저장하지 못했어요',no_geo:'이 브라우저는 위치 기능이 없어요',locating:'위치를 확인하고 있어요',geo_denied:'위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요',server_fail:'서버 설정을 불러오지 못했어요',
+ save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
+ ago_now:'방금',ago_m:'{n}분 전',ago_h:'{n}시간 전',ago_d:'{n}일 전',ago_mo:'{n}달 전',traveler:'여행자'},
+en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab_me:'Me',
+ lvl1:'2,200 km region',lvl2:'110 km region',lvl3:'5.5 km area',lvl4:'275 m block',lvl5:'14 m cell',zone:'block',cell:'cell',
+ hint_map:'Tap a cell to see its photos. You can only shoot in the cell you are standing in.',legend_mine:'Mine',legend_other:'Others',legend_empty:'Empty',
+ here:'You are here',from_me:'{d} from you',photos_n:'{n} photos',cover:'Cover',best:'Best',me:'Me',anon:'Anonymous',
+ empty_cell:'Nobody has covered this cell yet',empty_cell_p:'Your first photo becomes the cover. After that, the most-liked photo is the cover.',
+ shoot_here:'Coverrrup here',must_be_here:'You need to be in this cell to shoot. It is {d} from your location.',rule:'The cover is the most-liked photo; ties go to the newest.',
+ covered_cells:'Covered cells',photos:'Photos',coverage:'Coverage',empty_zone:'Empty {name}',empty_zone_p:'None of the {n} cells inside are covered yet.',zoom_in:'Zoom in',
+ mine_title:'My covers',mine_stats:'{n} cells covered, my photo is the cover in {c}',mine_empty:'No cells covered yet',mine_empty_p:"Upload your first photo where you stand<br>and it becomes the cover. Let's coverrrup!",first_photo:'Upload first photo',region:'Area',block:'275 m block',my_photos_n:'Mine {n}',others_n:'Others {n}',none_yet:'None yet',cover_is_mine:'My photo is the cover',cover_by:'Cover by {name}',
+ feed_empty:'No photos nearby yet',feed_empty_p:'Upload the first photo and open this neighborhood.',do_cover:'Coverrrup now',feed_end:'That is all for now. The next cell is still uncovered.',my_zone:'My cell',near_zone:'Nearby cell',dist_label:'From you',
+ comments:'Comments',comment_ph:'Write a comment',send:'Send',no_comments:'Be the first to comment',comment_fail:'Could not save the comment',
+ edit_title:'Edit my photo',delete:'Delete',save_filter:'Save filter',del_confirm:'Delete for real? Tap again',edit_rule:'There is no retake. Shoot a new photo where you stand.',
+ changing:'Changing filter',changed:'Filter changed to {f}',change_fail:'Could not save the filter',del_fail:'Could not delete',deleted:'Photo deleted',deleted_empty:'Photo deleted. The cell is empty again.',
+ me_title:'Me',me_sub:'Changing your name updates all your photos.',save:'Save',need_login:'Sign in required',google_acct:'Google account',
+ st_cells:'Cells',st_photos:'Photos',st_covers:'Covers held',st_likes:'Likes',
+ h_my_photos:'My photos',my_photos_hint:'Tap a photo to change its filter or delete it.',my_photos_none:'No photos yet. Take your first one in the Coverrrup tab.',
+ h_progress:'Coverage',ring_label:'Block coverage',ring_sub:'▲ {n} in this block',ring_zero:'0 cells yet',ring_cap:'My share of the 400 cells in block {z}',prog_block:'Current block {z} (400 cells)',prog_earth:'Whole Earth',prog_earth_val:'{n} cells, {p}%',prog_hint:'Earth has about 4.1 trillion 14 m cells. Coverrrup has {n} covered so far.',
+ h_loc:'My location',loc_now:'Current location',loc_gps:'GPS location',loc_acc:' (±{m} m)',loc_none:'No location yet (default position)',relocate:'Refresh location',
+ h_lang:'Language',h_account:'Account',signout:'Sign out',acct_hint:'Photos are stored at 720 px. Deleted photos are removed immediately.',
+ login_h:"Let's coverrrup<br>the world!!",login_p:'Cover the spot you are standing on with one photo. In every 14 m cell, the most-liked photo becomes the cover.',login_google:'Continue with Google',login_or:'or with email',login_email_ph:'Email address',login_link:'Send link',login_browse:'Just browse',
+ login_going:'Opening Google',login_gerr:'Google sign-in error: {e}',login_sending:'Sending email',login_sent:'Sign-in link sent to {e}. Open the email and tap the link.',login_merr:'Email error: {e}',login_err:'Sign-in error: {e}',check_email:'Please check the email address',signed_out:'Signed out',
+ cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',
+ need_loc:'Location is required to upload',up_first:'First photo! This cell is now yours',up_ok:'Uploaded (photo #{n})',up_fail:'Upload failed: {e}',
+ loading_fail:'Could not load data: {e}',like_fail:'Could not save the like',name_saved:'Name saved',name_fail:'Could not save the name',no_geo:'This browser has no location support',locating:'Finding your location',geo_denied:'Location permission is needed. Allow it in browser settings.',server_fail:'Could not load server settings',
+ save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
+ ago_now:'just now',ago_m:'{n}m ago',ago_h:'{n}h ago',ago_d:'{n}d ago',ago_mo:'{n}mo ago',traveler:'Traveler'},
+zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',tab_me:'我',
+ lvl1:'2,200公里区域',lvl2:'110公里区域',lvl3:'5.5公里地区',lvl4:'275米街区',lvl5:'14米格子',zone:'街区',cell:'格子',
+ hint_map:'点击格子查看照片。只能在你所在的格子拍照。',legend_mine:'我的',legend_other:'他人',legend_empty:'空',
+ here:'你在这里',from_me:'距你 {d}',photos_n:'{n}张',cover:'封面',best:'最佳',me:'我',anon:'匿名',
+ empty_cell:'这个格子还没有人覆盖',empty_cell_p:'你的第一张照片会成为封面。之后点赞最多的照片成为封面。',
+ shoot_here:'在这里覆盖',must_be_here:'需要到这个格子才能拍照。距你当前位置 {d}。',rule:'封面是点赞最多的照片，相同则取最新的一张',
+ covered_cells:'已覆盖格子',photos:'照片',coverage:'覆盖率',empty_zone:'尚未覆盖的{name}',empty_zone_p:'其中 {n} 个14米格子都还没有被覆盖。',zoom_in:'放大查看',
+ mine_title:'我的覆盖',mine_stats:'已覆盖 {n} 个格子，其中 {c} 个以我的照片为封面',mine_empty:'还没有覆盖任何格子',mine_empty_p:"在你所在的地方上传第一张照片<br>就会成为封面。Let's coverrrup!",first_photo:'上传第一张',region:'区域',block:'275米街区',my_photos_n:'我的 {n}',others_n:'他人 {n}',none_yet:'还没有',cover_is_mine:'我的照片是封面',cover_by:'封面来自 {name}',
+ feed_empty:'附近还没有照片',feed_empty_p:'上传第一张照片，开启这个街区。',do_cover:'去覆盖',feed_end:'到此为止。下一个格子还没有人覆盖。',my_zone:'我的格子',near_zone:'相邻格子',dist_label:'距你',
+ comments:'评论',comment_ph:'写下评论',send:'发送',no_comments:'来写第一条评论',comment_fail:'评论保存失败',
+ edit_title:'编辑我的照片',delete:'删除',save_filter:'保存滤镜',del_confirm:'确定删除？再点一次',edit_rule:'不能重拍。请在原地重新拍摄上传。',
+ changing:'正在更换滤镜',changed:'滤镜已改为{f}',change_fail:'滤镜保存失败',del_fail:'删除失败',deleted:'照片已删除',deleted_empty:'照片已删除，这个格子又空了',
+ me_title:'我',me_sub:'修改名字会同步到你上传的所有照片。',save:'保存',need_login:'需要登录',google_acct:'Google 账号',
+ st_cells:'格子',st_photos:'照片',st_covers:'封面数',st_likes:'获赞',
+ h_my_photos:'我的照片',my_photos_hint:'点击照片可更换滤镜或删除。',my_photos_none:'还没有照片。去“覆盖”标签拍第一张吧。',
+ h_progress:'覆盖进度',ring_label:'街区覆盖',ring_sub:'▲ {n} 本街区',ring_zero:'还是0格',ring_cap:'{z} 街区400格中我覆盖的比例',prog_block:'当前 {z} 街区（400格）',prog_earth:'全球',prog_earth_val:'{n}格，{p}%',prog_hint:'按14米格子计算，地球表面约有4.1万亿格。Coverrrup 目前已覆盖 {n} 格。',
+ h_loc:'我的位置',loc_now:'当前位置',loc_gps:'GPS位置',loc_acc:'（误差约{m}米）',loc_none:'尚未获取位置（默认位置）',relocate:'重新定位',
+ h_lang:'语言',h_account:'账号',signout:'退出登录',acct_hint:'照片以长边720px存储。删除的照片会立即移除。',
+ login_h:"Let's coverrrup<br>the world!!",login_p:'用一张照片覆盖你脚下的位置。每个14米格子里，点赞最多的照片就是封面。',login_google:'使用 Google 登录',login_or:'或使用邮箱',login_email_ph:'邮箱地址',login_link:'发送链接',login_browse:'先看看',
+ login_going:'正在跳转到 Google',login_gerr:'Google 登录错误：{e}',login_sending:'正在发送邮件',login_sent:'登录链接已发送到 {e}，打开邮件点击链接即可。',login_merr:'邮件错误：{e}',login_err:'登录错误：{e}',check_email:'请检查邮箱地址',signed_out:'已退出登录',
+ cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',
+ need_loc:'需要先获取位置才能上传',up_first:'第一张！这个格子现在是你的了',up_ok:'已上传（第{n}张）',up_fail:'上传失败：{e}',
+ loading_fail:'数据加载失败：{e}',like_fail:'点赞保存失败',name_saved:'名字已保存',name_fail:'名字保存失败',no_geo:'此浏览器不支持定位',locating:'正在定位',geo_denied:'需要位置权限，请在浏览器设置中允许',server_fail:'无法加载服务器设置',
+ save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
+ ago_now:'刚刚',ago_m:'{n}分钟前',ago_h:'{n}小时前',ago_d:'{n}天前',ago_mo:'{n}个月前',traveler:'旅行者'}};
+let LANG=localStorage.getItem('ctw-lang')||(navigator.language.startsWith('ko')?'ko':navigator.language.startsWith('zh')?'zh':'en');
+function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ko[k]||k;if(vars)for(const v in vars)s=s.replace(new RegExp('\\{'+v+'\\}','g'),vars[v]);return s}
+function timeAgo(ts){const m=Math.floor((Date.now()-ts)/60000);if(m<1)return t('ago_now');if(m<60)return t('ago_m',{n:m});const h=Math.floor(m/60);if(h<24)return t('ago_h',{n:h});const d=Math.floor(h/24);if(d<30)return t('ago_d',{n:d});return t('ago_mo',{n:Math.floor(d/30)})}
+const LEVEL_NAME=p=>t('lvl'+p);
+function applyLang(){document.documentElement.lang=LANG==='zh'?'zh-CN':LANG;$$('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n)});$$('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.dataset.i18nPh)});$$('[data-lang]').forEach(b=>b.classList.toggle('on',b.dataset.lang===LANG));
+  buildFilterChips();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet();requestRender()}
+function setLang(l){LANG=l;localStorage.setItem('ctw-lang',l);applyLang()}
 
 const S={user:null,profile:{name:'여행자'},me:{lat:37.4979,lng:127.0276,src:'default',acc:null},view:{lat:37.4979,lng:127.0276,scale:2.2},
-  myLikes:new Set(),tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null},lastLoad:0};
+  myLikes:new Set(),tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null},lastLoad:0,ccount:new Map()};
 
-function localityOf(lat,lng){return{text:`위도 ${lat.toFixed(4)}, 경도 ${lng.toFixed(4)}`,short:OLC.short(OLC.key(lat,lng,4))+' 구역'}}
-const nameOf=ph=>ph.user.name||'익명';
-const likesOf=ph=>ph.likes;
-function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts<b.ts}
+const nameOf=ph=>ph.user.me?S.profile.name:(ph.user.name||t('anon'));
+function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts>b.ts}
 function coverOf(cell){let c=null;for(const p of cell.photos)if(!c||better(p,c))c=p;return c}
-function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map()};
+function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map(),1:new Map()};
   for(const cell of S.world.values()){if(!cell.photos.length)continue;const cov=coverOf(cell),mine=cell.photos.some(p=>p.user.me);
-    for(const p of [5,4,3,2]){const k=cell.key.slice(0,2*p);let e=agg[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false};agg[p].set(k,e)}e.cells++;e.photos+=cell.photos.length;e.mine=e.mine||mine;if(better(cov,e.cover))e.cover=cov}}
+    for(const p of [5,4,3,2,1]){const k=cell.key.slice(0,2*p);let e=agg[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false};agg[p].set(k,e)}e.cells++;e.photos+=cell.photos.length;e.mine=e.mine||mine;if(better(cov,e.cover))e.cover=cov}}
   S.agg=agg}
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
 const thumbPath=path=>path.replace(/\.jpg$/,'_t.jpg');
+const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 
-// ---------- 데이터 불러오기
+// ---------- 데이터
 async function loadWorld(){if(!sb)return;
-  const [{data:rows,error},{data:likes,error:e2},{data:profs}]=await Promise.all([
-    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(6000),
-    sb.from('likes').select('photo_id,user_id'),
-    sb.from('profiles').select('id,name')]);
-  if(error||e2){console.warn(error||e2);toast('데이터를 불러오지 못했어요: '+((error||e2).message||''));return}
+  const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms}]=await Promise.all([
+    sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(8000),
+    sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name'),sb.from('comments').select('photo_id')]);
+  if(error||e2){console.warn(error||e2);toast(t('loading_fail',{e:(error||e2).message||''}));return}
   const names=new Map();for(const p of profs||[])names.set(p.id,p.name);
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
+  S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
   S.world=new Map();S.photos=new Map();
-  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||'익명',me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
-  rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed();if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
+  for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
+  rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
 function maybeReload(){if(Date.now()-S.lastLoad>30000)loadWorld()}
 
-// ---------- 이미지 캐시
+// ---------- 이미지
 const IMG_CACHE=new Map();
-const ready=im=>!!im&&(im.tagName==='CANVAS'||(im.complete&&im.naturalWidth>0));
+const ready=im=>!!im&&im.complete&&im.naturalWidth>0;
 function photoImage(ph){let e=IMG_CACHE.get(ph.id);if(!e){e={};IMG_CACHE.set(ph.id,e)}
   if(!e.small){const im=new Image();im.crossOrigin='anonymous';im.onload=requestRender;im.src=ph.thumb;e.small=im}
   return ready(e.small)?e.small:null}
@@ -550,7 +671,7 @@ function mountPhotos(root){root.querySelectorAll('.ph[data-photo]').forEach(el=>
 // ---------- 지도
 const map={canvas:null,ctx:null,W:0,H:0,dpr:1,dirty:false,anims:new Map(),ml:null};
 function initMap(){map.canvas=$('#map');map.ctx=map.canvas.getContext('2d');
-  if(ML){try{map.ml=new maplibregl.Map({container:'basemap',style:MAP_STYLE,center:[S.me.lng,S.me.lat],zoom:18,minZoom:9,maxZoom:21,attributionControl:false,dragRotate:false,pitchWithRotate:false,touchPitch:false,touchZoomRotate:true});
+  if(ML){try{map.ml=new maplibregl.Map({container:'basemap',style:MAP_STYLE,center:[S.me.lng,S.me.lat],zoom:18,minZoom:0.8,maxZoom:21,attributionControl:false,dragRotate:false,pitchWithRotate:false,touchPitch:false,touchZoomRotate:true,renderWorldCopies:false});
       map.ml.touchZoomRotate.disableRotation();map.ml.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
       map.ml.on('move',requestRender);map.ml.on('load',requestRender);map.ml.on('click',e=>onTap(e.point.x,e.point.y));map.ml.on('error',e=>console.warn('map',e&&e.error));
       map.canvas.style.pointerEvents='none'}catch(e){console.warn('maplibre failed',e);map.ml=null}}
@@ -558,65 +679,66 @@ function initMap(){map.canvas=$('#map');map.ctx=map.canvas.getContext('2d');
   new ResizeObserver(resizeMap).observe(map.canvas.parentElement);resizeMap()}
 function resizeMap(){const r=map.canvas.parentElement.getBoundingClientRect();if(r.width<50||r.height<50)return;map.W=Math.round(r.width);map.H=Math.round(r.height);map.dpr=Math.min(2,window.devicePixelRatio||1);map.canvas.width=map.W*map.dpr;map.canvas.height=map.H*map.dpr;map.canvas.style.width=map.W+'px';map.canvas.style.height=map.H+'px';if(map.ml)map.ml.resize();clampScale();requestRender()}
 const W0=()=>map.W||390;
-function scaleLimits(){return{min:W0()/110000,max:W0()/50}}
+function scaleLimits(){return{min:W0()/40000000,max:W0()/50}}
 function clampScale(){if(map.ml)return;const l=scaleLimits();S.view.scale=clamp(S.view.scale,l.min,l.max)}
 function center(){if(map.ml){const c=map.ml.getCenter();return{lat:c.lat,lng:c.lng}}return{lat:S.view.lat,lng:S.view.lng}}
 function pxPerDeg(){if(map.ml){const c=map.ml.getCenter(),a=map.ml.project([c.lng,c.lat]),b=map.ml.project([c.lng+0.001,c.lat+0.001]);return{x:Math.abs(b.x-a.x)/0.001,y:Math.abs(b.y-a.y)/0.001}}return{x:111320*Math.cos(S.view.lat*Math.PI/180)*S.view.scale,y:111320*S.view.scale}}
 function toScreen(lat,lng){if(map.ml){const p=map.ml.project([lng,lat]);return{x:p.x,y:p.y}}const p=pxPerDeg();return{x:map.W/2+(lng-S.view.lng)*p.x,y:map.H/2-(lat-S.view.lat)*p.y}}
-function toWorld(x,y){if(map.ml){const l=map.ml.unproject([x,y]);return{lat:l.lat,lng:l.lng}}const p=pxPerDeg();return{lng:S.view.lng+(x-map.W/2)/p.x,lat:S.view.lat-(y-map.H/2)/p.y}}
-function pairsForScale(){const P=pxPerDeg();for(const p of [5,4,3])if(OLC.RES[p-1]*P.y>=14)return p;return 2}
+function toWorld(x,y){if(map.ml){const l=map.ml.unproject([x,y]);return{lat:clamp(l.lat,-85,85),lng:OLC.normLng(l.lng)}}const p=pxPerDeg();return{lng:S.view.lng+(x-map.W/2)/p.x,lat:S.view.lat-(y-map.H/2)/p.y}}
+function pairsForScale(){const P=pxPerDeg();for(const p of [5,4,3,2])if(OLC.RES[p-1]*P.y>=14)return p;return 1}
 function requestRender(){if(map.dirty)return;map.dirty=true;requestAnimationFrame(()=>{map.dirty=false;render()})}
 function zoomForWidth(widthM,lat){return Math.log2(156543.03*Math.cos(lat*Math.PI/180)*W0()/widthM)}
-function centerOn(lat,lng,widthM,animate){if(map.ml){const o={center:[lng,lat]};if(widthM)o.zoom=clamp(zoomForWidth(widthM,lat),9,21);if(animate)map.ml.easeTo({...o,duration:450});else map.ml.jumpTo(o);return}
+function centerOn(lat,lng,widthM,animate){if(map.ml){const o={center:[lng,lat]};if(widthM)o.zoom=clamp(zoomForWidth(widthM,lat),0.8,21);if(animate)map.ml.easeTo({...o,duration:450});else map.ml.jumpTo(o);return}
   const sc=widthM?W0()/widthM:S.view.scale;if(animate)animateTo(lat,lng,sc);else{S.view.lat=lat;S.view.lng=lng;S.view.scale=sc;clampScale();requestRender()}}
 let animId=0;
 function animateTo(lat,lng,scale,ms){ms=ms||380;cancelAnimationFrame(animId);const l=scaleLimits();scale=clamp(scale,l.min,l.max);const s0={...S.view},t0=performance.now(),ls0=Math.log(s0.scale),ls1=Math.log(scale);
-  const step=now=>{const t=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-t,3);S.view.lat=s0.lat+(lat-s0.lat)*e;S.view.lng=s0.lng+(lng-s0.lng)*e;S.view.scale=Math.exp(ls0+(ls1-ls0)*e);requestRender();if(t<1)animId=requestAnimationFrame(step)};animId=requestAnimationFrame(step)}
+  const step=now=>{const tt=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-tt,3);S.view.lat=s0.lat+(lat-s0.lat)*e;S.view.lng=s0.lng+(lng-s0.lng)*e;S.view.scale=Math.exp(ls0+(ls1-ls0)*e);requestRender();if(tt<1)animId=requestAnimationFrame(step)};animId=requestAnimationFrame(step)}
 
 function render(){if(S.tab!=='map'||map.W<50)return;const c=map.ctx,W=map.W,H=map.H;c.setTransform(map.dpr,0,0,map.dpr,0,0);c.clearRect(0,0,W,H);
-  if(!map.ml){c.fillStyle=C.map;c.fillRect(0,0,W,H)}
+  if(!map.ml){c.fillStyle='#1F1B17';c.fillRect(0,0,W,H)}
   const p=pairsForScale(),res=OLC.RES[p-1];
   const tl=toWorld(0,0),br=toWorld(W,H),cen=center();
-  const i0=Math.floor((br.lat+90)/res),i1=Math.floor((tl.lat+90)/res),j0=Math.floor((tl.lng+180)/res),j1=Math.floor((br.lng+180)/res);
-  if(i1-i0>400||j1-j0>400)return;
+  let lngL=tl.lng,lngR=br.lng;if(lngR<lngL)lngR+=360;
+  const i0=Math.max(0,Math.floor((br.lat+90)/res)),i1=Math.min(Math.floor(180/res)-1,Math.floor((tl.lat+90)/res)),j0=Math.floor((lngL+180)/res),j1=Math.floor((lngR+180)/res);
+  if(i1-i0>500||j1-j0>500)return;
   const X=j=>toScreen(cen.lat,j*res-180).x, Y=i=>toScreen((i+1)*res-90,cen.lng).y;
   const xs={},ys={};for(let j=j0;j<=j1+1;j++)xs[j]=X(j);for(let i=i0-1;i<=i1;i++)ys[i]=Y(i);
-  const cw=Math.abs(xs[j0+1]-xs[j0]),ch=Math.abs(ys[i0-1]-ys[i0]);
+  const cw=Math.abs(xs[j0+1]-xs[j0]);
   c.lineWidth=1;c.strokeStyle=C.line;c.beginPath();
   for(let j=j0;j<=j1+1;j++){const x=Math.round(xs[j])+0.5;c.moveTo(x,0);c.lineTo(x,H)}
   for(let i=i0;i<=i1+1;i++){const y=Math.round(ys[i-1])+0.5;c.moveTo(0,y);c.lineTo(W,y)}
   c.stroke();
-  if(p>=2){const pres=OLC.RES[p-2],pi0=Math.floor((br.lat+90)/pres),pi1=Math.floor((tl.lat+90)/pres),pj0=Math.floor((tl.lng+180)/pres),pj1=Math.floor((br.lng+180)/pres);
+  if(p>=2){const pres=OLC.RES[p-2],pi0=Math.max(0,Math.floor((br.lat+90)/pres)),pi1=Math.min(Math.floor(180/pres)-1,Math.floor((tl.lat+90)/pres)),pj0=Math.floor((lngL+180)/pres),pj1=Math.floor((lngR+180)/pres);
     const PX=j=>toScreen(cen.lat,j*pres-180).x,PY=i=>toScreen((i+1)*pres-90,cen.lng).y;
     c.lineWidth=1.5;c.strokeStyle=C.line2;c.beginPath();
     for(let j=pj0;j<=pj1+1;j++){const x=Math.round(PX(j))+0.5;c.moveTo(x,0);c.lineTo(x,H)}
     for(let i=pi0;i<=pi1+1;i++){const y=Math.round(PY(i-1))+0.5;c.moveTo(0,y);c.lineTo(W,y)}
     c.stroke();
     if(Math.abs(PX(pj0+1)-PX(pj0))>=120){c.fillStyle=C.label;c.font='500 11px '+MONO;c.textBaseline='top';c.textAlign='left';
-      for(let i=pi0;i<=pi1;i++)for(let j=pj0;j<=pj1;j++)c.fillText(labelFor(OLC.keyFromIdx(i,j,p-1)),PX(j)+6,PY(i)+5)}}
-  const A=S.agg[p]||new Map();
-  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=OLC.keyFromIdx(i,j,p),e=A.get(k);
+      for(let i=pi0;i<=pi1;i++)for(let j=pj0;j<=pj1;j++)c.fillText(labelFor(OLC.keyFromIdx(i,((j%(360/pres))+(360/pres))%(360/pres),p-1)),PX(j)+6,PY(i)+5)}}
+  const A=S.agg[p]||new Map(),nj=Math.round(360/res);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const jj=((j%nj)+nj)%nj,k=OLC.keyFromIdx(i,jj,p),e=A.get(k);const ch=Math.abs(ys[i-1]-ys[i]);
     if(!e){if(p===5&&cw>=64){c.fillStyle=C.label2;c.font='400 10px '+MONO;c.textAlign='center';c.textBaseline='middle';c.fillText(k.slice(8),xs[j]+cw/2,ys[i]+ch/2)}continue}
     drawTile(c,xs[j],ys[i],cw,ch,e,p,k)}
-  const mb=OLC.bounds(OLC.key(S.me.lat,S.me.lng,p)),ms=toScreen(mb.latHi,mb.lngLo);
-  c.save();c.setLineDash([5,4]);c.lineWidth=2;c.strokeStyle=C.flag;c.strokeRect(ms.x+1,ms.y+1,cw-2,ch-2);c.restore();
-  if(S.selected){const sbd=OLC.bounds(S.selected);if(sbd.p===p){const ss=toScreen(sbd.latHi,sbd.lngLo);c.lineWidth=2;c.strokeStyle=C.ink;c.strokeRect(ss.x+1.5,ss.y+1.5,cw-3,ch-3)}}
+  const mb=OLC.bounds(OLC.key(S.me.lat,S.me.lng,p)),ms=toScreen(mb.latHi,mb.lngLo),me2=toScreen(mb.latLo,mb.lngHi);
+  c.save();c.setLineDash([5,4]);c.lineWidth=2;c.strokeStyle=C.flag;c.strokeRect(ms.x+1,ms.y+1,me2.x-ms.x-2,me2.y-ms.y-2);c.restore();
+  if(S.selected){const sbd=OLC.bounds(S.selected);if(sbd.p===p){const ss=toScreen(sbd.latHi,sbd.lngLo),s2=toScreen(sbd.latLo,sbd.lngHi);c.lineWidth=2;c.strokeStyle=C.ink;c.strokeRect(ss.x+1.5,ss.y+1.5,s2.x-ss.x-3,s2.y-ss.y-3)}}
   const mp=toScreen(S.me.lat,S.me.lng);$('#me').style.transform=`translate(${mp.x}px,${mp.y}px)`;
   updateMapChrome(p)}
 
 function drawTile(c,x,y,w,h,e,p,k){const pad=w>28?1.5:0.5,rx=x+pad,ry=y+pad,rw=w-pad*2,rh=h-pad*2,rad=w>40?3:w>20?2:0;
-  let sc=1;const an=map.anims.get(k);if(an!=null){const t=(performance.now()-an)/520;if(t<1){sc=0.6+0.4*(1-Math.pow(1-t,3));requestRender()}else map.anims.delete(k)}
+  let sc=1;const an=map.anims.get(k);if(an!=null){const tt=(performance.now()-an)/520;if(tt<1){sc=0.6+0.4*(1-Math.pow(1-tt,3));requestRender()}else map.anims.delete(k)}
   c.save();if(sc!==1){c.translate(rx+rw/2,ry+rh/2);c.scale(sc,sc);c.translate(-(rx+rw/2),-(ry+rh/2))}
   c.beginPath();roundRect(c,rx,ry,rw,rh,rad);c.clip();
   const img=photoImage(e.cover);
-  if(img){const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.max(rw/iw,rh/ih),dw=iw*s,dh=ih*s;c.drawImage(img,rx+(rw-dw)/2,ry+(rh-dh)/2,dw,dh)}else{c.fillStyle='#3A332D';c.fillRect(rx,ry,rw,rh)}
+  if(img){const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.max(rw/iw,rh/ih),dw=iw*s,dh=ih*s;c.drawImage(img,rx+(rw-dw)/2,ry+(rh-dh)/2,dw,dh)}else{c.fillStyle='#3A332D';c.fillRect(rx,ry,rw,rh)}
   const bw=Math.min(3,Math.max(1,w/40));c.lineWidth=bw*2;c.strokeStyle=e.mine?C.flag:C.tile;c.beginPath();roundRect(c,rx,ry,rw,rh,rad);c.stroke();
   c.restore();
-  if(w>=44){c.font='500 10px '+SANS;const t=p<5?e.cells+'칸':'♥'+e.cover.likes+(e.photos>1?'  '+e.photos+'장':'');const tw=c.measureText(t).width+10,th=16;const px=p<5?rx+rw-4-tw:rx+4,py=p<5?ry+rh-4-th:ry+4;
-    c.fillStyle=C.pill;c.beginPath();roundRect(c,px,py,tw,th,8);c.fill();c.fillStyle=C.ink;c.textBaseline='middle';c.textAlign='left';c.fillText(t,px+5,py+th/2+0.5)}}
+  if(w>=44){c.font='500 10px '+SANS;const tx=p<5?e.cells+' '+t('cell'):'♥'+e.cover.likes+(e.photos>1?'  '+t('photos_n',{n:e.photos}):'');const tw=c.measureText(tx).width+10,th=16;const px=p<5?rx+rw-4-tw:rx+4,py=p<5?ry+rh-4-th:ry+4;
+    c.fillStyle=C.pill;c.beginPath();roundRect(c,px,py,tw,th,8);c.fill();c.fillStyle=C.ink;c.textBaseline='middle';c.textAlign='left';c.fillText(tx,px+5,py+th/2+0.5)}}
 
-function updateMapChrome(p){const cen=center();$('#hdr-place').textContent=OLC.short(OLC.key(cen.lat,cen.lng,4))+' 구역';$('#hdr-code').textContent=OLC.format(OLC.key(cen.lat,cen.lng,p));$('#lvl').textContent=LEVEL_NAME[p];
-  const P=pxPerDeg(),pxm=P.y/111320;const targets=[10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];let best=10;for(const t of targets)if(t*pxm<=110)best=t;$('#scalebar span').style.width=(best*pxm)+'px';$('#scalebar b').textContent=best>=1000?(best/1000)+'km':best+'m'}
+function updateMapChrome(p){const cen=center();$('#hdr-place').textContent=p>=4?OLC.short(OLC.key(cen.lat,cen.lng,4))+' '+t('zone'):labelFor(OLC.key(cen.lat,cen.lng,Math.max(1,p)))+' · '+LEVEL_NAME(p);$('#hdr-code').textContent=OLC.format(OLC.key(cen.lat,cen.lng,Math.max(2,p)));$('#lvl').textContent=LEVEL_NAME(p);
+  const P=pxPerDeg(),pxm=P.y/111320;const targets=[10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000,2000000,5000000];let best=10;for(const tg of targets)if(tg*pxm<=110)best=tg;$('#scalebar span').style.width=(best*pxm)+'px';$('#scalebar b').textContent=best>=1000?(best/1000)+'km':best+'m'}
 
 function bindMapInput(){const el=map.canvas,ptrs=new Map();let last=null,tap=null;
   const snap=()=>{const a=[...ptrs.values()];if(a.length===1)return{cx:a[0].x,cy:a[0].y,d:0};return{cx:(a[0].x+a[1].x)/2,cy:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}};
@@ -633,183 +755,219 @@ function onTap(x,y){const w=toWorld(x,y),p=pairsForScale(),key=OLC.key(w.lat,w.l
 // ---------- 시트
 function openSheet(html){$('#sheet-body').innerHTML=html;$('#sheet-body').scrollTop=0;$('#sheet').classList.add('open');$('#backdrop').classList.add('open');mountPhotos($('#sheet-body'))}
 function closeSheet(){$('#sheet').classList.remove('open');$('#backdrop').classList.remove('open');S.sheet=null;S.selected=null;requestRender()}
-function refreshSheet(){if(!S.sheet||S.sheet.type==='edit')return;const st=$('#sheet-body').scrollTop;$('#sheet-body').innerHTML=S.sheet.type==='cell'?cellSheetHTML(S.sheet.key):blockSheetHTML(S.sheet.key);mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=st}
+function refreshSheet(){if(!S.sheet)return;const st=$('#sheet-body').scrollTop;if(S.sheet.type==='cell')$('#sheet-body').innerHTML=cellSheetHTML(S.sheet.key);else if(S.sheet.type==='block')$('#sheet-body').innerHTML=blockSheetHTML(S.sheet.key);else return;mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=st}
 function openCellSheet(key){S.sheet={type:'cell',key};openSheet(cellSheetHTML(key))}
 function openBlockSheet(key){S.sheet={type:'block',key};openSheet(blockSheetHTML(key))}
-function freeNeighbors(key){const o=OLC.parse(key),out=[];for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){if(!di&&!dj)continue;const k=OLC.keyFromIdx(o.i+di,o.j+dj,5),c=S.world.get(k);if(!c||c.photos.length<3)out.push(k)}return out.slice(0,4)}
+const likeBtn=p=>`<button class="like ${S.myLikes.has(p.id)?'on':''}" data-like="${p.id}">♥ ${p.likes}</button>`;
+const cmtBtn=p=>`<button class="like cmt" data-comments="${p.id}">💬 ${S.ccount.get(p.id)||0}</button>`;
 function cellSheetHTML(key){const cell=S.world.get(key),b=OLC.bounds(key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),isHere=OLC.key(S.me.lat,S.me.lng)===key;
-  const photos=cell?cell.photos.slice().sort((a,c)=>better(a,c)?-1:1):[],cover=photos[0]||null,first=cell?cell.photos.reduce((m,p)=>!m||p.ts<m.ts?p:m,null):null,full=photos.length>=3;
-  let h=`<div class="sh-head"><div><div class="sh-title">${esc(key.slice(4,8))} 구역의 칸 <span class="mono">+${esc(key.slice(8))}</span></div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?'지금 여기':'나에게서 '+fmtDist(dist)}</span></div></div><div class="slots">${[0,1,2].map(i=>`<i class="${i<photos.length?'on':''}"></i>`).join('')}<span>${photos.length}/3</span></div></div>`;
-  if(cover){h+=`<div class="cover"><div class="ph" data-photo="${cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">커버</span>${cover===first?'<span class="badge">최초</span>':''}<span class="badge dark">${cover.user.me?'나':esc(nameOf(cover))} ♥ ${cover.likes}</span></div></div>`;
-    h+=`<div class="plist">${photos.map(p=>`<div class="prow"><div class="ph sm" data-photo="${p.id}" data-size="small"></div><div class="pinfo"><b>${p.user.me?'나 ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}${p===first?', 최초':''}${p===cover?', 커버':''}</span></div><button class="like ${S.myLikes.has(p.id)?'on':''}" data-like="${p.id}">♥ ${p.likes}</button></div>`).join('')}</div>`}
-  else h+=`<div class="empty-cell"><div class="big">아직 아무도 덮지 않은 칸</div><p>첫 사진을 올리면 이 칸의 최초 사진이자 커버가 돼요.</p></div>`;
-  if(isHere)h+=full?`<div class="note warn">이 칸은 3장이 다 찼어요. 비어 있는 옆 칸: ${freeNeighbors(key).map(k=>'<span class="mono">'+OLC.short(k)+'</span>').join('')||'없음'}</div>`:`<button class="btn primary" data-act="shoot">여기서 커버럽</button>`;
-  else h+=`<div class="note">이 칸에 직접 가야 찍을 수 있어요. 지금 위치에서 ${fmtDist(dist)} 떨어져 있어요.</div>`;
-  h+=`<div class="rule"><span>커버는 좋아요가 가장 많은 사진, 같으면 먼저 올린 사진</span></div>`;return h}
-function blockSheetHTML(key){const b=OLC.bounds(key),e=(S.agg[b.p]||new Map()).get(key),name=LEVEL_NAME[b.p];
+  const photos=cell?sortedPhotos(cell):[],cover=photos[0]||null;
+  let h=`<div class="sh-head"><div><div class="sh-title">${esc(key.slice(4,8))} ${t('zone')} <span class="mono">+${esc(key.slice(8))}</span></div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?t('here'):t('from_me',{d:fmtDist(dist)})}</span><span>${t('photos_n',{n:photos.length})}</span></div></div></div>`;
+  if(cover){h+=`<div class="cover"><div class="ph" data-photo="${cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">${t('cover')}</span><span class="badge dark">${cover.user.me?t('me'):esc(nameOf(cover))} ♥ ${cover.likes}</span></div></div>`;
+    h+=`<div class="plist">${photos.map(p=>`<div class="prow"><div class="ph sm" data-photo="${p.id}" data-size="small" data-reel="${p.id}"></div><div class="pinfo"><b>${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}${p===cover?', '+t('cover'):''}</span></div>${cmtBtn(p)}${likeBtn(p)}</div>`).join('')}</div>`}
+  else h+=`<div class="empty-cell"><div class="big">${t('empty_cell')}</div><p>${t('empty_cell_p')}</p></div>`;
+  if(isHere)h+=`<button class="btn primary" data-act="shoot">${t('shoot_here')}</button>`;else h+=`<div class="note">${t('must_be_here',{d:fmtDist(dist)})}</div>`;
+  h+=`<div class="rule"><span>${t('rule')}</span></div>`;return h}
+function blockSheetHTML(key){const b=OLC.bounds(key),e=(S.agg[b.p]||new Map()).get(key),name=LEVEL_NAME(b.p);
   let h=`<div class="sh-head"><div><div class="sh-title">${esc(labelFor(key))} ${name}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span></div></div></div>`;
-  if(e){const total=Math.pow(400,5-b.p),pct=e.cells/total*100;h+=`<div class="cover"><div class="ph" data-photo="${e.cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">베스트</span><span class="badge dark">${e.cover.user.me?'나':esc(nameOf(e.cover))} ♥ ${e.cover.likes}</span></div></div><div class="stats2"><div><b>${fmtInt(e.cells)}</b><span>덮인 칸</span></div><div><b>${fmtInt(e.photos)}</b><span>사진</span></div><div><b>${pct<0.01?pct.toFixed(4):pct.toFixed(2)}%</b><span>커버율</span></div></div>`}
-  else h+=`<div class="empty-cell"><div class="big">아직 비어 있는 ${name}</div><p>이 안의 14m 칸 ${fmtInt(Math.pow(400,5-b.p))}개 중 덮인 곳이 없어요.</p></div>`;
-  h+=`<button class="btn" data-act="zoomto" data-key="${key}">확대해서 보기</button>`;return h}
+  if(e){const total=Math.pow(400,5-b.p),pct=e.cells/total*100;h+=`<div class="cover"><div class="ph" data-photo="${e.cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">${t('best')}</span><span class="badge dark">${e.cover.user.me?t('me'):esc(nameOf(e.cover))} ♥ ${e.cover.likes}</span></div></div><div class="stats2"><div><b>${fmtInt(e.cells)}</b><span>${t('covered_cells')}</span></div><div><b>${fmtInt(e.photos)}</b><span>${t('photos')}</span></div><div><b>${pct<0.01?pct.toExponential(1):pct.toFixed(2)}%</b><span>${t('coverage')}</span></div></div>`}
+  else h+=`<div class="empty-cell"><div class="big">${t('empty_zone',{name})}</div><p>${t('empty_zone_p',{n:fmtInt(Math.pow(400,5-b.p))})}</p></div>`;
+  h+=`<button class="btn" data-act="zoomto" data-key="${key}">${t('zoom_in')}</button>`;return h}
 async function toggleLike(id){if(!S.user)return needLogin();const ph=S.photos.get(id);if(!ph)return;const on=S.myLikes.has(id);
   if(on){S.myLikes.delete(id);ph.likes--}else{S.myLikes.add(id);ph.likes++}
   rebuildAgg();refreshSheet();requestRender();$$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',!on);b.textContent='♥ '+ph.likes});
   const {error}=on?await sb.from('likes').delete().match({photo_id:id,user_id:S.user.id}):await sb.from('likes').insert({photo_id:id,user_id:S.user.id});
-  if(error){console.warn(error);toast('좋아요를 저장하지 못했어요');loadWorld()}}
+  if(error){console.warn(error);toast(t('like_fail'));loadWorld()}}
+
+// ---------- 댓글
+async function openComments(id){const ph=S.photos.get(id);if(!ph)return;S.sheet={type:'comments',key:id};
+  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('comments')}</div><div class="sh-sub"><span>${ph.user.me?t('me'):esc(nameOf(ph))}</span><span class="mono">${OLC.short(ph.key)}</span></div></div><div class="ph sm cm-th" data-photo="${id}" data-size="small"></div></div>
+  <div class="clist" id="clist"><p class="hint">…</p></div>
+  <div class="cform"><input id="cinput" class="email-in" maxlength="300" placeholder="${t('comment_ph')}"><button class="btn primary small" id="csend">${t('send')}</button></div>`);
+  const {data,error}=await sb.from('comments').select('id,user_id,body,created_at').eq('photo_id',id).order('created_at',{ascending:true});
+  if(error){$('#clist').innerHTML=`<p class="hint">${esc(error.message)}</p>`;return}
+  let names=new Map();const ids=[...new Set((data||[]).map(c=>c.user_id))];if(ids.length){const {data:pr}=await sb.from('profiles').select('id,name').in('id',ids);for(const p of pr||[])names.set(p.id,p.name)}
+  renderComments(data||[],names);
+  $('#csend').addEventListener('click',()=>sendComment(id));$('#cinput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendComment(id)}})}
+function renderComments(list,names){$('#clist').innerHTML=list.length?list.map(c=>`<div class="crow2"><b>${S.user&&c.user_id===S.user.id?t('me'):esc(names.get(c.user_id)||t('anon'))}</b><span>${esc(c.body)}</span><small>${timeAgo(new Date(c.created_at).getTime())}</small></div>`).join(''):`<p class="hint">${t('no_comments')}</p>`;$('#clist').scrollTop=1e9}
+async function sendComment(id){if(!S.user)return needLogin();const inp=$('#cinput'),body=inp.value.trim();if(!body)return;inp.disabled=true;
+  const {error}=await sb.from('comments').insert({photo_id:id,user_id:S.user.id,body});inp.disabled=false;
+  if(error){toast(t('comment_fail'));return}inp.value='';S.ccount.set(id,(S.ccount.get(id)||0)+1);$$('[data-comments="'+id+'"]').forEach(b=>b.textContent='💬 '+S.ccount.get(id));
+  const {data}=await sb.from('comments').select('id,user_id,body,created_at').eq('photo_id',id).order('created_at',{ascending:true});
+  let names=new Map();const ids=[...new Set((data||[]).map(c=>c.user_id))];if(ids.length){const {data:pr}=await sb.from('profiles').select('id,name').in('id',ids);for(const p of pr||[])names.set(p.id,p.name)}
+  renderComments(data||[],names)}
 
 // ---------- 내 커버
 function myCells(){return[...S.world.values()].filter(c=>c.photos.some(p=>p.user.me))}
 function renderMine(){const el=$('#mine-list'),cells=myCells(),covers=cells.filter(c=>coverOf(c).user.me).length;
-  $('#mine-stats').textContent=cells.length?`덮은 칸 ${cells.length}개, 그중 내 사진이 커버인 칸 ${covers}개`:'';
-  if(!cells.length){el.innerHTML=`<div class="empty"><div class="art"></div><h3>아직 덮은 칸이 없어요</h3><p>지금 있는 곳에서 첫 사진을 올리면<br>그 칸의 최초 사진이 돼요. Let's coverrrup!</p><button class="btn primary" data-goto="camera">첫 사진 올리기</button></div>`;return}
+  $('#mine-stats').textContent=cells.length?t('mine_stats',{n:cells.length,c:covers}):'';
+  if(!cells.length){el.innerHTML=`<div class="empty"><div class="art"></div><h3>${t('mine_empty')}</h3><p>${t('mine_empty_p')}</p><button class="btn primary" data-goto="camera">${t('first_photo')}</button></div>`;return}
   const groups=new Map();for(const c of cells){const g=c.key.slice(0,8);if(!groups.has(g))groups.set(g,[]);groups.get(g).push(c)}
   const myLatest=c=>Math.max(...c.photos.filter(p=>p.user.me).map(p=>p.ts));
   const gs=[...groups.entries()].sort((a,b)=>Math.max(...b[1].map(myLatest))-Math.max(...a[1].map(myLatest)));
-  el.innerHTML=gs.map(([g,cs],gi)=>`<section class="group"><div class="ghead"><span class="gnum">지역 ${gi+1}</span><div><div class="gtitle">${esc(g.slice(4))} 구역</div><div class="gsub"><span class="mono">${OLC.format(g)}</span><span>275m 블록</span><span>${cs.length}칸</span></div></div></div>${cs.sort((a,c)=>myLatest(c)-myLatest(a)).map(cellItemHTML).join('')}</section>`).join('');
+  el.innerHTML=gs.map(([g,cs],gi)=>`<section class="group"><div class="ghead"><span class="gnum">${t('region')} ${gi+1}</span><div><div class="gtitle">${esc(g.slice(4))} ${t('zone')}</div><div class="gsub"><span class="mono">${OLC.format(g)}</span><span>${t('block')}</span><span>${cs.length} ${t('cell')}</span></div></div></div>${cs.sort((a,c)=>myLatest(c)-myLatest(a)).map(cellItemHTML).join('')}</section>`).join('');
   mountPhotos(el)}
 function cellItemHTML(c){const cover=coverOf(c),mine=c.photos.filter(p=>p.user.me),others=c.photos.filter(p=>!p.user.me);
-  return`<article class="cell-item" data-open="${c.key}"><div class="chead"><span class="mono code">${OLC.short(c.key)}</span>${cover.user.me?'<span class="badge gold">내 사진이 커버</span>':`<span class="badge">커버는 ${esc(nameOf(cover))}</span>`}<span class="slot">${c.photos.length}/3</span></div><div class="ccover"><div class="ph" data-photo="${cover.id}" data-size="large"></div><span class="likes">♥ ${cover.likes}</span></div><div class="crow"><label>내 사진 ${mine.length}</label><div class="thumbs">${mine.map(p=>`<div class="ph th" data-photo="${p.id}" data-size="small"></div>`).join('')}</div></div><div class="crow"><label>다른 사람 ${others.length}</label><div class="thumbs">${others.length?others.map(p=>`<div class="ph th" data-photo="${p.id}" data-size="small"><span>${esc(nameOf(p))}</span></div>`).join(''):'<span class="none">아직 없어요</span>'}</div></div></article>`}
+  return`<article class="cell-item" data-open="${c.key}"><div class="chead"><span class="mono code">${OLC.short(c.key)}</span>${cover.user.me?`<span class="badge gold">${t('cover_is_mine')}</span>`:`<span class="badge">${t('cover_by',{name:esc(nameOf(cover))})}</span>`}<span class="slot">${t('photos_n',{n:c.photos.length})}</span></div><div class="ccover"><div class="ph" data-photo="${cover.id}" data-size="large"></div><span class="likes">♥ ${cover.likes}</span></div><div class="crow"><label>${t('my_photos_n',{n:mine.length})}</label><div class="thumbs">${mine.map(p=>`<div class="ph th" data-photo="${p.id}" data-size="small"></div>`).join('')}</div></div><div class="crow"><label>${t('others_n',{n:others.length})}</label><div class="thumbs">${others.length?others.map(p=>`<div class="ph th" data-photo="${p.id}" data-size="small"><span>${esc(nameOf(p))}</span></div>`).join(''):`<span class="none">${t('none_yet')}</span>`}</div></div></article>`}
 function openCellFromList(key){switchTab('map');const b=OLC.bounds(key);S.selected=key;requestAnimationFrame(()=>{centerOn(b.lat,b.lng,160,true);setTimeout(()=>openCellSheet(key),300)})}
 
-// ---------- 주변
-let feedShown=30;
-function feedCells(){return[...S.world.values()].filter(c=>c.photos.length).map(c=>({c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})).sort((a,b)=>a.d-b.d)}
-function renderFeed(){const el=$('#feed-list'),all=feedCells(),list=all.slice(0,feedShown);
-  $('#feed-sub').textContent=all.length?`내 위치에서 가까운 순으로, 덮인 칸 ${fmtInt(all.length)}개`:'가까운 칸의 커버 사진부터 보여줘요';
-  if(!all.length){el.innerHTML=`<div class="empty"><div class="art"></div><h3>아직 덮인 칸이 없어요</h3><p>첫 사진을 올려 이 동네를 열어 보세요.</p><button class="btn primary" data-goto="camera">커버럽 하기</button></div>`;return}
-  el.innerHTML=list.map(({c,d})=>feedItemHTML(c,d)).join('')+(all.length>feedShown?`<button class="btn" id="feed-more">더 보기 (${fmtInt(all.length-feedShown)}개 남음)</button>`:`<div class="fend">여기까지가 덮인 ${fmtInt(all.length)}칸이에요.<br>다음 칸은 아직 아무도 덮지 않았어요.</div>`);
-  mountPhotos(el)}
-function feedItemHTML(c,d){const cover=coverOf(c),others=c.photos.filter(p=>p!==cover);
-  return`<article class="feed-item" data-key="${c.key}"><div class="fhead"><div><b>${esc(c.key.slice(4,8))} 구역 <span class="mono">+${esc(c.key.slice(8))}</span></b><span class="mono">${OLC.format(c.key)}</span></div><span class="fdist">${d<20?'바로 여기':fmtDist(d)}</span></div>
-  <div class="fphoto ph" data-photo="${cover.id}" data-size="large" data-open-cell="${c.key}"><div class="cover-badges"><span class="badge gold">커버</span>${cover.user.me?'<span class="badge dark">나</span>':''}</div></div>
-  <div class="fbar"><span class="who">${cover.user.me?'나 ('+esc(nameOf(cover))+')':esc(nameOf(cover))}, ${timeAgo(cover.ts)}</span><button class="like ${S.myLikes.has(cover.id)?'on':''}" data-like="${cover.id}">♥ ${cover.likes}</button>${others.length?`<button class="fmore" data-expand="${c.key}">+${others.length}장 더 보기</button>`:''}</div>
-  <div class="fgrid" data-grid="${c.key}" hidden>${others.map(p=>`<div class="ph" data-photo="${p.id}" data-size="small" data-open-cell="${c.key}"><span>${p.user.me?'나':esc(nameOf(p))} ♥${p.likes}</span></div>`).join('')}</div></article>`}
+// ---------- 주변 (릴스)
+const reel={items:[],shown:0,cur:0};
+function buildReelList(){const cells=[...S.world.values()].filter(c=>c.photos.length).map(c=>({c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})).sort((a,b)=>a.d-b.d);
+  const myKey=OLC.key(S.me.lat,S.me.lng),items=[];for(const {c,d} of cells){const ps=sortedPhotos(c);ps.forEach((p,i)=>items.push({p,c,d,idx:i,n:ps.length,mine:c.key===myKey}))}return items}
+function renderFeed(reset){const el=$('#reels');if(reset){reel.items=buildReelList();reel.shown=0;reel.cur=0;el.innerHTML='';el.scrollTop=0}
+  if(!reel.items.length){el.innerHTML=`<div class="empty reel-empty"><div class="art"></div><h3>${t('feed_empty')}</h3><p>${t('feed_empty_p')}</p><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`;$('#reel-dist').hidden=true;return}
+  $('#reel-dist').hidden=false;const end=Math.min(reel.items.length,reel.shown+12);let h='';
+  for(let i=reel.shown;i<end;i++)h+=reelHTML(reel.items[i],i);
+  const old=el.querySelector('.reel-end');if(old)old.remove();
+  el.insertAdjacentHTML('beforeend',h);
+  if(end>=reel.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`);
+  reel.shown=end;updateReelDist()}
+function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
+  return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><img data-src="${p.full}" src="${p.thumb}" alt="" style="filter:${cssFilter(f)}">
+  <div class="reel-top"><span class="badge ${it.mine?'gold':''}">${it.mine?t('my_zone'):t('near_zone')}</span><span class="badge dark mono">${OLC.short(it.c.key)}</span>${it.idx===0?`<span class="badge gold">${t('cover')}</span>`:`<span class="badge dark">${it.idx+1}/${it.n}</span>`}</div>
+  <div class="reel-bottom"><div class="reel-info"><b>${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
+  <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}<button class="like" data-open-cell="${it.c.key}">▦</button></div></div></article>`}
+function updateReelDist(){const el=$('#reels');if(!el.clientHeight||!reel.items.length)return;const i=Math.round(el.scrollTop/el.clientHeight);reel.cur=i;const it=reel.items[Math.min(i,reel.items.length-1)];
+  $('#reel-dist').innerHTML=`<small>${t('dist_label')}</small><b>${it.d<20?t('here'):fmtDist(it.d)}</b>`;
+  el.querySelectorAll('.reel img[data-src]').forEach(im=>{const k=+im.parentElement.dataset.i;if(Math.abs(k-i)<=2){im.src=im.dataset.src;im.removeAttribute('data-src')}});
+  if(i>=reel.shown-4&&reel.shown<reel.items.length)renderFeed(false)}
 
 // ---------- 내 사진 수정
 function renderMyPhotos(){const el=$('#my-photos'),mine=[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts);
-  $('#my-photos-hint').textContent=mine.length?'사진을 누르면 필터를 바꾸거나 지울 수 있어요.':'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.';
-  el.innerHTML=mine.map(p=>{const cell=S.world.get(p.key),isCover=cell&&coverOf(cell)===p;return`<div class="ph" data-photo="${p.id}" data-size="small" data-edit="${p.id}"><span class="${isCover?'gold':''}">${isCover?'커버':OLC.short(p.key).slice(-3)}</span></div>`}).join('');mountPhotos(el)}
+  $('#my-photos-hint').textContent=mine.length?t('my_photos_hint'):t('my_photos_none');
+  el.innerHTML=mine.map(p=>{const cell=S.world.get(p.key),isCover=cell&&coverOf(cell)===p;return`<div class="ph" data-photo="${p.id}" data-size="small" data-edit="${p.id}"><span class="${isCover?'gold':''}">${isCover?t('cover'):OLC.short(p.key).slice(-3)}</span></div>`}).join('');mountPhotos(el)}
 let editFilter=null,delArmed=false;
 function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;S.sheet={type:'edit',key:id};
-  openSheet(`<div class="sh-head"><div><div class="sh-title">내 사진 수정</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
+  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('edit_title')}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
   <div class="edit-prev"><img id="edit-img" alt="" crossorigin="anonymous"></div>
-  <div class="filters" id="edit-filters">${FILTERS.map(f=>`<button class="fchip${f===editFilter?' on':''}" data-ef="${f.id}"><span class="sw"><img src="${ph.thumb}" alt="" style="filter:${cssFilter(f)}"></span>${f.name}</button>`).join('')}</div>
-  <div class="row2"><button class="btn danger" data-act="del-photo" data-key="${id}">지우기</button><button class="btn primary" data-act="save-photo" data-key="${id}">필터 저장</button></div>
-  <div class="rule"><span>다시 찍기는 없어요. 지금 그 자리에서 새로 찍어 올리면 돼요.</span></div>`);
+  <div class="filters" id="edit-filters">${FILTERS.map(f=>`<button class="fchip${f===editFilter?' on':''}" data-ef="${f.id}"><span class="sw"><img src="${ph.thumb}" alt="" style="filter:${cssFilter(f)}"></span>${t('f_'+f.id)}</button>`).join('')}</div>
+  <div class="row2"><button class="btn danger" data-act="del-photo" data-key="${id}">${t('delete')}</button><button class="btn primary" data-act="save-photo" data-key="${id}">${t('save_filter')}</button></div>
+  <div class="rule"><span>${t('edit_rule')}</span></div>`);
   const im=$('#edit-img');im.src=ph.full;im.style.filter=cssFilter(editFilter);
   $('#edit-filters').addEventListener('click',e=>{const b=e.target.closest('[data-ef]');if(!b)return;editFilter=FILTERS.find(f=>f.id===b.dataset.ef)||FILTERS[0];im.style.filter=cssFilter(editFilter);$$('#edit-filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.ef===editFilter.id))})}
 function loadImg(url){return new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=url+(url.includes('?')?'&':'?')+'v='+Date.now()})}
-async function savePhotoFilter(id){const ph=S.photos.get(id);if(!ph||!editFilter||editFilter.id===ph.filter){closeSheet();return}toast('필터를 바꾸고 있어요');
+async function savePhotoFilter(id){const ph=S.photos.get(id);if(!ph||!editFilter||editFilter.id===ph.filter){closeSheet();return}toast(t('changing'));
   try{const im=await loadImg(ph.full);const tb=await canvasBlob(makeThumbCanvas(im,editFilter),0.75);
     const up=await sb.storage.from('photos').upload(thumbPath(ph.path),tb,{contentType:'image/jpeg',upsert:true});if(up.error)throw up.error;
     const {error}=await sb.from('photos').update({filter:editFilter.id}).eq('id',id);if(error)throw error;
-    ph.filter=editFilter.id;ph.thumb=pubUrl(thumbPath(ph.path))+'?v='+Date.now();IMG_CACHE.delete(id);closeSheet();renderMyPhotos();requestRender();toast(`필터를 ${editFilter.name}으로 바꿨어요`)}
-  catch(e){console.warn(e);toast('필터를 저장하지 못했어요')}}
+    ph.filter=editFilter.id;ph.thumb=pubUrl(thumbPath(ph.path))+'?v='+Date.now();IMG_CACHE.delete(id);closeSheet();renderMyPhotos();requestRender();toast(t('changed',{f:t('f_'+editFilter.id)}))}
+  catch(e){console.warn(e);toast(t('change_fail'))}}
 async function deletePhoto(id){const ph=S.photos.get(id);if(!ph)return;
-  const {error}=await sb.from('photos').delete().eq('id',id);if(error){console.warn(error);toast('지우지 못했어요');return}
+  const {error}=await sb.from('photos').delete().eq('id',id);if(error){console.warn(error);toast(t('del_fail'));return}
   await sb.storage.from('photos').remove([ph.path,thumbPath(ph.path)]);
   const cell=S.world.get(ph.key);if(cell){cell.photos=cell.photos.filter(p=>p.id!==id);if(!cell.photos.length)S.world.delete(ph.key)}
-  S.photos.delete(id);IMG_CACHE.delete(id);rebuildAgg();closeSheet();renderMyPhotos();renderProfile();updateCamPlace();requestRender();toast(cell&&cell.photos.length?'사진을 지웠어요':'사진을 지웠어요. 이 칸은 다시 빈 칸이 됐어요')}
+  S.photos.delete(id);IMG_CACHE.delete(id);rebuildAgg();closeSheet();renderMyPhotos();renderProfile();updateCamPlace();requestRender();toast(cell&&cell.photos.length?t('deleted'):t('deleted_empty'))}
 
 // ---------- 나
 function renderProfile(){renderMyPhotos();const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
-  $('#pf-name').value=S.profile.name;$('#pf-avatar').textContent=(S.profile.name||'여')[0];$('#pf-since').textContent=S.user?(S.user.email||'구글 계정'):'로그인이 필요해요';
+  $('#pf-name').value=S.profile.name;$('#pf-avatar').textContent=(S.profile.name||'?')[0];$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
   const pw=(v,m)=>Math.min(100,v/m*100)+'%';$('#sb-cells').style.setProperty('--w',pw(cells.length,20));$('#sb-photos').style.setProperty('--w',pw(myPhotos.length,30));$('#sb-covers').style.setProperty('--w',cells.length?pw(covers,cells.length):'0%');$('#sb-likes').style.setProperty('--w',pw(likes,50));
-  const key8=OLC.key(S.me.lat,S.me.lng,4),inBlock=cells.filter(c=>c.key.startsWith(key8)).length;
-  const pct=inBlock/4;$('#ring-num').textContent=pct<10?pct.toFixed(pct?2:0):Math.round(pct);$('#ring-val').setAttribute('stroke-dasharray',`${Math.max(pct/100*424,inBlock?6:0)} 565`);$('#ring-sub').textContent=inBlock?`▲ ${inBlock} 이 구역`:'아직 0칸';$('#ring-cap').textContent=`${key8.slice(4)} 구역 400칸 중 내가 덮은 비율`;
-  $('#prog-block-label').textContent=`지금 있는 ${key8.slice(4)} 구역 (400칸)`;$('#prog-block-val').textContent=`${inBlock}/400`;$('#prog-block').style.width=inBlock?Math.max(1.5,inBlock/4)+'%':'0';
-  const EARTH=1440000*2880000;$('#prog-earth-val').textContent=`${cells.length}칸, ${(cells.length/EARTH*100).toFixed(12)}%`;$('#prog-earth').style.width=cells.length?'1.5%':'0';
-  $('#prog-hint').textContent=`14m 칸 기준으로 지구 표면은 약 4조 1,472억 칸이에요. Coverrrup 전체에서 덮인 칸은 지금 ${fmtInt(S.agg[5]?S.agg[5].size:0)}개.`;
-  $('#loc-label').textContent=S.me.src==='gps'?`GPS 위치${S.me.acc?` (오차 약 ${Math.round(S.me.acc)}m)`:''}`:'위치를 아직 못 받았어요 (기본 위치)';$('#loc-code').textContent=OLC.format(OLC.key(S.me.lat,S.me.lng))}
-function locate(quiet){if(!navigator.geolocation){if(!quiet)toast('이 브라우저는 위치 기능이 없어요');return}if(!quiet)toast('위치를 확인하고 있어요');
-  navigator.geolocation.getCurrentPosition(pos=>{const first=S.me.src!=='gps';S.me={lat:pos.coords.latitude,lng:pos.coords.longitude,src:'gps',acc:pos.coords.accuracy};updateCamPlace();renderProfile();if(S.tab==='feed')renderFeed();requestRender();if(first||!quiet)centerOn(S.me.lat,S.me.lng,180,true)},
-    err=>{console.warn(err);if(!quiet)toast('위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요')},{enableHighAccuracy:true,timeout:10000,maximumAge:20000})}
+  const key8=OLC.key(S.me.lat,S.me.lng,4),inBlock=cells.filter(c=>c.key.startsWith(key8)).length,z=key8.slice(4);
+  const pct=inBlock/4;$('#ring-num').textContent=pct<10?pct.toFixed(pct?2:0):Math.round(pct);$('#ring-val').setAttribute('stroke-dasharray',`${Math.max(pct/100*424,inBlock?6:0)} 565`);$('#ring-sub').textContent=inBlock?t('ring_sub',{n:inBlock}):t('ring_zero');$('#ring-cap').textContent=t('ring_cap',{z});
+  $('#prog-block-label').textContent=t('prog_block',{z});$('#prog-block-val').textContent=`${inBlock}/400`;$('#prog-block').style.width=inBlock?Math.max(1.5,inBlock/4)+'%':'0';
+  const EARTH=1440000*2880000;$('#prog-earth-val').textContent=t('prog_earth_val',{n:cells.length,p:(cells.length/EARTH*100).toFixed(12)});$('#prog-earth').style.width=cells.length?'1.5%':'0';
+  $('#prog-hint').textContent=t('prog_hint',{n:fmtInt(S.agg[5]?S.agg[5].size:0)});
+  $('#loc-label').textContent=S.me.src==='gps'?t('loc_gps')+(S.me.acc?t('loc_acc',{m:Math.round(S.me.acc)}):''):t('loc_none');$('#loc-code').textContent=OLC.format(OLC.key(S.me.lat,S.me.lng))}
+function locate(quiet){if(!navigator.geolocation){if(!quiet)toast(t('no_geo'));return}if(!quiet)toast(t('locating'));
+  navigator.geolocation.getCurrentPosition(pos=>{const first=S.me.src!=='gps';S.me={lat:pos.coords.latitude,lng:pos.coords.longitude,src:'gps',acc:pos.coords.accuracy};updateCamPlace();renderProfile();if(S.tab==='feed')renderFeed(true);requestRender();if(first||!quiet)centerOn(S.me.lat,S.me.lng,180,true)},
+    err=>{console.warn(err);if(!quiet)toast(t('geo_denied'))},{enableHighAccuracy:true,timeout:10000,maximumAge:20000})}
 
 // ---------- 로그인
 function needLogin(){$('#login').classList.add('show');return false}
-async function initAuth(){if(!sb){toast('서버 설정을 불러오지 못했어요');return}
-  const hash=location.hash;if(hash.includes('error=')){const m=new URLSearchParams(hash.slice(1));setTimeout(()=>{$('#login-msg').textContent='로그인 오류: '+(m.get('error_description')||m.get('error'))},300)}
+async function initAuth(){if(!sb){toast(t('server_fail'));return}
+  const hash=location.hash;if(hash.includes('error=')){const m=new URLSearchParams(hash.slice(1));setTimeout(()=>{$('#login-msg').textContent=t('login_err',{e:m.get('error_description')||m.get('error')})},300)}
   const {data:{session}}=await sb.auth.getSession();await applySession(session);
   sb.auth.onAuthStateChange((_e,s)=>{applySession(s)})}
 async function applySession(session){S.user=session?session.user:null;
   if(S.user){const {data}=await sb.from('profiles').select('name').eq('id',S.user.id).maybeSingle();
-    if(data)S.profile.name=data.name;else{const nm=(S.user.user_metadata&&(S.user.user_metadata.name||S.user.user_metadata.full_name))||'여행자';await sb.from('profiles').upsert({id:S.user.id,name:nm});S.profile.name=nm}
-    $('#login').classList.remove('show')}else{S.profile.name='여행자';$('#login').classList.add('show')}
+    if(data)S.profile.name=data.name;else{const nm=(S.user.user_metadata&&(S.user.user_metadata.name||S.user.user_metadata.full_name))||t('traveler');await sb.from('profiles').upsert({id:S.user.id,name:nm});S.profile.name=nm}
+    $('#login').classList.remove('show')}else{S.profile.name=t('traveler');$('#login').classList.add('show')}
   await loadWorld();renderProfile()}
-async function signInGoogle(){$('#login-msg').textContent='구글로 이동하고 있어요';const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)$('#login-msg').textContent='구글 로그인 오류: '+error.message}
-async function signInEmail(){const email=$('#login-email').value.trim();if(!email.includes('@')){toast('이메일을 확인해 주세요');return}
-  $('#login-msg').textContent='메일을 보내고 있어요';const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error){$('#login-msg').textContent='메일 오류: '+error.message;return}
-  $('#login-msg').textContent=`${email}로 로그인 링크를 보냈어요. 메일을 열어 링크를 누르면 들어와요.`}
-async function signOut(){await sb.auth.signOut();toast('로그아웃했어요')}
+async function signInGoogle(){$('#login-msg').textContent=t('login_going');const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)$('#login-msg').textContent=t('login_gerr',{e:error.message})}
+async function signInEmail(){const email=$('#login-email').value.trim();if(!email.includes('@')){toast(t('check_email'));return}
+  $('#login-msg').textContent=t('login_sending');const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error){$('#login-msg').textContent=t('login_merr',{e:error.message});return}
+  $('#login-msg').textContent=t('login_sent',{e:email})}
+async function signOut(){await sb.auth.signOut();toast(t('signed_out'))}
 
 // ---------- 카메라
-function buildFilterChips(){const sample=sampleSwatch();$('#filters').innerHTML=FILTERS.map(f=>`<button class="fchip${f===S.filter?' on':''}" data-f="${f.id}"><span class="sw"><img src="${sample}" alt="" style="filter:${cssFilter(f)}"></span>${f.name}</button>`).join('');
-  $('#filters').addEventListener('click',e=>{const b=e.target.closest('.fchip');if(!b)return;S.filter=FILTERS.find(x=>x.id===b.dataset.f)||FILTERS[0];applyPreviewFilter()})}
+function buildFilterChips(){const sample=sampleSwatch();$('#filters').innerHTML=FILTERS.map(f=>`<button class="fchip${f===S.filter?' on':''}" data-f="${f.id}"><span class="sw"><img src="${sample}" alt="" style="filter:${cssFilter(f)}"></span>${t('f_'+f.id)}</button>`).join('')}
 function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,'#FFD6A5');g.addColorStop(.7,'#FF8E72');x.fillStyle=g;x.fillRect(0,0,64,64);x.fillStyle='#3E3A55';x.fillRect(0,40,64,24);x.fillStyle='#FFF6DA';x.beginPath();x.arc(40,18,8,0,7);x.fill();return c.toDataURL()}
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id))}
 function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#shot').classList.toggle('show',st==='review');$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
-  $('#shutter').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=st!=='review';
-  $('#cam-status').textContent=st==='starting'?'카메라를 준비하고 있어요':st==='review'?'방금 찍은 사진, 위치 확인됨':'';applyPreviewFilter()}
+  $('#shutter').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=st!=='review';$('#orig-toggle').classList.toggle('on',saveOrig);
+  $('#cam-status').textContent=st==='starting'?t('cam_prep'):st==='review'?t('cam_review'):'';applyPreviewFilter()}
 async function startCamera(){if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
-  try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}},audio:false});
+  try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:4096},height:{ideal:4096}},audio:false});
     S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
-function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(t=>t.stop());S.cam.stream=null}$('#video').srcObject=null}
+function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(tr=>tr.stop());S.cam.stream=null}$('#video').srcObject=null}
 function cropTo34(src,sw,sh){const TW=720,TH=960;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
 function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=240;tc.height=320;tc.getContext('2d').drawImage(src,0,0,240,320);return bake(tc,f)}
 function canvasBlob(c,q){return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
+function setOriginal(src,sw,sh){const c=document.createElement('canvas');c.width=sw;c.height=sh;c.getContext('2d').drawImage(src,0,0,sw,sh);S.cam.orig=c;S.cam.origBlob=null;canvasBlob(c,0.92).then(b=>{S.cam.origBlob=b})}
+let saveOrig=localStorage.getItem('ctw-saveorig')!=='0';
+async function saveOriginal(){if(!saveOrig||!S.cam.orig)return;let blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);const name='coverrrup-'+new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)+'.jpg';
+  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved'))}catch(e){toast(t('orig_skip'))}}
 function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);setCamState('review')}
-function resetShot(){S.cam.shot=null;$('#shot').removeAttribute('src')}
+function resetShot(){S.cam.shot=null;S.cam.orig=null;S.cam.origBlob=null;$('#shot').removeAttribute('src')}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
-  const st=S.me.src!=='gps'?'위치를 먼저 받아야 해요':n===0?'빈 칸이에요. 첫 사진이 돼요':n<3?`${n}/3장, 커버에 도전해요`:'3장이 다 찼어요. 옆 칸으로 가 보세요';
-  $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=n>=3||S.me.src!=='gps'}
-async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();if(S.me.src!=='gps'){toast('위치를 먼저 받아야 올릴 수 있어요');locate();return}
-  const key=OLC.key(S.me.lat,S.me.lng),cell=ensureCell(key);if(cell.photos.length>=3){toast('이 칸은 3장이 다 찼어요. 옆 칸으로 가 보세요');return}
-  const btn=$('#upload');btn.disabled=true;btn.textContent='올리는 중';
+  const st=S.me.src!=='gps'?t('cam_place_noloc'):n===0?t('cam_place_empty'):t('cam_place_n',{n});
+  $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps'}
+async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();if(S.me.src!=='gps'){toast(t('need_loc'));locate();return}
+  const key=OLC.key(S.me.lat,S.me.lng),cell=ensureCell(key);
+  const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal();
   try{const id=crypto.randomUUID(),path=`${S.user.id}/${id}.jpg`;
     const [fb,tb]=await Promise.all([canvasBlob(S.cam.shot,0.82),canvasBlob(makeThumbCanvas(S.cam.shot,S.filter),0.75)]);
     const u1=await sb.storage.from('photos').upload(path,fb,{contentType:'image/jpeg'});if(u1.error)throw u1.error;
     const u2=await sb.storage.from('photos').upload(thumbPath(path),tb,{contentType:'image/jpeg'});if(u2.error)throw u2.error;
     const {error}=await sb.from('photos').insert({id,cell:key,lat:S.me.lat,lng:S.me.lng,user_id:S.user.id,filter:S.filter.id,path});
-    if(error){await sb.storage.from('photos').remove([path,thumbPath(path)]);if(String(error.message).includes('cell_full'))throw new Error('이 칸은 방금 3장이 다 찼어요');throw error}
+    if(error){await sb.storage.from('photos').remove([path,thumbPath(path)]);throw error}
     const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:Date.now(),likes:0,filter:S.filter.id,path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path)};cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();
     resetShot();setCamState(S.cam.stream?'live':'fallback');switchTab('map');S.selected=key;map.anims.set(key,performance.now());const b=OLC.bounds(key);requestAnimationFrame(()=>centerOn(b.lat,b.lng,160,true));
-    toast(first?'첫 사진이에요. 이 칸은 이제 내가 덮었어요':`올렸어요 (${cell.photos.length}/3)`);updateCamPlace();setTimeout(()=>openCellSheet(key),600)}
-  catch(e){console.warn(e);toast('올리지 못했어요: '+(e.message||e))}
-  btn.disabled=false;btn.textContent='올리기'}
+    toast(first?t('up_first'):t('up_ok',{n:cell.photos.length}));updateCamPlace();setTimeout(()=>openCellSheet(key),600)}
+  catch(e){console.warn(e);toast(t('up_fail',{e:e.message||e}))}
+  btn.disabled=false;btn.textContent=t('upload')}
 
 // ---------- 탭 / 이벤트
-function switchTab(name){const prev=S.tab;S.tab=name;$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+function switchTab(name){const prev=S.tab;S.tab=name;$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name));
   if(prev==='camera'&&name!=='camera'){stopCamera();resetShot()}
   if(name==='camera'){if(!S.user){needLogin();switchTab(prev==='camera'?'map':prev);return}updateCamPlace();startCamera();if(S.me.src!=='gps')locate(true)}
-  if(name==='mine'){maybeReload();renderMine()}if(name==='profile')renderProfile();if(name==='feed'){feedShown=30;maybeReload();renderFeed()}
+  if(name==='mine'){maybeReload();renderMine()}if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}
   if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}}
-let toastT;function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800)}
-function bindUI(){$$('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
+function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
+function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
-  $('#sheet-body').addEventListener('click',e=>{const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return}const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
+  $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
     if(a==='shoot'){closeSheet();switchTab('camera')}else if(a==='zoomto'){const b=OLC.bounds(k);closeSheet();centerOn(b.lat,b.lng,b.res*111320*Math.cos(b.lat*Math.PI/180)*1.25,true)}
-    else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent='정말 지울까요? 다시 누르면 삭제';setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent='지우기'},4000)}else deletePhoto(k)}});
-  $('#feed-list').addEventListener('click',e=>{const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return}const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return}
-    if(e.target.closest('#feed-more')){feedShown+=30;renderFeed();return}const ex=e.target.closest('[data-expand]');if(ex){const g=$('[data-grid="'+ex.dataset.expand+'"]');g.hidden=!g.hidden;ex.textContent=g.hidden?ex.textContent.replace('접기','더 보기'):ex.textContent.replace('더 보기','접기');mountPhotos(g);return}
-    const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell)}});
+    else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}});
+  $('#reels').addEventListener('click',handleAction);$('#reels').addEventListener('scroll',()=>{clearTimeout(reel._t);reel._t=setTimeout(updateReelDist,60)},{passive:true});
   $('#my-photos').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]');if(ed)openEditSheet(ed.dataset.edit)});
-  $('#mine-list').addEventListener('click',e=>{const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return}const it=e.target.closest('[data-open]');if(it)openCellFromList(it.dataset.open)});
-  const saveName=async()=>{if(!S.user)return needLogin();const v=$('#pf-name').value.trim()||'여행자';const {error}=await sb.from('profiles').upsert({id:S.user.id,name:v});if(error){toast('이름을 저장하지 못했어요');return}S.profile.name=v;for(const p of S.photos.values())if(p.user.me)p.user.name=v;renderProfile();toast('이름을 저장했어요')};
+  $('#mine-list').addEventListener('click',e=>{if(handleAction(e))return;const it=e.target.closest('[data-open]');if(it)openCellFromList(it.dataset.open)});
+  const saveName=async()=>{if(!S.user)return needLogin();const v=$('#pf-name').value.trim()||t('traveler');const {error}=await sb.from('profiles').upsert({id:S.user.id,name:v});if(error){toast(t('name_fail'));return}S.profile.name=v;for(const p of S.photos.values())if(p.user.me)p.user.name=v;renderProfile();toast(t('name_saved'))};
   $('#pf-save').addEventListener('click',saveName);$('#pf-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveName();e.target.blur()}});
   $('#loc-gps').addEventListener('click',()=>locate(false));$('#locate').addEventListener('click',()=>{if(S.me.src==='gps')centerOn(S.me.lat,S.me.lng,180,true);else locate(false)});
   $('#zin').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1.7));$('#zout').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1/1.7));
+  $$('[data-lang]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
   $('#signout').addEventListener('click',signOut);$('#login-google').addEventListener('click',signInGoogle);$('#login-email-btn').addEventListener('click',signInEmail);$('#login-close').addEventListener('click',()=>$('#login').classList.remove('show'));
-  $('#shutter').addEventListener('click',()=>{const v=$('#video');if(!v.videoWidth){toast('카메라 화면을 아직 받지 못했어요');return}const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');S.cam.shot=cropTo34(v,v.videoWidth,v.videoHeight);showReview()});
+  $('#filters').addEventListener('click',e=>{const b=e.target.closest('.fchip');if(!b)return;S.filter=FILTERS.find(x=>x.id===b.dataset.f)||FILTERS[0];applyPreviewFilter()});
+  $('#shutter').addEventListener('click',async()=>{const v=$('#video');if(!v.videoWidth){toast(t('cam_noframe'));return}const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
+    let src=v,sw=v.videoWidth,sh=v.videoHeight;
+    try{if(window.ImageCapture&&S.cam.stream){const ic=new ImageCapture(S.cam.stream.getVideoTracks()[0]);const blob=await Promise.race([ic.takePhoto(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('slow')),2500))]);const bm=await createImageBitmap(blob);src=bm;sw=bm.width;sh=bm.height}}catch(e){}
+    setOriginal(src,sw,sh);S.cam.shot=cropTo34(src,sw,sh);showReview()});
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(S.cam.stream?'live':'fallback')});
   $('#upload').addEventListener('click',uploadShot);
-  $('#file-in').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{S.cam.shot=cropTo34(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);showReview()};im.onerror=()=>toast('이미지를 읽을 수 없어요');im.src=url;e.target.value=''});
+  $('#orig-toggle').addEventListener('click',()=>{saveOrig=!saveOrig;localStorage.setItem('ctw-saveorig',saveOrig?'1':'0');$('#orig-toggle').classList.toggle('on',saveOrig)});
+  $('#file-in').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{setOriginal(im,im.naturalWidth,im.naturalHeight);S.cam.shot=cropTo34(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);showReview()};im.onerror=()=>toast(t('img_fail'));im.src=url;e.target.value=''});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();else{if(S.tab==='camera'&&S.cam.state==='live')startCamera();maybeReload()}});
   setTimeout(()=>$('#hint').classList.add('hide'),7000)}
 
 // ---------- 시작
-async function init(){buildFilterChips();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
+async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
   let tries=0;const kick=()=>{resizeMap();requestRender();if(map.W<50&&tries++<30)setTimeout(kick,120)};kick();window.addEventListener('resize',()=>{resizeMap();requestRender()});
   await initAuth();locate(true);setInterval(maybeReload,60000)}
 init();
