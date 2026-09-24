@@ -291,7 +291,6 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .reels{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;background:#000;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .reels::-webkit-scrollbar{display:none}
 .reel{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;background:#000;overflow:hidden}
-.reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .reel-top{position:absolute;top:14px;left:14px;display:flex;gap:6px;flex-wrap:wrap;max-width:60%}
 .reel-bottom{position:absolute;left:0;right:0;bottom:0;padding:60px 14px 18px;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .reel-info b{display:block;font-size:15px;font-weight:500;color:#fff}
@@ -339,6 +338,26 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .reel-actions .like{background:transparent;color:var(--ink-2);border-color:var(--line-2);backdrop-filter:none}
 .reel-dist{background:rgba(36,31,27,.85);border-color:var(--line-2)}
 .reel-dist b{color:var(--ink)}.reel-dist small{color:var(--muted)}
+.overlay{position:absolute;inset:0;background:var(--bg);z-index:80;display:none;flex-direction:column}
+.overlay.show{display:flex}
+.ov-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex:none}
+.ov-bar .link{font-size:14px}
+.ov-body{overflow-y:auto;flex:1}
+.vreels,.freels{position:relative;flex:1;inset:auto}
+#screen-follow{display:none;flex-direction:column}#screen-follow.active{display:flex}
+.follow-chips{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;flex:none;align-items:center;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.follow-chips::-webkit-scrollbar{display:none}.follow-chips .chip-btn{white-space:nowrap;flex:none}.follow-chips .hint{white-space:nowrap}
+#freels-dist,#vreels-dist{top:auto;bottom:calc(var(--tab-h) + var(--safe) + 14px)}
+#vreels-dist{bottom:14px}
+.up-head{display:flex;align-items:center;gap:12px;padding:8px 0 14px}
+.up-head .av{width:56px;height:56px;font-size:22px;margin:0}
+.up-head b{font-size:20px;font-weight:400}
+.ulink{cursor:pointer}
+.geo:empty::before{content:"…";color:var(--muted)}
+.dim{color:var(--muted);font-size:.8em}
+.like.fol{flex:none;white-space:nowrap;margin-top:2px}
+.like.fol.on{border-color:var(--mint);color:var(--mint);background:transparent}
+.reel-top .badge[data-open-key]{cursor:pointer}
 #pf-avatar-l{position:relative;cursor:pointer;overflow:visible}
 #pf-avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
 #pf-avatar img{width:100%;height:100%;object-fit:cover;display:block}
@@ -380,19 +399,17 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
     </div>
   </section>
 
-  <!-- 2. 내 지역 -->
-  <section id="screen-mine" class="screen scroll">
-    <div class="page">
-      <h1 data-i18n="mine_title"></h1>
-      <p class="sub" id="mine-stats"></p>
-      <div id="mine-list"></div>
-    </div>
-  </section>
-
   <!-- 주변 (릴스) -->
   <section id="screen-feed" class="screen">
     <div id="reels" class="reels"></div>
-    <div id="reel-dist" class="reel-dist" hidden></div>
+    <div id="reels-dist" class="reel-dist" hidden></div>
+  </section>
+
+  <!-- 팔로우 -->
+  <section id="screen-follow" class="screen">
+    <div id="follow-chips" class="follow-chips"></div>
+    <div id="freels" class="reels freels"></div>
+    <div id="freels-dist" class="reel-dist" hidden></div>
   </section>
 
   <!-- 3. 촬영 -->
@@ -442,8 +459,9 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       </div>
 
       <h2 data-i18n="h_my_photos"></h2>
-      <p class="hint" id="my-photos-hint" style="margin-bottom:10px">사진을 누르면 필터를 바꾸거나 지울 수 있어요.</p>
-      <div class="mygrid" id="my-photos"></div>
+      <div class="chips seg" id="pf-seg"><button class="chip-btn on" data-mf="all" data-i18n="all_photos"></button><button class="chip-btn" data-mf="covers" data-i18n="covers_only"></button></div>
+      <div id="pf-grid"></div>
+      <p class="hint" id="my-photos-hint" style="margin-top:10px"></p>
 
       <h2 data-i18n="h_progress"></h2>
       <div class="box">
@@ -476,12 +494,14 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
     <button class="tab active" data-tab="map"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span data-i18n="tab_map"></span></button>
     <button class="tab" data-tab="feed"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/><circle cx="15" cy="8" r="1.5"/></svg><span data-i18n="tab_feed"></span></button>
     <button class="tab cam" data-tab="camera"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span data-i18n="tab_cam"></span></button>
-    <button class="tab" data-tab="mine"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span data-i18n="tab_mine"></span></button>
+    <button class="tab" data-tab="follow"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span data-i18n="tab_follow"></span></button>
     <button class="tab" data-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span data-i18n="tab_me"></span></button>
   </nav>
 
   <div id="backdrop"></div>
   <div class="sheet" id="sheet"><div class="handle"></div><div class="body" id="sheet-body"></div></div>
+  <div id="userpage" class="overlay"><div class="ov-bar"><button class="link" id="userpage-back" data-i18n="back"></button></div><div class="ov-body page" id="userpage-body"></div></div>
+  <div id="viewer" class="overlay"><div class="ov-bar"><button class="link" id="viewer-close" data-i18n="back"></button><span id="viewer-title" class="hint"></span></div><div id="vreels" class="reels vreels"></div><div id="vreels-dist" class="reel-dist" hidden></div></div>
   <div id="login">
     <div class="login-card">
       <div class="brand">Coverrrup</div>
@@ -589,7 +609,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  changing:'필터를 바꾸고 있어요',changed:'필터를 {f}으로 바꿨어요',change_fail:'필터를 저장하지 못했어요',del_fail:'지우지 못했어요',deleted:'사진을 지웠어요',deleted_empty:'사진을 지웠어요. 이 칸은 다시 빈 칸이 됐어요',
  me_title:'나',me_sub:'이름을 바꾸면 내가 올린 사진에도 바로 반영돼요.',save:'저장',need_login:'로그인이 필요해요',google_acct:'구글 계정',
  st_cells:'덮은 칸',st_photos:'올린 사진',st_covers:'커버 보유',st_likes:'받은 좋아요',
- h_my_photos:'내 사진',my_photos_hint:'사진을 누르면 필터를 바꾸거나 지울 수 있어요.',my_photos_none:'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.',
+ h_my_photos:'내 사진',my_photos_hint:'사진을 누르면 크게 보고, 거기서 필터를 바꾸거나 지울 수 있어요.',my_photos_none:'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.',
  h_progress:'얼마나 덮었나',ring_label:'구역 커버',ring_sub:'▲ {n} 이 구역',ring_zero:'아직 0칸',ring_cap:'{z} 구역 400칸 중 내가 덮은 비율',prog_block:'지금 있는 {z} 구역 (400칸)',prog_earth:'지구 전체',prog_earth_val:'{n}칸, {p}%',prog_hint:'14m 칸 기준으로 지구 표면은 약 4조 1,472억 칸이에요. Coverrrup 전체에서 덮인 칸은 지금 {n}개.',
  h_loc:'내 위치',loc_now:'지금 위치',loc_gps:'GPS 위치',loc_acc:' (오차 약 {m}m)',loc_none:'위치를 아직 못 받았어요 (기본 위치)',relocate:'위치 다시 받기',
  h_lang:'언어',h_account:'계정',signout:'로그아웃',acct_hint:'사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.',
@@ -598,7 +618,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',
  need_loc:'위치를 먼저 받아야 올릴 수 있어요',up_first:'첫 사진이에요. 이 칸은 이제 내가 덮었어요',up_ok:'올렸어요 ({n}장째)',up_fail:'올리지 못했어요: {e}',
  loading_fail:'데이터를 불러오지 못했어요: {e}',like_fail:'좋아요를 저장하지 못했어요',name_saved:'이름을 저장했어요',name_fail:'이름을 저장하지 못했어요',no_geo:'이 브라우저는 위치 기능이 없어요',locating:'위치를 확인하고 있어요',geo_denied:'위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요',server_fail:'서버 설정을 불러오지 못했어요',
- orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',likes_sum:'좋아요',people:'참여',all_photos:'모든 사진',covers_only:'커버만',sub_covers:'이 안의 커버들',edit:'수정',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
+ orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',likes_sum:'좋아요',people:'참여',all_photos:'모든 사진',covers_only:'커버만',sub_covers:'이 안의 커버들',edit:'수정',tab_follow:'팔로우',follow:'팔로우',following:'팔로우 중',follow_empty:'팔로우한 지역이 없어요',follow_empty_p:'커버맵에서 구역을 열고 팔로우를 누르면<br>그 지역의 새 사진이 여기에 모여요.',followed_regions:'팔로우한 지역',follow_fail:'팔로우를 저장하지 못했어요',user_photos:'사진',user_cells:'칸',back:'뒤로',geo_loading:'지역명 찾는 중',viewer_of:'{name}의 사진',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
  ago_now:'방금',ago_m:'{n}분 전',ago_h:'{n}시간 전',ago_d:'{n}일 전',ago_mo:'{n}달 전',traveler:'여행자'},
 en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab_me:'Me',
  lvl1:'2,200 km region',lvl2:'110 km region',lvl3:'5.5 km area',lvl4:'275 m block',lvl5:'14 m cell',zone:'block',cell:'cell',
@@ -614,7 +634,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  changing:'Changing filter',changed:'Filter changed to {f}',change_fail:'Could not save the filter',del_fail:'Could not delete',deleted:'Photo deleted',deleted_empty:'Photo deleted. The cell is empty again.',
  me_title:'Me',me_sub:'Changing your name updates all your photos.',save:'Save',need_login:'Sign in required',google_acct:'Google account',
  st_cells:'Cells',st_photos:'Photos',st_covers:'Covers held',st_likes:'Likes',
- h_my_photos:'My photos',my_photos_hint:'Tap a photo to change its filter or delete it.',my_photos_none:'No photos yet. Take your first one in the Coverrrup tab.',
+ h_my_photos:'My photos',my_photos_hint:'Tap a photo to view it; edit the filter or delete it from there.',my_photos_none:'No photos yet. Take your first one in the Coverrrup tab.',
  h_progress:'Coverage',ring_label:'Block coverage',ring_sub:'▲ {n} in this block',ring_zero:'0 cells yet',ring_cap:'My share of the 400 cells in block {z}',prog_block:'Current block {z} (400 cells)',prog_earth:'Whole Earth',prog_earth_val:'{n} cells, {p}%',prog_hint:'Earth has about 4.1 trillion 14 m cells. Coverrrup has {n} covered so far.',
  h_loc:'My location',loc_now:'Current location',loc_gps:'GPS location',loc_acc:' (±{m} m)',loc_none:'No location yet (default position)',relocate:'Refresh location',
  h_lang:'Language',h_account:'Account',signout:'Sign out',acct_hint:'Photos are stored at 720 px. Deleted photos are removed immediately.',
@@ -623,7 +643,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',
  need_loc:'Location is required to upload',up_first:'First photo! This cell is now yours',up_ok:'Uploaded (photo #{n})',up_fail:'Upload failed: {e}',
  loading_fail:'Could not load data: {e}',like_fail:'Could not save the like',name_saved:'Name saved',name_fail:'Could not save the name',no_geo:'This browser has no location support',locating:'Finding your location',geo_denied:'Location permission is needed. Allow it in browser settings.',server_fail:'Could not load server settings',
- orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',likes_sum:'Likes',people:'People',all_photos:'All photos',covers_only:'Covers only',sub_covers:'Covers inside',edit:'Edit',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
+ orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',likes_sum:'Likes',people:'People',all_photos:'All photos',covers_only:'Covers only',sub_covers:'Covers inside',edit:'Edit',tab_follow:'Follow',follow:'Follow',following:'Following',follow_empty:'No followed areas yet',follow_empty_p:'Open a block on the map and tap Follow.<br>New photos from those areas gather here.',followed_regions:'Followed areas',follow_fail:'Could not save the follow',user_photos:'Photos',user_cells:'Cells',back:'Back',geo_loading:'Finding place name',viewer_of:'Photos by {name}',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
  ago_now:'just now',ago_m:'{n}m ago',ago_h:'{n}h ago',ago_d:'{n}d ago',ago_mo:'{n}mo ago',traveler:'Traveler'},
 zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',tab_me:'我',
  lvl1:'2,200公里区域',lvl2:'110公里区域',lvl3:'5.5公里地区',lvl4:'275米街区',lvl5:'14米格子',zone:'街区',cell:'格子',
@@ -639,7 +659,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  changing:'正在更换滤镜',changed:'滤镜已改为{f}',change_fail:'滤镜保存失败',del_fail:'删除失败',deleted:'照片已删除',deleted_empty:'照片已删除，这个格子又空了',
  me_title:'我',me_sub:'修改名字会同步到你上传的所有照片。',save:'保存',need_login:'需要登录',google_acct:'Google 账号',
  st_cells:'格子',st_photos:'照片',st_covers:'封面数',st_likes:'获赞',
- h_my_photos:'我的照片',my_photos_hint:'点击照片可更换滤镜或删除。',my_photos_none:'还没有照片。去“覆盖”标签拍第一张吧。',
+ h_my_photos:'我的照片',my_photos_hint:'点击照片查看，可在其中更换滤镜或删除。',my_photos_none:'还没有照片。去“覆盖”标签拍第一张吧。',
  h_progress:'覆盖进度',ring_label:'街区覆盖',ring_sub:'▲ {n} 本街区',ring_zero:'还是0格',ring_cap:'{z} 街区400格中我覆盖的比例',prog_block:'当前 {z} 街区（400格）',prog_earth:'全球',prog_earth_val:'{n}格，{p}%',prog_hint:'按14米格子计算，地球表面约有4.1万亿格。Coverrrup 目前已覆盖 {n} 格。',
  h_loc:'我的位置',loc_now:'当前位置',loc_gps:'GPS位置',loc_acc:'（误差约{m}米）',loc_none:'尚未获取位置（默认位置）',relocate:'重新定位',
  h_lang:'语言',h_account:'账号',signout:'退出登录',acct_hint:'照片以长边720px存储。删除的照片会立即移除。',
@@ -648,18 +668,18 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',
  need_loc:'需要先获取位置才能上传',up_first:'第一张！这个格子现在是你的了',up_ok:'已上传（第{n}张）',up_fail:'上传失败：{e}',
  loading_fail:'数据加载失败：{e}',like_fail:'点赞保存失败',name_saved:'名字已保存',name_fail:'名字保存失败',no_geo:'此浏览器不支持定位',locating:'正在定位',geo_denied:'需要位置权限，请在浏览器设置中允许',server_fail:'无法加载服务器设置',
- orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',likes_sum:'点赞',people:'参与者',all_photos:'全部照片',covers_only:'仅封面',sub_covers:'内部封面',edit:'编辑',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
+ orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',likes_sum:'点赞',people:'参与者',all_photos:'全部照片',covers_only:'仅封面',sub_covers:'内部封面',edit:'编辑',tab_follow:'关注',follow:'关注',following:'已关注',follow_empty:'还没有关注的地区',follow_empty_p:'在地图上打开街区并点击关注，<br>这些地区的新照片会汇集在这里。',followed_regions:'关注的地区',follow_fail:'关注保存失败',user_photos:'照片',user_cells:'格子',back:'返回',geo_loading:'正在查找地名',viewer_of:'{name}的照片',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
  ago_now:'刚刚',ago_m:'{n}分钟前',ago_h:'{n}小时前',ago_d:'{n}天前',ago_mo:'{n}个月前',traveler:'旅行者'}};
 let LANG=localStorage.getItem('ctw-lang')||(navigator.language.startsWith('ko')?'ko':navigator.language.startsWith('zh')?'zh':'en');
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ko[k]||k;if(vars)for(const v in vars)s=s.replace(new RegExp('\\{'+v+'\\}','g'),vars[v]);return s}
 function timeAgo(ts){const m=Math.floor((Date.now()-ts)/60000);if(m<1)return t('ago_now');if(m<60)return t('ago_m',{n:m});const h=Math.floor(m/60);if(h<24)return t('ago_h',{n:h});const d=Math.floor(h/24);if(d<30)return t('ago_d',{n:d});return t('ago_mo',{n:Math.floor(d/30)})}
 const LEVEL_NAME=p=>t('lvl'+p);
 function applyLang(){document.documentElement.lang=LANG==='zh'?'zh-CN':LANG;$$('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n)});$$('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.dataset.i18nPh)});$$('[data-lang]').forEach(b=>b.classList.toggle('on',b.dataset.lang===LANG));
-  buildFilterChips();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet();requestRender()}
+  buildFilterChips();updateCamPlace();if(S.tab==='feed')renderFeed(true);if(S.tab==='follow')renderFollow(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet();requestRender()}
 function setLang(l){LANG=l;localStorage.setItem('ctw-lang',l);applyLang()}
 
 const S={user:null,profile:{name:'여행자',avatar:null},avatars:new Map(),me:{lat:37.4979,lng:127.0276,src:'default',acc:null},view:{lat:37.4979,lng:127.0276,scale:2.2},
-  myLikes:new Set(),tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null},lastLoad:0,ccount:new Map()};
+  myLikes:new Set(),follows:new Set(),tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null},lastLoad:0,ccount:new Map()};
 
 const nameOf=ph=>ph.user.me?S.profile.name:(ph.user.name||t('anon'));
 function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts<b.ts}
@@ -671,21 +691,34 @@ function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map()
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
 const thumbPath=path=>path.replace(/\.jpg$/,'_t.jpg');
-const avatarHTML=u=>{const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return url?`<span class="av"><img src="${url}" alt=""></span>`:`<span class="av">${esc((nm||'?')[0])}</span>`};
+// 지역명 (OpenStreetMap Nominatim, 275m 구역 단위로 캐시)
+const GEO=JSON.parse(localStorage.getItem('ctw-geo')||'{}'),geoQ=[];let geoBusy=false;
+function geoName(key){const k8=key.slice(0,8),ck=k8+':'+LANG;if(GEO[ck])return GEO[ck];if(!geoQ.includes(ck)){geoQ.push(ck);pumpGeo()}return null}
+async function pumpGeo(){if(geoBusy||!geoQ.length)return;geoBusy=true;const ck=geoQ.shift(),[k8,lang]=ck.split(':'),b=OLC.bounds(k8);
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&lat=${b.lat}&lon=${b.lng}&accept-language=${lang==='zh'?'zh-CN':lang}`,{headers:{'Accept':'application/json'}});const j=await r.json();const a=j.address||{};
+    const parts=[a.city||a.state||a.province||a.county,a.borough||a.city_district||a.district||a.county,a.suburb||a.quarter||a.neighbourhood||a.village||a.town||a.hamlet].filter((v,i,arr)=>v&&arr.indexOf(v)===i);
+    GEO[ck]=parts.join(' ')||(j.display_name||'').split(',').slice(0,2).join(',')||'';localStorage.setItem('ctw-geo',JSON.stringify(GEO));
+    $$(`[data-geo="${k8}"]`).forEach(el=>{if(GEO[ck])el.textContent=GEO[ck]})}
+  catch(e){console.warn('geo',e)}
+  setTimeout(()=>{geoBusy=false;pumpGeo()},1100)}
+const geoHTML=key=>{const n=geoName(key);return`<span class="geo" data-geo="${key.slice(0,8)}">${n?esc(n):''}</span>`};
+const placeTitle=key=>`${geoHTML(key)} <span class="mono dim">(${esc(key.slice(4,8))}${key.length>=10?'+'+esc(key.slice(8)):''})</span>`;
+const avatarHTML=u=>{const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return`<span class="av" data-user="${u.id||''}">${url?`<img src="${url}" alt="">`:esc((nm||'?')[0])}</span>`};
+const userLink=p=>`<span class="ulink" data-user="${p.user.id||''}">${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</span>`;
 const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 
 // ---------- 데이터
 async function loadWorld(){if(!sb)return;
-  const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms}]=await Promise.all([
+  const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms},{data:fls}]=await Promise.all([
     sb.from('photos').select('id,cell,lat,lng,user_id,filter,path,created_at').order('created_at',{ascending:false}).limit(8000),
-    sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name,avatar_path'),sb.from('comments').select('photo_id')]);
+    sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name,avatar_path'),sb.from('comments').select('photo_id'),S.user?sb.from('follows').select('key'):Promise.resolve({data:[]})]);
   if(error||e2){console.warn(error||e2);toast(t('loading_fail',{e:(error||e2).message||''}));return}
   const names=new Map();S.avatars=new Map();for(const p of profs||[]){names.set(p.id,p.name);if(p.avatar_path)S.avatars.set(p.id,pubUrl(p.avatar_path))}
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
-  S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
+  S.follows=new Set((fls||[]).map(f=>f.key));S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
   S.world=new Map();S.photos=new Map();
   for(const r of rows||[]){const cell=ensureCell(r.cell);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&r.user_id===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path)};cell.photos.push(ph);S.photos.set(ph.id,ph)}
-  rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='mine')renderMine();if(S.tab==='feed')renderFeed(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
+  rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='feed')renderFeed(true);if(S.tab==='follow')renderFollow(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
 function maybeReload(){if(Date.now()-S.lastLoad>30000)loadWorld()}
 
 // ---------- 이미지
@@ -795,24 +828,27 @@ const stats3=(a,b,c)=>`<div class="stats2"><div><b>${a[0]}</b><span>${a[1]}</spa
 const pgItem=(p,extra)=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-open-photo="${p.id}"><span class="pg-l">♥ ${p.likes}</span>${extra||''}</div>`;
 function cellSheetHTML(key){const cell=S.world.get(key),b=OLC.bounds(key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),isHere=OLC.key(S.me.lat,S.me.lng)===key;
   const photos=cell?sortedPhotos(cell):[],cover=photos[0]||null,likes=photos.reduce((a,p)=>a+p.likes,0),people=new Set(photos.map(p=>p.user.id)).size;
-  let h=`<div class="sh-head"><div><div class="sh-title">${esc(key.slice(4,8))} ${t('zone')} <span class="mono">+${esc(key.slice(8))}</span></div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?t('here'):t('from_me',{d:fmtDist(dist)})}</span></div></div></div>`;
+  let h=`<div class="sh-head"><div><div class="sh-title">${placeTitle(key)}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?t('here'):t('from_me',{d:fmtDist(dist)})}</span></div></div>${followBtn(key)}</div>`;
   if(cover){h+=stats3([photos.length,t('photos')],[likes,t('likes_sum')],[people,t('people')]);
     h+=`<div class="pgrid">${photos.map(p=>pgItem(p,p===cover?`<span class="badge gold pg-c">${t('cover')}</span>`:'')).join('')}</div>`}
   else h+=`<div class="empty-cell"><div class="big">${t('empty_cell')}</div><p>${t('empty_cell_p')}</p></div>`;
   if(isHere)h+=`<button class="btn primary" data-act="shoot">${t('shoot_here')}</button>`;else h+=`<div class="note">${t('must_be_here',{d:fmtDist(dist)})}</div>`;
   h+=`<div class="rule"><span>${t('rule')}</span></div>`;return h}
 function blockSheetHTML(key){const b=OLC.bounds(key),e=(S.agg[b.p]||new Map()).get(key),name=LEVEL_NAME(b.p);
-  let h=`<div class="sh-head"><div><div class="sh-title">${esc(labelFor(key))} ${name}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span></div></div></div>`;
+  let h=`<div class="sh-head"><div><div class="sh-title">${b.p>=4?placeTitle(key):esc(labelFor(key))+' '+name}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${name}</span></div></div>${b.p>=4?followBtn(key):''}</div>`;
   if(e){const total=Math.pow(400,5-b.p),pct=e.cells/total*100;h+=`<div class="cover"><div class="ph" data-photo="${e.cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">${t('best')}</span><span class="badge dark">${e.cover.user.me?t('me'):esc(nameOf(e.cover))} ♥ ${e.cover.likes}</span></div></div>`;
     h+=stats3([fmtInt(e.cells),t('covered_cells')],[fmtInt(e.photos),t('photos')],[(pct<0.01?pct.toExponential(1):pct.toFixed(2))+'%',t('coverage')]);
     const kids=[...(S.agg[b.p+1]||new Map()).values()].filter(k=>k.key.startsWith(key)).sort((x,y)=>better(x.cover,y.cover)?-1:1);
-    h+=`<h3 class="sh-h3">${t('sub_covers')} · ${kids.length}</h3><div class="pgrid">${kids.map(k=>`<div class="ph pg" data-photo="${k.cover.id}" data-size="small" data-open-key="${k.key}"><span class="pg-l">♥ ${k.cover.likes}</span><span class="pg-k mono">${b.p+1===5?'+'+k.key.slice(8):labelFor(k.key)}${b.p+1<5?' · '+k.cells:''}</span></div>`).join('')}</div>`}
+    h+=`<h3 class="sh-h3">${t('sub_covers')} · ${kids.length}</h3><div class="pgrid">${kids.map(k=>`<div class="ph pg" data-photo="${k.cover.id}" data-size="small" data-open-photo="${k.cover.id}"><span class="pg-l">♥ ${k.cover.likes}</span><span class="pg-k mono">${b.p+1===5?'+'+k.key.slice(8):labelFor(k.key)}${b.p+1<5?' · '+k.cells:''}</span></div>`).join('')}</div>`}
   else h+=`<div class="empty-cell"><div class="big">${t('empty_zone',{name})}</div><p>${t('empty_zone_p',{n:fmtInt(Math.pow(400,5-b.p))})}</p></div>`;
   return h}
 function photoSheetHTML(ph){const b=OLC.bounds(ph.key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),cell=S.world.get(ph.key),isCover=cell&&coverOf(cell)===ph;
-  return`<div class="sh-head"><div><div class="sh-title">${avatarHTML(ph.user)}${ph.user.me?t('me')+' ('+esc(nameOf(ph))+')':esc(nameOf(ph))}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${t('from_me',{d:fmtDist(dist)})}</span><span>${timeAgo(ph.ts)}, ${filterName(ph.filter)}</span></div></div></div>
+  return`<div class="sh-head"><div><div class="sh-title">${userLink(ph)}</div><div class="sh-sub"><span>${geoHTML(ph.key)}</span><span class="mono">${OLC.format(ph.key)}</span><span>${t('from_me',{d:fmtDist(dist)})}</span><span>${timeAgo(ph.ts)}, ${filterName(ph.filter)}</span></div></div></div>
   <div class="cover tall"><div class="ph" data-photo="${ph.id}" data-size="large"></div><div class="cover-badges">${isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div></div>
   <div class="row2 acts">${likeBtn(ph)}${cmtBtn(ph)}<button class="like" data-open-key="${ph.key}">▦ ${OLC.short(ph.key)}</button>${ph.user.me?`<button class="like" data-edit="${ph.id}">✎ ${t('edit')}</button>`:''}</div>`}
+const followBtn=key=>{const k=key.length>8?key.slice(0,8):key;const on=S.follows.has(k);return`<button class="like fol ${on?'on':''}" data-follow="${k}">${on?'✓ '+t('following'):'+ '+t('follow')}</button>`};
+async function toggleFollow(k){if(!S.user)return needLogin();const on=S.follows.has(k);if(on)S.follows.delete(k);else S.follows.add(k);refreshSheet();if(S.tab==='follow')renderFollow(true);
+  const {error}=on?await sb.from('follows').delete().match({user_id:S.user.id,key:k}):await sb.from('follows').insert({user_id:S.user.id,key:k});if(error){console.warn(error);toast(t('follow_fail')+': '+error.message);if(on)S.follows.add(k);else S.follows.delete(k);refreshSheet()}}
 async function toggleLike(id){if(!S.user)return needLogin();const ph=S.photos.get(id);if(!ph)return;const on=S.myLikes.has(id);
   if(on){S.myLikes.delete(id);ph.likes--}else{S.myLikes.add(id);ph.likes++}
   rebuildAgg();refreshSheet();requestRender();$$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',!on);b.textContent='♥ '+ph.likes});
@@ -840,45 +876,54 @@ async function sendComment(id){if(!S.user)return needLogin();const inp=$('#cinpu
 // ---------- 내 커버
 function myCells(){return[...S.world.values()].filter(c=>c.photos.some(p=>p.user.me))}
 let mineFilter='all';
-function renderMine(){const el=$('#mine-list'),cells=myCells(),covers=cells.filter(c=>coverOf(c).user.me).length;
-  $('#mine-stats').textContent=cells.length?t('mine_stats',{n:cells.length,c:covers}):'';
-  let mine=[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts);
-  if(!mine.length){el.innerHTML=`<div class="empty"><div class="art"></div><h3>${t('mine_empty')}</h3><p>${t('mine_empty_p')}</p><button class="btn primary" data-goto="camera">${t('first_photo')}</button></div>`;return}
-  const isCov=p=>{const c=S.world.get(p.key);return c&&coverOf(c)===p};
-  if(mineFilter==='covers')mine=mine.filter(isCov);
-  el.innerHTML=`<div class="chips seg"><button class="chip-btn ${mineFilter==='all'?'on':''}" data-mf="all">${t('all_photos')}</button><button class="chip-btn ${mineFilter==='covers'?'on':''}" data-mf="covers">${t('covers_only')} ${covers}</button></div>
-  <div class="pgrid">${mine.map(p=>pgItem(p,`<span class="pg-k mono">${OLC.short(p.key)}</span>${isCov(p)?`<span class="badge gold pg-c">${t('cover')}</span>`:''}`)).join('')}</div>`;
-  mountPhotos(el)}
-// ---------- 주변 (릴스)
-const reel={items:[],shown:0,cur:0};
-function buildReelList(){const now=Date.now(),score=p=>p.likes+2/(1+(now-p.ts)/86400000);
+// ---------- 릴스 (주변 / 팔로우 / 뷰어 공용)
+const REELS={};
+function reelState(id){return REELS[id]||(REELS[id]={id,items:[],shown:0,cur:0})}
+const scoreOf=(p,now)=>p.likes+2/(1+(now-p.ts)/86400000);
+function buildNearbyList(){const now=Date.now();
   const blocks=new Map();for(const c of S.world.values()){if(!c.photos.length)continue;const g=c.key.slice(0,8);if(!blocks.has(g))blocks.set(g,{g,cells:[],d:Infinity});const b=blocks.get(g);b.cells.push(c);b.d=Math.min(b.d,distM(S.me.lat,S.me.lng,c.lat,c.lng))}
   const myG=OLC.key(S.me.lat,S.me.lng,4),items=[];
   for(const b of [...blocks.values()].sort((a,c)=>a.d-c.d)){const ps=[];for(const c of b.cells){const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})}
-    ps.sort((a,c)=>score(c.p)-score(a.p));ps.forEach((x,i)=>items.push({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:b.g===myG,g:b.g,isCover:x.isCover}))}
+    ps.sort((a,c)=>scoreOf(c.p,now)-scoreOf(a.p,now));ps.forEach((x,i)=>items.push({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:b.g===myG,g:b.g,isCover:x.isCover}))}
   return items}
-function renderFeed(reset){const el=$('#reels');if(reset){reel.items=buildReelList();reel.shown=0;reel.cur=0;el.innerHTML='';el.scrollTop=0}
-  if(!reel.items.length){el.innerHTML=`<div class="empty reel-empty"><div class="art"></div><h3>${t('feed_empty')}</h3><p>${t('feed_empty_p')}</p><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`;$('#reel-dist').hidden=true;return}
-  $('#reel-dist').hidden=false;const end=Math.min(reel.items.length,reel.shown+12);let h='';
-  for(let i=reel.shown;i<end;i++)h+=reelHTML(reel.items[i],i);
-  const old=el.querySelector('.reel-end');if(old)old.remove();
-  el.insertAdjacentHTML('beforeend',h);
-  if(end>=reel.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`);
-  reel.shown=end;updateReelDist()}
+function buildFollowList(){const now=Date.now(),keys=[...S.follows],items=[];
+  for(const k of keys){const ps=[];for(const c of S.world.values()){if(!c.key.startsWith(k)||!c.photos.length)continue;const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})}
+    ps.sort((a,c)=>scoreOf(c.p,now)-scoreOf(a.p,now));ps.forEach((x,i)=>items.push({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:k,isCover:x.isCover,followed:true}))}
+  return items}
+function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>p.user.id===uid).sort((a,b)=>b.ts-a.ts);return ps.map((p,i)=>{const c=S.world.get(p.key);return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
+function renderReels(id,items,reset,emptyHTML,startAt){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');
+  if(reset){st.items=items;st.shown=0;st.cur=0;el.innerHTML='';el.scrollTop=0}
+  if(!st.items.length){el.innerHTML=emptyHTML||'';if(dist)dist.hidden=true;return}
+  if(dist)dist.hidden=false;const end=Math.min(st.items.length,Math.max(st.shown+12,(startAt||0)+3));let h='';
+  for(let i=st.shown;i<end;i++)h+=reelHTML(st.items[i],i);
+  const old=el.querySelector('.reel-end');if(old)old.remove();el.insertAdjacentHTML('beforeend',h);
+  if(end>=st.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`);
+  st.shown=end;if(startAt){el.scrollTop=startAt*el.clientHeight}updateReelDist(id)}
 function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
-  return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}">${it.mine?t('my_zone'):t('near_zone')} ${esc(it.g.slice(4))}</span><span class="badge dark mono">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div>
+  return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}" data-open-key="${it.g}">${it.mine?t('my_zone')+' · ':''}${geoHTML(it.g)}</span><span class="badge dark mono" data-open-key="${it.c.key}">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?`<span class="badge gold">${t('cover')}</span>`:''}</div>
   <div class="reel-card" data-open-photo="${p.id}"><img data-src="${p.full}" src="${p.thumb}" alt="" style="filter:${cssFilter(f)}"></div>
-  <div class="reel-bottom"><div class="reel-info"><b>${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
-  <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}<button class="like" data-open-cell="${it.c.key}">▦</button></div></div></div></article>`}
-function updateReelDist(){const el=$('#reels');if(!el.clientHeight||!reel.items.length)return;const i=Math.round(el.scrollTop/el.clientHeight);reel.cur=i;const it=reel.items[Math.min(i,reel.items.length-1)];
-  $('#reel-dist').innerHTML=`<small>${t('dist_label')}</small><b>${it.d<20?t('here'):fmtDist(it.d)}</b>`;
+  <div class="reel-bottom"><div class="reel-info"><b>${userLink(p)}</b><span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
+  <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}</div></div></div></article>`}
+function updateReelDist(id){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');if(!el||!el.clientHeight||!st.items.length)return;const i=Math.round(el.scrollTop/el.clientHeight);st.cur=i;const it=st.items[Math.min(i,st.items.length-1)];
+  if(dist)dist.innerHTML=`<small>${t('dist_label')}</small><b>${it.d<20?t('here'):fmtDist(it.d)}</b>`;
   el.querySelectorAll('.reel img[data-src]').forEach(im=>{const k=+im.closest('.reel').dataset.i;if(Math.abs(k-i)<=2){im.src=im.dataset.src;im.removeAttribute('data-src')}});
-  if(i>=reel.shown-4&&reel.shown<reel.items.length)renderFeed(false)}
+  if(i>=st.shown-4&&st.shown<st.items.length)renderReels(id,null,false)}
+const emptyReel=(h3,p,btn)=>`<div class="empty reel-empty"><div class="art"></div><h3>${h3}</h3><p>${p}</p>${btn||''}</div>`;
+function renderFeed(reset){renderReels('reels',reset?buildNearbyList():null,reset,emptyReel(t('feed_empty'),t('feed_empty_p'),`<button class="btn primary" data-goto="camera">${t('do_cover')}</button>`))}
+function renderFollow(reset){const chips=[...S.follows].map(k=>`<button class="chip-btn on" data-open-key="${k}">${geoHTML(k)} <span class="mono dim">${esc(k.slice(4))}</span></button>`).join('');$('#follow-chips').innerHTML=chips?`<span class="hint">${t('followed_regions')}</span>${chips}`:'';
+  renderReels('freels',reset?buildFollowList():null,reset,emptyReel(t('follow_empty'),t('follow_empty_p'),`<button class="btn" data-goto="map">${t('tab_map')}</button>`))}
 
+// ---------- 사용자 페이지 / 뷰어
+function userStats(uid){const ps=[...S.photos.values()].filter(p=>p.user.id===uid),cells=new Set(ps.map(p=>p.key)),covers=[...cells].filter(k=>{const c=S.world.get(k);return c&&coverOf(c).user.id===uid}).length,likes=ps.reduce((a,p)=>a+p.likes,0);return{ps,cells:cells.size,covers,likes}}
+function userGridHTML(uid,filter){const {ps}=userStats(uid);const isCov=p=>{const c=S.world.get(p.key);return c&&coverOf(c)===p};const list=(filter==='covers'?ps.filter(isCov):ps).sort((a,b)=>b.ts-a.ts);
+  return`<div class="pgrid">${list.map(p=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-view-user="${uid}" data-view-id="${p.id}"><span class="pg-l">♥ ${p.likes}</span><span class="pg-k mono">${OLC.short(p.key)}</span>${isCov(p)?`<span class="badge gold pg-c">${t('cover')}</span>`:''}</div>`).join('')}</div>`}
+function openUserPage(uid){if(!uid)return;if(S.user&&uid===S.user.id){switchTab('profile');return}const ps=[...S.photos.values()].filter(p=>p.user.id===uid);const u=ps[0]?ps[0].user:{id:uid,name:t('anon')};const st=userStats(uid);
+  $('#userpage-body').innerHTML=`<div class="up-head">${avatarHTML(u)}<div><b>${esc(u.name)}</b></div></div><div class="stats2"><div><b>${st.ps.length}</b><span>${t('user_photos')}</span></div><div><b>${st.cells}</b><span>${t('user_cells')}</span></div><div><b>${st.covers}</b><span>${t('st_covers')}</span></div><div><b>${st.likes}</b><span>${t('st_likes')}</span></div></div>${userGridHTML(uid,'all')}`;
+  mountPhotos($('#userpage-body'));$('#userpage').classList.add('show');closeSheet()}
+function openViewer(uid,startId){const items=buildUserList(uid);const idx=Math.max(0,items.findIndex(x=>x.p.id===startId));const nm=items[0]?nameOf(items[0].p):'';$('#viewer-title').textContent=t('viewer_of',{name:nm});$('#viewer').classList.add('show');
+  requestAnimationFrame(()=>renderReels('vreels',items,true,'',idx))}
 // ---------- 내 사진 수정
-function renderMyPhotos(){const el=$('#my-photos'),mine=[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts);
-  $('#my-photos-hint').textContent=mine.length?t('my_photos_hint'):t('my_photos_none');
-  el.innerHTML=mine.map(p=>{const cell=S.world.get(p.key),isCover=cell&&coverOf(cell)===p;return`<div class="ph" data-photo="${p.id}" data-size="small" data-edit="${p.id}"><span class="${isCover?'gold':''}">${isCover?t('cover'):OLC.short(p.key).slice(-3)}</span></div>`}).join('');mountPhotos(el)}
+function renderMyPhotos(){const n=[...S.photos.values()].filter(p=>p.user.me).length;$('#my-photos-hint').textContent=n?t('my_photos_hint'):t('my_photos_none')}
 let editFilter=null,delArmed=false;
 function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;S.sheet={type:'edit',key:id};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('edit_title')}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
@@ -902,7 +947,7 @@ async function deletePhoto(id){const ph=S.photos.get(id);if(!ph)return;
   S.photos.delete(id);IMG_CACHE.delete(id);rebuildAgg();closeSheet();renderMyPhotos();renderProfile();updateCamPlace();requestRender();toast(cell&&cell.photos.length?t('deleted'):t('deleted_empty'))}
 
 // ---------- 나
-function renderProfile(){renderMyPhotos();const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
+function renderProfile(){renderMyPhotos();if(S.user){$('#pf-grid').innerHTML=userGridHTML(S.user.id,mineFilter);mountPhotos($('#pf-grid'))}else $('#pf-grid').innerHTML='';$$('[data-mf]').forEach(b=>b.classList.toggle('on',b.dataset.mf===mineFilter));const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
   $('#pf-name').value=S.profile.name;$('#pf-avatar').innerHTML=S.profile.avatar?`<img src="${S.profile.avatar}" alt="">`:esc((S.profile.name||'?')[0]);$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
   const pw=(v,m)=>Math.min(100,v/m*100)+'%';$('#sb-cells').style.setProperty('--w',pw(cells.length,20));$('#sb-photos').style.setProperty('--w',pw(myPhotos.length,30));$('#sb-covers').style.setProperty('--w',cells.length?pw(covers,cells.length):'0%');$('#sb-likes').style.setProperty('--w',pw(likes,50));
@@ -975,22 +1020,22 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
   btn.disabled=false;btn.textContent=t('upload')}
 
 // ---------- 탭 / 이벤트
-function switchTab(name){const prev=S.tab;S.tab=name;$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name));
+function switchTab(name){const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('#userpage').classList.remove('show');$('#viewer').classList.remove('show');$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name));
   if(prev==='camera'&&name!=='camera'){stopCamera();resetShot()}
   if(name==='camera'){if(!S.user){needLogin();switchTab(prev==='camera'?'map':prev);return}updateCamPlace();startCamera();if(S.me.src!=='gps')locate(true)}
-  if(name==='mine'){maybeReload();renderMine()}if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}
+  if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}if(name==='follow'){maybeReload();renderFollow(true)}
   if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
-  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderMine();return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
   $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
     if(a==='shoot'){closeSheet();switchTab('camera')}else if(a==='zoomto'){const b=OLC.bounds(k);closeSheet();centerOn(b.lat,b.lng,b.res*111320*Math.cos(b.lat*Math.PI/180)*1.25,true)}
     else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}});
-  $('#reels').addEventListener('click',handleAction);$('#reels').addEventListener('scroll',()=>{clearTimeout(reel._t);reel._t=setTimeout(updateReelDist,60)},{passive:true});
-  $('#my-photos').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]');if(ed)openEditSheet(ed.dataset.edit)});
-  $('#mine-list').addEventListener('click',handleAction);
+  for(const id of ['reels','freels','vreels']){const el=$('#'+id);el.addEventListener('click',handleAction);el.addEventListener('scroll',()=>{const st=reelState(id);clearTimeout(st._t);st._t=setTimeout(()=>updateReelDist(id),60)},{passive:true})}
+  $('#follow-chips').addEventListener('click',handleAction);$('#userpage-body').addEventListener('click',handleAction);$('#pf-grid').addEventListener('click',handleAction);$('#pf-seg').addEventListener('click',handleAction);
+  $('#userpage-back').addEventListener('click',()=>$('#userpage').classList.remove('show'));$('#viewer-close').addEventListener('click',()=>$('#viewer').classList.remove('show'));
   const saveName=async()=>{if(!S.user)return needLogin();const v=$('#pf-name').value.trim()||t('traveler');let {error,data}=await sb.from('profiles').update({name:v}).eq('id',S.user.id).select();if(!error&&(!data||!data.length)){({error}=await sb.from('profiles').insert({id:S.user.id,name:v}))}if(error){console.warn(error);toast(t('name_fail')+': '+error.message);return}S.profile.name=v;for(const p of S.photos.values())if(p.user.me)p.user.name=v;renderProfile();toast(t('name_saved'))};
   $('#pf-avatar-in').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;if(!S.user)return needLogin();
     try{const url=URL.createObjectURL(f);const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});URL.revokeObjectURL(url);
