@@ -1,0 +1,3 @@
+/*
+  Permissions-Policy: camera=(self), geolocation=(self)
+  X-Content-Type-Options: nosniff
