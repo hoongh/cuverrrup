@@ -332,6 +332,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .email-in{flex:1;font:inherit;font-size:14px;background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:12px 16px;color:var(--ink);outline:none;margin-top:14px}
 .login-card .row2 .btn{flex:none;width:auto;padding:12px 16px;margin-top:14px;white-space:nowrap}
 .login-card .link{display:block;margin:22px auto 0;color:var(--muted)}
+.legal{text-align:center;margin-top:10px}.legal a{color:var(--muted)}
 
 .reels{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;background:#000;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .reels::-webkit-scrollbar{display:none}
@@ -569,6 +570,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <div class="box tools">
         <button class="btn" id="signout" data-i18n="signout"></button>
         <p class="hint" data-i18n="acct_hint"></p>
+        <p class="hint"><a href="terms.html" style="color:var(--sky)">이용약관</a> · <a href="privacy.html" style="color:var(--sky)">개인정보처리방침</a></p>
       </div>
     </div>
   </section>
@@ -596,6 +598,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <div class="row2"><input id="login-email" type="email" data-i18n-ph="login_email_ph" class="email-in"><button class="btn" id="login-email-btn" data-i18n="login_link"></button></div>
       <p class="hint" id="login-msg"></p>
       <button class="link" id="login-close" data-i18n="login_browse"></button>
+      <p class="hint legal"><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a></p>
     </div>
   </div>
   <div id="toast"></div>
