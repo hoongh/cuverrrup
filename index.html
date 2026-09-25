@@ -26,16 +26,16 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
-body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400}
+body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100dvh;height:var(--app-h,100dvh);overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;inset:0}
 button,input{font-family:inherit;color:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-offset:2px}
 [hidden]{display:none!important}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.phone{position:relative;width:100%;height:100vh;height:100dvh;background:var(--bg);overflow:hidden}
-@media (min-width:900px) and (min-height:720px){
-  body{background:radial-gradient(900px 700px at 30% 10%,#2A241F,#0F0D0B)}
-  .phone{width:402px;height:min(874px,calc(100dvh - 32px));border-radius:44px;box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 11px #0b0a09,0 0 0 13px #2a2622}
+.phone{position:relative;width:100%;height:100vh;height:100dvh;height:var(--app-h,100dvh);background:var(--bg);overflow:hidden}
+@media (min-width:900px){
+  body{background:#0F0D0B}
+  .phone{width:min(100%,720px);height:var(--app-h,100dvh)}
 }
 .screen{position:absolute;inset:0;bottom:calc(var(--tab-h) + var(--safe));display:none;flex-direction:column}
 .screen.active{display:flex}
@@ -374,7 +374,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .card-prev.feed{aspect-ratio:4/5}
 .card-prev img{width:100%;height:100%;object-fit:contain;display:block}
 .card-prev .hint{position:absolute;left:0;right:0;top:50%;text-align:center}
-.cmark{display:inline-flex;width:22px;height:22px;vertical-align:-5px;margin-right:4px}.cmark svg{width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.cmark{display:inline-flex;width:22px;height:22px;vertical-align:-5px;margin-right:4px}.cmark img{width:100%;height:100%;border-radius:50%;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .cmark.pg{position:absolute;left:6px;top:6px;margin:0}
 .cmark.lg{width:28px;height:28px;margin:0}
 .cover-badges .cmark{width:28px;height:28px;margin:0}
@@ -463,7 +463,6 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <button id="locate" class="loc" aria-label="내 위치">◎</button>
       </div>
       <div id="scalebar"><span></span><b></b></div>
-      <button class="fmap-exit" id="fmap-exit" hidden data-i18n="fmap_exit"></button>
       <div class="hint-float" id="hint" data-i18n="hint_map"></div>
     </div>
   </section>
@@ -662,7 +661,7 @@ const SANS='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"N
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 const C={line:'rgba(241,234,226,.09)',line2:'rgba(241,234,226,.24)',ink:'#F1EAE2',flag:'#E0876F',tile:'rgba(241,234,226,.8)',label:'rgba(241,234,226,.45)',label2:'rgba(241,234,226,.22)',pill:'rgba(27,23,20,.8)'};
 const LOGO_SM=`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#3A2A1F" stroke="#8FB6E8" stroke-width="3"/><g fill="#8FB6E8">${[[1,0],[2,0],[3,0],[4,1],[0,1],[0,2],[0,3],[1,4],[2,4],[3,4],[4,3]].map(([a,b])=>`<rect x="${(8.5+a*6.2+0.8).toFixed(1)}" y="${(8.5+b*6.2+0.8).toFixed(1)}" width="4.6" height="4.6" rx="1"/>`).join('')}</g></svg>`;
-const coverMark=(cls)=>`<span class="cmark ${cls||''}" title="cover">${LOGO_SM}</span>`;
+const coverMark=(cls)=>`<span class="cmark ${cls||''}" title="cover"><img src="icon-192.png" alt="cover"></span>`;
 const labelFor=k=>k.length===8?k.slice(4):k;
 const filterName=id=>t('f_'+((FILTERS.find(f=>f.id===id)||FILTERS[0]).id));
 
@@ -759,7 +758,7 @@ function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts<b.ts}
 function coverOf(cell){let c=null;for(const p of cell.photos)if(!c||better(p,c))c=p;return c}
 function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map(),1:new Map()};
   for(const cell of S.world.values()){if(!cell.photos.length)continue;const cov=coverOf(cell),mine=cell.photos.some(p=>p.user.me);
-    for(const p of [5,4,3,2,1]){const k=cell.key.slice(0,2*p);let e=agg[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false};agg[p].set(k,e)}e.cells++;e.photos+=cell.photos.length;e.mine=e.mine||mine;if(better(cov,e.cover))e.cover=cov}}
+    for(const p of [5,4,3,2,1]){const k=cell.key.slice(0,2*p);let e=agg[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false,mineCover:false};agg[p].set(k,e)}e.cells++;e.photos+=cell.photos.length;e.mine=e.mine||mine;e.mineCover=e.mineCover||!!cov.user.me;if(better(cov,e.cover))e.cover=cov}}
   S.agg=agg}
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
@@ -858,7 +857,7 @@ function render(){if(S.tab!=='map'||map.W<50)return;const c=map.ctx,W=map.W,H=ma
     if(Math.abs(PX(pj0+1)-PX(pj0))>=120){c.fillStyle=C.label;c.font='500 11px '+MONO;c.textBaseline='top';c.textAlign='left';
       for(let i=pi0;i<=pi1;i++)for(let j=pj0;j<=pj1;j++)c.fillText(labelFor(OLC.keyFromIdx(i,((j%(360/pres))+(360/pres))%(360/pres),p-1)),PX(j)+6,PY(i)+5)}}
   const A=S.agg[p]||new Map(),nj=Math.round(360/res);
-  if(S.followMap){for(const fk of S.follows){const fb=OLC.bounds(fk);const a1=toScreen(fb.latHi,fb.lngLo),a2=toScreen(fb.latLo,fb.lngHi);let fw=a2.x-a1.x,fh=a2.y-a1.y;let fx=a1.x,fy=a1.y;if(fw<8){fx+=fw/2-4;fy+=fh/2-4;fw=fh=8}if(a2.x<0||a1.x>W||a2.y<0||a1.y>H)continue;c.fillStyle='rgba(143,182,232,.42)';c.fillRect(fx,fy,fw,fh)}}
+  if(S.followMap){for(const fk of S.follows){const fb=OLC.bounds(fk);const a1=toScreen(fb.latHi,fb.lngLo),a2=toScreen(fb.latLo,fb.lngHi);let fw=a2.x-a1.x,fh=a2.y-a1.y;let fx=a1.x,fy=a1.y;if(fw<8){fx+=fw/2-4;fy+=fh/2-4;fw=fh=8}if(a2.x<0||a1.x>W||a2.y<0||a1.y>H)continue;const on=!S.followSel.size||S.followSel.has(fk);c.fillStyle=on?'rgba(143,182,232,.62)':'rgba(143,182,232,.22)';c.fillRect(fx,fy,fw,fh);if(on){c.strokeStyle='#8FB6E8';c.lineWidth=2;c.strokeRect(fx+1,fy+1,fw-2,fh-2)}}}
   else for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const jj=((j%nj)+nj)%nj,k=OLC.keyFromIdx(i,jj,p),e=A.get(k);const ch=Math.abs(ys[i-1]-ys[i]);
     if(!e){if(p===5&&cw>=96){c.fillStyle='rgba(241,234,226,.14)';c.font='400 9px '+MONO;c.textAlign='center';c.textBaseline='middle';c.fillText(k.slice(8),xs[j]+cw/2,ys[i]+ch/2)}continue}
     drawTile(c,xs[j],ys[i],cw,ch,e,p,k)}
@@ -874,8 +873,8 @@ function drawTile(c,x,y,w,h,e,p,k){if(w<10){const m=10;x=x+w/2-m/2;y=y+h/2-m/2;w
   c.beginPath();roundRect(c,rx,ry,rw,rh,rad);c.clip();
   const img=photoImage(e.cover);
   if(img){const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.max(rw/iw,rh/ih),dw=iw*s,dh=ih*s;c.drawImage(img,rx+(rw-dw)/2,ry+(rh-dh)/2,dw,dh)}else{c.fillStyle='#3A332D';c.fillRect(rx,ry,rw,rh)}
-  const bw=Math.min(3,Math.max(1,w/40));c.lineWidth=bw*2;c.strokeStyle=e.mine?C.flag:C.tile;c.beginPath();roundRect(c,rx,ry,rw,rh,rad);c.stroke();
   c.restore();
+  if(e.mine){c.save();const bw=Math.min(3,Math.max(1.5,w/40));c.lineWidth=bw;c.strokeStyle='#8FB6E8';if(!e.mineCover)c.setLineDash([bw*2,bw*2]);c.beginPath();roundRect(c,rx+bw/2,ry+bw/2,rw-bw,rh-bw,rad);c.stroke();c.restore()}
   if(w>=44){c.font='500 10px '+SANS;const tx=p<5?e.cells+' '+t('cell'):'♥'+e.cover.likes+(e.photos>1?'  '+t('photos_n',{n:e.photos}):'');const tw=c.measureText(tx).width+10,th=16;const px=p<5?rx+rw-4-tw:rx+4,py=p<5?ry+rh-4-th:ry+4;
     c.fillStyle=C.pill;c.beginPath();roundRect(c,px,py,tw,th,8);c.fill();c.fillStyle=C.ink;c.textBaseline='middle';c.textAlign='left';c.fillText(tx,px+5,py+th/2+0.5)}}
 
@@ -892,7 +891,7 @@ function bindMapInput(){const el=map.canvas,ptrs=new Map();let last=null,tap=nul
   el.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*0.0016))},{passive:false})}
 function panBy(dx,dy){const P=pxPerDeg();S.view.lng=OLC.normLng(S.view.lng-dx/P.x);S.view.lat=clamp(S.view.lat+dy/P.y,-85,85);requestRender()}
 function zoomAt(x,y,f){if(map.ml){map.ml.easeTo({zoom:map.ml.getZoom()+Math.log2(f),duration:200});return}const before=toWorld(x,y),l=scaleLimits(),ns=clamp(S.view.scale*f,l.min,l.max);if(ns===S.view.scale)return;S.view.scale=ns;const after=toWorld(x,y);S.view.lng+=before.lng-after.lng;S.view.lat+=before.lat-after.lat;requestRender()}
-function onTap(x,y){const w=toWorld(x,y),p=pairsForScale(),key=OLC.key(w.lat,w.lng,p);S.selected=key;sheetStack.length=0;S.sheet=null;requestRender();if(p===5)openCellSheet(key);else openBlockSheet(key)}
+function onTap(x,y){const w=toWorld(x,y),p=pairsForScale(),key=OLC.key(w.lat,w.lng,p);if(S.followMap){const k10=OLC.key(w.lat,w.lng,5);const hit=[...S.follows].filter(f=>k10.startsWith(f)).sort((a,b)=>b.length-a.length)[0];if(hit){if(S.followSel.has(hit))S.followSel.delete(hit);else S.followSel.add(hit);requestRender()}return}S.selected=key;sheetStack.length=0;S.sheet=null;requestRender();if(p===5)openCellSheet(key);else openBlockSheet(key)}
 
 // ---------- 시트
 const sheetStack=[];
@@ -1040,14 +1039,14 @@ function updateReelDist(id){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-
   if(i>=st.shown-4&&st.shown<st.items.length)renderReels(id,null,false)}
 const emptyReel=(h3,p,btn)=>`<div class="empty reel-empty"><div class="art"></div><h3>${h3}</h3><p>${p}</p>${btn||''}</div>`;
 function renderFeed(reset){renderReels('reels',reset?buildNearbyList():null,reset,emptyReel(t('feed_empty'),t('feed_empty_p'),`<button class="btn primary" data-goto="camera">${t('do_cover')}</button>`))}
-function renderFollow(reset){for(const k of S.followSel)if(!S.follows.has(k))S.followSel.delete(k);const all=!S.followSel.size;const chips=[...S.follows].map(k=>`<button class="chip-btn ${all||S.followSel.has(k)?'on':''}" data-fsel="${k}">${geoHTML(k)} <span class="mono dim">${esc(labelFor(k))}</span></button>`).join('');$('#follow-chips').innerHTML=chips?`<button class="chip-btn ${all?'on':''}" data-fsel="*">${t('all_regions')}</button><button class="chip-btn gear" data-act2="manage" aria-label="${t('manage')}">⚙</button>${chips}`:'';
+function renderFollow(reset){for(const k of S.followSel)if(!S.follows.has(k))S.followSel.delete(k);const all=!S.followSel.size;const chips=[...S.follows].map(k=>`<button class="chip-btn ${all||S.followSel.has(k)?'on':''}" data-fsel="${k}">${geoHTML(k)} <span class="mono dim">${esc(labelFor(k))}</span></button>`).join('');$('#follow-chips').innerHTML=chips?`<button class="chip-btn gear" data-act2="manage" aria-label="${t('manage')}">⚙</button><button class="chip-btn ${all?'on':''}" data-fsel="*">${t('all_regions')}</button>${chips}`:'';
   const empty=S.follows.size?emptyReel(t('follow_none_sel'),'',`<button class="btn" data-act2="manage">${t('manage')}</button>`):emptyReel(t('follow_empty'),t('follow_empty_p'),`<button class="btn" data-goto="map">${t('tab_map')}</button>`);
   renderReels('freels',reset?buildFollowList():null,reset,empty)}
 
 function openFollowManage(){S.sheet={type:'fmanage'};const keys=[...S.follows];const all=!S.followSel.size;
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('followed_title')}</div><div class="sh-sub"><span>${keys.length} ${t('zone')}</span></div></div><button class="like" data-act2="viewmap">▦ ${t('view_map')}</button></div>
   <div class="flist">${keys.map(k=>{const n=[...S.world.values()].filter(c=>c.key.startsWith(k)&&c.photos.length).reduce((a,c)=>a+c.photos.length,0);return`<div class="frow"><button class="chip-btn tog ${all||S.followSel.has(k)?'on':''}" data-fsel="${k}"><i></i></button><div class="finfo" data-open-key="${k}"><b>${geoHTML(k)}</b><span class="mono dim">${OLC.format(k)} · ${LEVEL_NAME(k.length/2)} · ${t('photos_n',{n})}</span></div><button class="like" data-follow="${k}">✕</button></div>`}).join('')}</div>`)}
-function viewFollowsOnMap(){closeSheet();switchTab('map');S.followMap=true;$('#fmap-exit').hidden=false;const keys=[...S.follows];if(!keys.length)return;let la=90,lb=-90,lo=180,ro=-180;for(const k of keys){const b=OLC.bounds(k);la=Math.min(la,b.latLo);lb=Math.max(lb,b.latHi);lo=Math.min(lo,b.lngLo);ro=Math.max(ro,b.lngHi)}
+function viewFollowsOnMap(){closeSheet();switchTab('map');S.followMap=true;const keys=[...S.follows];if(!keys.length)return;let la=90,lb=-90,lo=180,ro=-180;for(const k of keys){const b=OLC.bounds(k);la=Math.min(la,b.latLo);lb=Math.max(lb,b.latHi);lo=Math.min(lo,b.lngLo);ro=Math.max(ro,b.lngHi)}
   requestAnimationFrame(()=>{if(map.ml){map.ml.fitBounds([[lo,la],[ro,lb]],{padding:60,duration:500,maxZoom:18})}else{const w=distM((la+lb)/2,lo,(la+lb)/2,ro);centerOn((la+lb)/2,(lo+ro)/2,Math.max(200,w*1.3),true)}})}
 // ---------- 사용자 페이지 / 뷰어
 function userStats(uid){const ps=[...S.photos.values()].filter(p=>p.user.id===uid),cells=new Set(ps.map(p=>p.key)),covers=[...cells].filter(k=>{const c=S.world.get(k);return c&&coverOf(c).user.id===uid}).length,likes=ps.reduce((a,p)=>a+p.likes,0);return{ps,cells:cells.size,covers,likes}}
@@ -1248,7 +1247,7 @@ function switchTab(name){const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('
   if(prev==='camera'&&name!=='camera'){stopCamera();resetShot()}
   if(name==='camera'){if(!S.user){needLogin();switchTab(prev==='camera'?'map':prev);return}updateCamPlace();startCamera();locate(true)}
   if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}if(name==='follow'){maybeReload();renderFollow(true)}
-  if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}if(prev==='map'&&name!=='map'){S.followMap=false;$('#fmap-exit').hidden=true}}
+  if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}if(prev==='map'&&name!=='map'){S.followMap=false}}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
   const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.className='card-prev '+SHARE.fmt;$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
@@ -1270,7 +1269,6 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
     catch(err){console.warn(err);toast(t('avatar_fail')+': '+(err.message||''))}});
   $('#pf-save').addEventListener('click',saveName);$('#pf-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveName();e.target.blur()}});
   $('#loc-gps').addEventListener('click',()=>locate(false));$('#locate').addEventListener('click',()=>{if(S.me.src==='gps')centerOn(S.me.lat,S.me.lng,180,true);else locate(false)});
-  $('#fmap-exit').addEventListener('click',()=>{S.followMap=false;$('#fmap-exit').hidden=true;requestRender()});
   $('#zin').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1.7));$('#zout').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1/1.7));
   $$('[data-lang]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
   $('#signout').addEventListener('click',signOut);$('#login-google').addEventListener('click',signInGoogle);$('#login-email-btn').addEventListener('click',signInEmail);$('#login-close').addEventListener('click',()=>$('#login').classList.remove('show'));
@@ -1292,6 +1290,8 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   setTimeout(()=>$('#hint').classList.add('hide'),7000)}
 
 // ---------- 시작
+function fitViewport(){const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
+fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
   const m=location.pathname.match(/\/c\/([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i)||location.hash.match(/c=([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i);if(m){S.deepKey=m[1].toUpperCase().replace('+','');history.replaceState(null,'',location.origin+'/')}
   let tries=0;const kick=()=>{resizeMap();requestRender();if(map.W<50&&tries++<30)setTimeout(kick,120)};kick();window.addEventListener('resize',()=>{resizeMap();requestRender()});
