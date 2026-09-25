@@ -485,7 +485,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <div class="edit-panel" id="edit-panel" hidden></div>
         <div class="filters" id="filters"></div>
         <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span></div>
+        <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span><button class="zchip" id="lens-btn" hidden>⟳</button></div>
         <div class="cam-actions">
           <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
           <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
@@ -1101,38 +1101,27 @@ function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==
   if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
 async function startCamera(){if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
   try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const vc=CAM.dev?{deviceId:{exact:CAM.dev},width:{ideal:4096},height:{ideal:4096}}:{facingMode:{ideal:'environment'},width:{ideal:4096},height:{ideal:4096}};let st;try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:true})}catch(e1){try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:false})}catch(e2){CAM.dev=null;localStorage.removeItem('ctw-cam');st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}}
-    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});initZoom();listLenses();if(S.tab==='camera')setCamState('live');else stopCamera()}
+    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});initZoom();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
 function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(tr=>tr.stop());S.cam.stream=null}$('#video').srcObject=null}
 function cropTo34(src,sw,sh,z){z=z||1;const TW=720,TH=960;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;cw/=z;ch/=z;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본/망원)
 const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[]};
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
-    const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label));CAM.list=backs;CAM.cur=cur;
-    const cache=JSON.parse(localStorage.getItem('ctw-lens')||'{}');let changed=false;
-    for(const d of backs){if(cache[d.deviceId])continue;if(d.deviceId===cur){const tr=S.cam.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};cache[cur]={zmin:cap.zoom?cap.zoom.min:1,zmax:cap.zoom?cap.zoom.max:1,w:cap.width?cap.width.max:0,face:(cap.facingMode||[])[0]||''};changed=true;continue}
-      try{const st=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:d.deviceId}},audio:false});const tr=st.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};cache[d.deviceId]={zmin:cap.zoom?cap.zoom.min:1,zmax:cap.zoom?cap.zoom.max:1,w:cap.width?cap.width.max:0,face:(cap.facingMode||[])[0]||''};st.getTracks().forEach(t=>t.stop());changed=true}catch(e){cache[d.deviceId]={zmin:1,zmax:1,w:0,face:''}}}
-    if(changed)localStorage.setItem('ctw-lens',JSON.stringify(cache));
-    const info=backs.map(d=>({id:d.deviceId,...(cache[d.deviceId]||{zmin:1,zmax:1,w:0}),label:(d.label||'').toLowerCase()})).filter(x=>x.face!=='user');
-    CAM.info=info;const main=info.slice().sort((x,y)=>y.w-x.w)[0];CAM.main=main?main.id:cur;
-    const others=info.filter(x=>x.id!==CAM.main);CAM.wide=null;CAM.tele=null;
-    for(const o of others){const l=o.label;if(/ultra|wide|광각|超广/.test(l)&&!/tele/.test(l))CAM.wide=o.id;else if(/tele|망원|长焦/.test(l))CAM.tele=o.id;else if(/camera2?\s*2\b/.test(l)&&!CAM.wide)CAM.wide=o.id;else if(/camera2?\s*3\b/.test(l)&&!CAM.tele)CAM.tele=o.id}
-    if(!CAM.wide&&others.length===1)CAM.wide=others[0].id;if(!CAM.wide&&others.length>=2){CAM.wide=others[0].id;if(!CAM.tele)CAM.tele=others[1].id}
-    ZOOM.base=cur===CAM.wide?0.6:cur===CAM.tele?3:1;buildZoomChips();applyZoom()}catch(e){console.warn(e)}}
+    const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label)&&(/back|rear|environment|후면|后|camera2? ?\d+,? ?facing back/i.test(d.label)||!d.label));
+    CAM.list=backs;CAM.cur=cur;ZOOM.base=1;const btn=$('#lens-btn');btn.hidden=backs.length<2;if(backs.length>=2){const i=backs.findIndex(d=>d.deviceId===cur);btn.textContent=`⟳ ${i>=0?i+1:'?'}/${backs.length}`}buildZoomChips();applyZoom()}catch(e){console.warn(e)}}
+function nextLens(){if(REC.on||CAM.list.length<2)return;const i=CAM.list.findIndex(d=>d.deviceId===CAM.cur);const nx=CAM.list[(i+1)%CAM.list.length];switchLens(nx.deviceId,1)}
 async function switchLens(id,z){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);ZOOM.pending=z||1;stopCamera();S.cam.stream=null;await startCamera()}
 // --- 줌: 카메라가 1x 아래 줌을 열어주면 그 최소값(예: 0.6x)부터, 아니면 광각 렌즈 전환, 그것도 없으면 1x부터
 const ZOOM={z:1,hw:null,max:5,base:1};
 function initZoom(){ZOOM.z=ZOOM.pending||1;ZOOM.pending=0;ZOOM.hw=null;try{const tr=S.cam.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if(cap.zoom&&cap.zoom.max>cap.zoom.min){ZOOM.hw={tr,min:cap.zoom.min,max:cap.zoom.max}}}catch(e){}ZOOM.max=ZOOM.hw?Math.max(2,Math.min(10,ZOOM.hw.max)):5;buildZoomChips();applyZoom()}
-function minEff(){if(ZOOM.hw&&ZOOM.hw.min<0.95&&(ZOOM.base||1)===1)return ZOOM.hw.min;if(CAM.wide)return 0.6;return 1}
+function minEff(){if(ZOOM.hw&&ZOOM.hw.min<0.95)return ZOOM.hw.min;return 1}
 function buildZoomChips(){const mn=minEff();const chips=[];if(mn<0.95)chips.push(mn);chips.push(1,2,3);$('#zoom-chips').innerHTML=chips.map(z=>`<button class="zchip" data-z="${z}">${(Math.round(z*10)/10).toString().replace(/^0\./,'0.')}x</button>`).join('')}
 function digitalZ(){return ZOOM.hw?1:ZOOM.z}
 function applyZoom(){const v=$('#video');if(ZOOM.hw){const z=clamp(ZOOM.z,ZOOM.hw.min,ZOOM.hw.max);ZOOM.z=z;ZOOM.hw.tr.applyConstraints({advanced:[{zoom:z}]}).catch(()=>{ZOOM.hw=null;applyZoom()});v.style.transform='none'}else{ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${ZOOM.z})`}
   const eff=ZOOM.z*(ZOOM.base||1);$('#zoom-val').textContent=(Math.round(eff*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-eff)<0.05))}
-function setZoom(eff){const base=ZOOM.base||1;
-  if(eff<0.95){if(ZOOM.hw&&ZOOM.hw.min<0.95&&base===1){ZOOM.z=Math.max(ZOOM.hw.min,eff);applyZoom();return}if(CAM.wide&&CAM.cur!==CAM.wide){switchLens(CAM.wide,1);return}}
-  else if(base<1){if(CAM.main&&CAM.cur!==CAM.main){switchLens(CAM.main,eff);return}}
-  ZOOM.z=eff/base;applyZoom()}
-function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});
+function setZoom(eff){ZOOM.z=eff;applyZoom()}
+function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});$('#lens-btn').addEventListener('click',nextLens);
   const st=$('#cam-stage'),pts=new Map();let d0=0,z0=1;
   st.addEventListener('pointerdown',e=>{if(S.cam.state!=='live'||e.target.closest('.cam-ui,.cam-top'))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const a=[...pts.values()];d0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);z0=ZOOM.z}});
   st.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2&&d0){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);setZoom(z0*d/d0)}});
