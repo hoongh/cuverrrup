@@ -494,7 +494,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <div class="edit-panel" id="edit-panel" hidden></div>
         <div class="filters" id="filters"></div>
         <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span><button class="zchip" id="lens-btn" hidden>⟳</button></div>
+        <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span></div>
         <div class="cam-actions">
           <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
           <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
@@ -1120,7 +1120,7 @@ function cropTo34(src,sw,sh,z){z=z||1;const TW=720,TH=960;let cw=sw,ch=sh;if(sw/
 const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[]};
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
     const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label)&&(/back|rear|environment|후면|后|camera2? ?\d+,? ?facing back/i.test(d.label)||!d.label));
-    CAM.list=backs;CAM.cur=cur;ZOOM.base=1;const btn=$('#lens-btn');btn.hidden=backs.length<2;if(backs.length>=2){const i=backs.findIndex(d=>d.deviceId===cur);btn.textContent=`⟳ ${i>=0?i+1:'?'}/${backs.length}`}buildZoomChips();applyZoom()}catch(e){console.warn(e)}}
+    CAM.list=backs;CAM.cur=cur;ZOOM.base=1;buildZoomChips();applyZoom()}catch(e){console.warn(e)}}
 function nextLens(){if(REC.on||CAM.list.length<2)return;const i=CAM.list.findIndex(d=>d.deviceId===CAM.cur);const nx=CAM.list[(i+1)%CAM.list.length];switchLens(nx.deviceId,1)}
 async function switchLens(id,z){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);ZOOM.pending=z||1;stopCamera();S.cam.stream=null;await startCamera()}
 // --- 줌: 안정성을 위해 디지털 줌만 사용 (화면 확대 + 촬영 시 같은 범위로 잘라냄). 렌즈 전환은 ⟳ 버튼
@@ -1130,7 +1130,7 @@ function buildZoomChips(){$('#zoom-chips').innerHTML=[1,2,3].map(z=>`<button cla
 function digitalZ(){return ZOOM.z}
 function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${ZOOM.z})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
 function setZoom(eff){ZOOM.z=eff;applyZoom()}
-function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});$('#lens-btn').addEventListener('click',nextLens);
+function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});
   const st=$('#cam-stage');let d0=0,z0=1;const dist=ts=>Math.hypot(ts[0].clientX-ts[1].clientX,ts[0].clientY-ts[1].clientY);
   st.addEventListener('touchstart',e=>{if(S.cam.state!=='live'||e.target.closest('.cam-ui,.cam-top'))return;if(e.touches.length===2){d0=dist(e.touches);z0=ZOOM.z;e.preventDefault()}},{passive:false});
   st.addEventListener('touchmove',e=>{if(e.touches.length===2&&d0){e.preventDefault();setZoom(z0*dist(e.touches)/d0)}},{passive:false});
