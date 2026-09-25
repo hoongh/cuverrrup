@@ -224,6 +224,12 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .cap.big{font-size:14px;margin-top:12px}
 .cam-actions{min-height:72px}
 #shot-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.zoom-row{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:8px}
+.zchip{border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;border-radius:999px;padding:5px 11px;font-size:12px;backdrop-filter:blur(6px)}
+.zchip.on{background:#fff;color:#000}
+.zval{font-size:12px;color:#fff;background:rgba(0,0,0,.45);border-radius:999px;padding:5px 9px;min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+#video{transform-origin:center;transition:transform .08s}
+.cam-stage{touch-action:none}
 .shoot-group{grid-column:2;display:flex;align-items:center;gap:22px}
 .shutter{grid-column:auto}
 .vidbtn{width:58px;height:58px;border-radius:50%;border:3px solid #fff;background:transparent;position:relative;display:flex;align-items:center;justify-content:center;padding:0}
@@ -467,6 +473,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <div class="edit-panel" id="edit-panel" hidden></div>
         <div class="filters" id="filters"></div>
         <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+        <div class="zoom-row" id="zoom-row"><button class="zchip" data-z="1">1x</button><button class="zchip" data-z="2">2x</button><button class="zchip" data-z="3">3x</button><span class="zval" id="zoom-val">1x</span></div>
         <div class="cam-actions">
           <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
           <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
@@ -1036,14 +1043,26 @@ function buildFilterChips(){const sample=sampleSwatch();$('#filters').innerHTML=
 function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,'#FFD6A5');g.addColorStop(.7,'#FF8E72');x.fillStyle=g;x.fillRect(0,0,64,64);x.fillStyle='#3E3A55';x.fillRect(0,40,64,24);x.fillStyle='#FFF6DA';x.beginPath();x.arc(40,18,8,0,7);x.fill();return c.toDataURL()}
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id))}
 function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
-  $('#shoot-group').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji]').forEach(b=>b.hidden=isV);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=st==='review'&&tool!=='filter';$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
+  $('#shoot-group').hidden=st!=='live';$('#zoom-row').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji]').forEach(b=>b.hidden=isV);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=st==='review'&&tool!=='filter';$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
   if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
 async function startCamera(){if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
   try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');let st;try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:4096},height:{ideal:4096}},audio:true})}catch(e1){st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:4096},height:{ideal:4096}},audio:false})}
-    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});if(S.tab==='camera')setCamState('live');else stopCamera()}
+    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});initZoom();if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
 function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(tr=>tr.stop());S.cam.stream=null}$('#video').srcObject=null}
-function cropTo34(src,sw,sh){const TW=720,TH=960;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
+function cropTo34(src,sw,sh,z){z=z||1;const TW=720,TH=960;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;cw/=z;ch/=z;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
+// --- 줌 (하드웨어 줌 가능하면 사용, 아니면 디지털 줌)
+const ZOOM={z:1,hw:null,max:5};
+function initZoom(){ZOOM.z=1;ZOOM.hw=null;try{const tr=S.cam.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if(cap.zoom&&cap.zoom.max>cap.zoom.min){ZOOM.hw={tr,min:cap.zoom.min,max:cap.zoom.max};ZOOM.z=Math.max(1,cap.zoom.min)}}catch(e){}ZOOM.max=ZOOM.hw?Math.max(2,Math.min(10,ZOOM.hw.max)):5;applyZoom()}
+function digitalZ(){return ZOOM.hw?1:ZOOM.z}
+function applyZoom(){const v=$('#video');if(ZOOM.hw){const z=clamp(ZOOM.z,ZOOM.hw.min,ZOOM.hw.max);ZOOM.z=z;ZOOM.hw.tr.applyConstraints({advanced:[{zoom:z}]}).catch(()=>{ZOOM.hw=null;applyZoom()});v.style.transform='none'}else{ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${ZOOM.z})`}
+  $('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
+function setZoom(z){ZOOM.z=z;applyZoom()}
+function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});
+  const st=$('#cam-stage'),pts=new Map();let d0=0,z0=1;
+  st.addEventListener('pointerdown',e=>{if(S.cam.state!=='live'||e.target.closest('.cam-ui,.cam-top'))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const a=[...pts.values()];d0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);z0=ZOOM.z}});
+  st.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2&&d0){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);setZoom(z0*d/d0)}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)d0=0};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up)}
 function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=240;tc.height=320;tc.getContext('2d').drawImage(src,0,0,240,320);return bake(tc,f)}
 function canvasBlob(c,q){return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 // --- 동영상 녹화 (길게 누르기): 업로드용 저용량 + 폰 저장용 고화질 동시 녹화
@@ -1051,17 +1070,17 @@ const REC={on:false,lo:null,hi:null,loChunks:[],hiChunks:[],raf:0,timer:0,t0:0,c
 function pickMime(){for(const m of ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'])if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m;return ''}
 function startRecording(){if(REC.on||!S.cam.stream||!window.MediaRecorder)return false;const mime=pickMime();if(!mime){toast(t('novideo'));return false}const v=$('#video');if(!v.videoWidth)return false;
   const c=document.createElement('canvas');c.width=540;c.height=720;const cx=c.getContext('2d');REC.canvas=c;REC.mime=mime;
-  const sw=v.videoWidth,sh=v.videoHeight;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;const sx=(sw-cw)/2,sy=(sh-ch)/2;
+  const sw=v.videoWidth,sh=v.videoHeight;let cw=sw,ch=sh;if(sw/sh>3/4)cw=sh*3/4;else ch=sw*4/3;const dz=digitalZ();cw/=dz;ch/=dz;const sx=(sw-cw)/2,sy=(sh-ch)/2;
   const draw=()=>{cx.drawImage(v,sx,sy,cw,ch,0,0,540,720);REC.raf=requestAnimationFrame(draw)};draw();
   const cs=c.captureStream(24);const at=S.cam.stream.getAudioTracks()[0];if(at)cs.addTrack(at);
   REC.loChunks=[];REC.hiChunks=[];
-  try{REC.lo=new MediaRecorder(cs,{mimeType:mime,videoBitsPerSecond:900000,audioBitsPerSecond:64000});REC.hi=new MediaRecorder(S.cam.stream,{mimeType:mime,videoBitsPerSecond:6000000})}catch(e){console.warn(e);cancelAnimationFrame(REC.raf);toast(t('novideo'));return false}
+  try{REC.lo=new MediaRecorder(cs,{mimeType:mime,videoBitsPerSecond:900000,audioBitsPerSecond:64000});let hiStream=S.cam.stream;if(dz>1){const hc=document.createElement('canvas');hc.width=1080;hc.height=1440;const hx=hc.getContext('2d');const hd=()=>{hx.drawImage(v,sx,sy,cw,ch,0,0,1080,1440);REC.raf2=requestAnimationFrame(hd)};hd();hiStream=hc.captureStream(30);if(at)hiStream.addTrack(at)}REC.hi=new MediaRecorder(hiStream,{mimeType:mime,videoBitsPerSecond:6000000})}catch(e){console.warn(e);cancelAnimationFrame(REC.raf);toast(t('novideo'));return false}
   REC.lo.ondataavailable=e=>{if(e.data.size)REC.loChunks.push(e.data)};REC.hi.ondataavailable=e=>{if(e.data.size)REC.hiChunks.push(e.data)};
   REC.lo.start(250);REC.hi.start(250);REC.on=true;REC.t0=performance.now();
   const tc=document.createElement('canvas');tc.width=240;tc.height=320;tc.getContext('2d').drawImage(v,sx,sy,cw,ch,0,0,240,320);REC.poster=tc;
   $('#vidbtn').classList.add('rec');$('#shutter').disabled=true;$('#cam-status').textContent=t('recording');
   REC.timer=setInterval(()=>{const el=Math.min(15,(performance.now()-REC.t0)/1000);$('#vidbtn').style.setProperty('--p',(el/15*360)+'deg');$('#cam-status').textContent=`${t('recording')} ${el.toFixed(1)}s`;if(el>=15)stopRecording()},100);return true}
-function stopRecording(){if(!REC.on)return;REC.on=false;clearInterval(REC.timer);cancelAnimationFrame(REC.raf);$('#vidbtn').classList.remove('rec');$('#vidbtn').style.setProperty('--p','0deg');$('#shutter').disabled=S.me.src!=='gps';
+function stopRecording(){if(!REC.on)return;REC.on=false;clearInterval(REC.timer);cancelAnimationFrame(REC.raf);cancelAnimationFrame(REC.raf2||0);$('#vidbtn').classList.remove('rec');$('#vidbtn').style.setProperty('--p','0deg');$('#shutter').disabled=S.me.src!=='gps';
   const done=[];for(const r of [REC.lo,REC.hi])done.push(new Promise(res=>{r.onstop=res;try{r.stop()}catch(e){res()}}));
   Promise.all(done).then(()=>{const ext=REC.mime.includes('mp4')?'mp4':'webm';S.cam.video={lo:new Blob(REC.loChunks,{type:REC.mime}),hi:new Blob(REC.hiChunks,{type:REC.mime}),ext,poster:REC.poster};
     if(S.cam.video.lo.size<1000){S.cam.video=null;toast(t('novideo'));return}
@@ -1152,8 +1171,8 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#shutter').addEventListener('click',async()=>{if(REC.on)return;const v=$('#video');if(!v.videoWidth){toast(t('cam_noframe'));return}const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
     let src=v,sw=v.videoWidth,sh2=v.videoHeight;
     try{if(window.ImageCapture&&S.cam.stream){const ic=new ImageCapture(S.cam.stream.getVideoTracks()[0]);const blob=await Promise.race([ic.takePhoto(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('slow')),2500))]);const bm=await createImageBitmap(blob);src=bm;sw=bm.width;sh2=bm.height}}catch(e){}
-    S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropTo34(src,sw,sh2);S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
-  $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});
+    const dz=digitalZ();if(dz>1){const zc=document.createElement('canvas');zc.width=Math.round(sw/dz);zc.height=Math.round(sh2/dz);zc.getContext('2d').drawImage(src,(sw-sw/dz)/2,(sh2-sh2/dz)/2,sw/dz,sh2/dz,0,0,zc.width,zc.height);src=zc;sw=zc.width;sh2=zc.height}S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropTo34(src,sw,sh2);S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
+  $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});bindZoom();
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(S.cam.stream?'live':'fallback')});
   $('#upload').addEventListener('click',uploadShot);
   $$('.tool').forEach(b=>b.addEventListener('click',()=>{S.cam.sel=null;renderStickers();setTool(b.dataset.tool)}));bindStickers();
