@@ -1112,20 +1112,19 @@ async function listLenses(){try{const devs=await navigator.mediaDevices.enumerat
     CAM.list=backs;CAM.cur=cur;ZOOM.base=1;const btn=$('#lens-btn');btn.hidden=backs.length<2;if(backs.length>=2){const i=backs.findIndex(d=>d.deviceId===cur);btn.textContent=`⟳ ${i>=0?i+1:'?'}/${backs.length}`}buildZoomChips();applyZoom()}catch(e){console.warn(e)}}
 function nextLens(){if(REC.on||CAM.list.length<2)return;const i=CAM.list.findIndex(d=>d.deviceId===CAM.cur);const nx=CAM.list[(i+1)%CAM.list.length];switchLens(nx.deviceId,1)}
 async function switchLens(id,z){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);ZOOM.pending=z||1;stopCamera();S.cam.stream=null;await startCamera()}
-// --- 줌: 카메라가 1x 아래 줌을 열어주면 그 최소값(예: 0.6x)부터, 아니면 광각 렌즈 전환, 그것도 없으면 1x부터
+// --- 줌: 안정성을 위해 디지털 줌만 사용 (화면 확대 + 촬영 시 같은 범위로 잘라냄). 렌즈 전환은 ⟳ 버튼
 const ZOOM={z:1,hw:null,max:5,base:1};
-function initZoom(){ZOOM.z=ZOOM.pending||1;ZOOM.pending=0;ZOOM.hw=null;try{const tr=S.cam.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if(cap.zoom&&cap.zoom.max>cap.zoom.min){ZOOM.hw={tr,min:cap.zoom.min,max:cap.zoom.max}}}catch(e){}ZOOM.max=ZOOM.hw?Math.max(2,Math.min(10,ZOOM.hw.max)):5;buildZoomChips();applyZoom()}
-function minEff(){if(ZOOM.hw&&ZOOM.hw.min<0.95)return ZOOM.hw.min;return 1}
-function buildZoomChips(){const mn=minEff();const chips=[];if(mn<0.95)chips.push(mn);chips.push(1,2,3);$('#zoom-chips').innerHTML=chips.map(z=>`<button class="zchip" data-z="${z}">${(Math.round(z*10)/10).toString().replace(/^0\./,'0.')}x</button>`).join('')}
-function digitalZ(){return ZOOM.hw?1:ZOOM.z}
-function applyZoom(){const v=$('#video');if(ZOOM.hw){const z=clamp(ZOOM.z,ZOOM.hw.min,ZOOM.hw.max);ZOOM.z=z;ZOOM.hw.tr.applyConstraints({advanced:[{zoom:z}]}).catch(()=>{ZOOM.hw=null;applyZoom()});v.style.transform='none'}else{ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${ZOOM.z})`}
-  const eff=ZOOM.z*(ZOOM.base||1);$('#zoom-val').textContent=(Math.round(eff*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-eff)<0.05))}
+function initZoom(){ZOOM.z=ZOOM.pending||1;ZOOM.pending=0;ZOOM.hw=null;ZOOM.max=5;buildZoomChips();applyZoom()}
+function buildZoomChips(){$('#zoom-chips').innerHTML=[1,2,3].map(z=>`<button class="zchip" data-z="${z}">${z}x</button>`).join('')}
+function digitalZ(){return ZOOM.z}
+function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${ZOOM.z})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
 function setZoom(eff){ZOOM.z=eff;applyZoom()}
 function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});$('#lens-btn').addEventListener('click',nextLens);
-  const st=$('#cam-stage'),pts=new Map();let d0=0,z0=1;
-  st.addEventListener('pointerdown',e=>{if(S.cam.state!=='live'||e.target.closest('.cam-ui,.cam-top'))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const a=[...pts.values()];d0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);z0=ZOOM.z}});
-  st.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2&&d0){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);setZoom(z0*d/d0)}});
-  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)d0=0};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up)}
+  const st=$('#cam-stage');let d0=0,z0=1;const dist=ts=>Math.hypot(ts[0].clientX-ts[1].clientX,ts[0].clientY-ts[1].clientY);
+  st.addEventListener('touchstart',e=>{if(S.cam.state!=='live'||e.target.closest('.cam-ui,.cam-top'))return;if(e.touches.length===2){d0=dist(e.touches);z0=ZOOM.z;e.preventDefault()}},{passive:false});
+  st.addEventListener('touchmove',e=>{if(e.touches.length===2&&d0){e.preventDefault();setZoom(z0*dist(e.touches)/d0)}},{passive:false});
+  st.addEventListener('touchend',()=>{d0=0});
+  st.addEventListener('wheel',e=>{if(S.cam.state!=='live')return;e.preventDefault();setZoom(ZOOM.z*Math.exp(-e.deltaY*0.002))},{passive:false})}
 function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=240;tc.height=320;tc.getContext('2d').drawImage(src,0,0,240,320);return bake(tc,f)}
 function canvasBlob(c,q){return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 // --- 동영상 녹화 (길게 누르기): 업로드용 저용량 + 폰 저장용 고화질 동시 녹화
