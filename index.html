@@ -271,7 +271,8 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .stats i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--c,var(--mint));border-radius:2px;transition:width .5s}
 h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .box{border:1px solid var(--line);border-radius:16px;padding:16px}
-.earth{padding:14px 0}.earth+.earth{border-top:1px solid var(--line)}.earth span{display:block;font-size:13px;color:var(--ink-2)}.earth b{display:block;font-size:30px;font-weight:200;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums;word-break:break-all}.earth small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.earth2{display:flex;gap:10px}.earth{flex:1;min-width:0;text-align:center;padding:6px 0}.earth+.earth{border-left:1px solid var(--line)}.earth span{display:block;font-size:12px;color:var(--ink-2);margin-top:2px;line-height:1.35}.earth small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.ring.sm{width:100%;max-width:150px;height:auto;aspect-ratio:1;margin:0 auto}.ring.sm .c b{font-size:13px;font-weight:400;letter-spacing:0;word-break:break-all;padding:0 22px;line-height:1.3}.ring.sm .val{stroke:var(--sky)}#ring-me{stroke:var(--flag)}
 .ring-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0 4px}
 .ring{position:relative;width:200px;height:200px}
 .ring svg{width:100%;height:100%;transform:rotate(135deg)}
@@ -518,8 +519,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 
       <h2 data-i18n="h_progress"></h2>
       <div class="box">
-        <div class="earth"><span data-i18n="earth_all"></span><b id="earth-all-val">0%</b><small id="earth-all-sub"></small></div>
-        <div class="earth"><span data-i18n="earth_me"></span><b id="earth-me-val">0%</b><small id="earth-me-sub"></small></div>
+        <div class="earth2"><div class="earth"><div class="ring sm"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-all" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><b id="earth-all-val">0%</b></div></div><span data-i18n="earth_all"></span><small id="earth-all-sub"></small></div><div class="earth"><div class="ring sm"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-me" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><b id="earth-me-val">0%</b></div></div><span data-i18n="earth_me"></span><small id="earth-me-sub"></small></div></div>
       </div>
 
       <h2 data-i18n="h_loc"></h2>
@@ -1020,7 +1020,7 @@ function renderProfile(){renderMyPhotos();if(S.user){$('#pf-grid').innerHTML=use
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
   const pw=(v,m)=>Math.min(100,v/m*100)+'%';$('#sb-cells').style.setProperty('--w',pw(cells.length,20));$('#sb-photos').style.setProperty('--w',pw(myPhotos.length,30));$('#sb-covers').style.setProperty('--w',cells.length?pw(covers,cells.length):'0%');$('#sb-likes').style.setProperty('--w',pw(likes,50));
   const EARTH=1440000*2880000,all=S.agg[5]?S.agg[5].size:0,pct=n=>{const p=n/EARTH*100;if(!n)return'0%';let d=2;while(d<14&&+p.toFixed(d)===0)d++;return p.toFixed(d)+'%'};
-  $('#earth-all-val').textContent=pct(all);$('#earth-all-sub').textContent=t('cells_n',{n:fmtInt(all)});$('#earth-me-val').textContent=pct(cells.length);$('#earth-me-sub').textContent=t('cells_n',{n:fmtInt(cells.length)});
+  $('#earth-all-val').textContent=pct(all);$('#earth-all-sub').textContent=t('cells_n',{n:fmtInt(all)});$('#earth-me-val').textContent=pct(cells.length);$('#earth-me-sub').textContent=t('cells_n',{n:fmtInt(cells.length)});$('#ring-all').setAttribute('stroke-dasharray',`${all?Math.max(6,all/EARTH*424):0} 565`);$('#ring-me').setAttribute('stroke-dasharray',`${cells.length?Math.max(6,cells.length/EARTH*424):0} 565`);
   $('#loc-label').textContent=S.me.src==='gps'?t('loc_gps')+(S.me.acc?t('loc_acc',{m:Math.round(S.me.acc)}):''):t('loc_none');$('#loc-code').textContent=OLC.format(OLC.key(S.me.lat,S.me.lng))}
 function applyPos(pos,recenter){const first=S.me.src!=='gps';const moved=distM(S.me.lat,S.me.lng,pos.coords.latitude,pos.coords.longitude);S.me={lat:pos.coords.latitude,lng:pos.coords.longitude,src:'gps',acc:pos.coords.accuracy,ts:Date.now()};
   updateCamPlace();requestRender();if(moved>30||first){if(S.tab==='profile')renderProfile();if(S.tab==='feed'&&(first||moved>150))renderFeed(true)}
@@ -1066,8 +1066,9 @@ const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[]};
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
     const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label)&&(/back|rear|environment|후면|后|camera2 \d, facing back/i.test(d.label)||!d.label));
     CAM.list=backs.length>1?backs:[];const row=$('#lens-row');if(CAM.list.length<2){row.hidden=true;return}row.hidden=false;
-    row.innerHTML=`<span class="zval">${t('lens')}</span>`+CAM.list.map((d,i)=>`<button class="zchip ${d.deviceId===cur?'on':''}" data-dev="${d.deviceId}">${lensLabel(d,i)}</button>`).join('')}catch(e){console.warn(e)}}
-function lensLabel(d,i){const l=(d.label||'').toLowerCase();if(/ultra|wide|광각|超广/.test(l)&&!/tele/.test(l))return'0.5x';if(/tele|망원|长焦/.test(l))return'T';return String(i+1)}
+    const items=CAM.list.map((d,i)=>({d,lbl:lensLabel(d,i)}));const seen=new Set();for(const it of items){if(seen.has(it.lbl))it.lbl=it.lbl+"'";seen.add(it.lbl)}items.sort((a,b)=>lensOrder(a.lbl)-lensOrder(b.lbl));row.innerHTML=items.map(it=>`<button class="zchip ${it.d.deviceId===cur?'on':''}" data-dev="${it.d.deviceId}">${it.lbl}</button>`).join('')}catch(e){console.warn(e)}}
+function lensLabel(d,i){const l=(d.label||'').toLowerCase();if(/ultra|wide|광각|超广/.test(l)&&!/tele/.test(l))return'0.5x';if(/tele|망원|长焦/.test(l))return'2x';const m=l.match(/camera2?\s*(\d+)/);if(m){const n=+m[1];if(n===2)return'0.5x';if(n===3)return'2x';if(n===0)return'1x'}return i===0?'1x':i===1?'0.5x':'2x'}
+function lensOrder(lbl){return lbl==='0.5x'?0:lbl==='1x'?1:2}
 async function switchLens(id){CAM.dev=id;localStorage.setItem('ctw-cam',id);stopCamera();S.cam.stream=null;await startCamera()}
 // --- 줌 (하드웨어 줌 가능하면 사용, 아니면 디지털 줌)
 const ZOOM={z:1,hw:null,max:5};
