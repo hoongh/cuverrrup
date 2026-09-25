@@ -3,13 +3,13 @@
 <h1>개인정보처리방침</h1><small>시행일 2026년 9월 26일</small>
 <h2>1. 수집하는 정보</h2>
 <ul><li><b>계정 정보</b>: 구글 로그인 시 이메일, 이름, 프로필 사진(선택). 이메일 링크 로그인 시 이메일.</li>
-<li><b>위치 정보</b>: 사진·동영상을 올리는 순간의 GPS 좌표. 좌표는 14m 단위 격자 코드로 변환되어 사진과 함께 저장·공개됩니다.</li>
+<li><b>위치 정보</b>: 사진·동영상을 올리는 순간 기기의 GPS 좌표를 읽어 <b>14m 단위 격자 코드로 변환하는 데에만 순간적으로 사용</b>하며, 원본 좌표는 서버에 저장하지 않습니다. 저장·공개되는 것은 격자 코드만입니다.</li>
 <li><b>콘텐츠</b>: 올린 사진·동영상(축소본), 문구, 댓글, 좋아요, 팔로우한 지역.</li>
 <li><b>기기·이용 정보</b>: 브라우저 종류, 접속 로그(서버 운영을 위한 기본 기록).</li></ul>
 <h2>2. 이용 목적</h2>
 <p>서비스 제공(지도에 사진 표시, 주변·팔로우 피드, 커버 선정), 계정 식별, 부정 이용 방지 및 신고 처리, 서비스 개선.</p>
 <h2>3. 공개 범위</h2>
-<p>올린 사진·동영상, 문구, 댓글, 이름, 프로필 사진, 촬영 위치의 격자 코드는 <b>모든 이용자에게 공개</b>됩니다. 정확한 GPS 좌표는 격자 코드로만 표시되며 원본 좌표는 공개하지 않습니다. 원본 해상도의 사진·동영상은 이용자의 기기에만 저장되고 서버에는 축소본만 저장됩니다.</p>
+<p>올린 사진·동영상, 문구, 댓글, 이름, 프로필 사진, 촬영 위치의 격자 코드는 <b>모든 이용자에게 공개</b>됩니다. 정확한 GPS 좌표는 저장되지 않으며 격자 코드만 존재합니다. 업로드 시각은 공개 API에서 시간 단위로 뭉개어 제공됩니다. 사진 파일의 메타데이터(EXIF, 위치·기기 정보)는 업로드 과정에서 제거됩니다. 원본 해상도의 사진·동영상은 이용자의 기기에만 저장되고 서버에는 축소본만 저장됩니다.</p>
 <h2>4. 보관 및 파기</h2>
 <p>콘텐츠는 이용자가 삭제하거나 계정을 삭제할 때까지 보관합니다. 삭제 시 즉시 서버에서 제거됩니다. 접속 로그는 최대 90일 보관 후 파기합니다.</p>
 <h2>5. 처리 위탁</h2>
@@ -20,9 +20,9 @@
 <h2>8. 연락처</h2><p>개인정보 보호 책임자: Coverrrup 운영자<br>이메일: <a href="mailto:hoongm@gmail.com">hoongm@gmail.com</a></p>
 <hr>
 <h1>Privacy Policy</h1><small>Effective September 26, 2026</small>
-<h2>What we collect</h2><p>Account info from Google sign-in (email, name, optional avatar) or your email for link sign-in; the GPS position at the moment you upload (converted to a 14 m grid code and shown with the photo); your photos/videos (reduced size), captions, comments, likes and followed areas; basic server logs.</p>
+<h2>What we collect</h2><p>Account info from Google sign-in (email, name, optional avatar) or your email for link sign-in; the GPS position at the moment you upload, used only to compute a 14 m grid code; raw coordinates are never stored; your photos/videos (reduced size), captions, comments, likes and followed areas; basic server logs.</p>
 <h2>How we use it</h2><p>To run the service (map, feeds, cover selection), identify accounts, prevent abuse and handle reports, and improve the product.</p>
-<h2>What is public</h2><p>Your photos, videos, captions, comments, name, avatar and the grid code of each photo are visible to all users. Exact coordinates are not shown. Full-resolution originals stay on your device.</p>
+<h2>What is public</h2><p>Your photos, videos, captions, comments, name, avatar and the grid code of each photo are visible to all users. Exact coordinates are never stored; upload times are exposed only at hour precision; photo metadata (EXIF) is stripped. Full-resolution originals stay on your device.</p>
 <h2>Retention & deletion</h2><p>Content is kept until you delete it or your account. You can edit or delete your content anytime and request full account deletion at the email below; we respond within 7 days.</p>
 <h2>Processors</h2><p>Supabase (database, auth, storage), Cloudflare (hosting), Google (sign-in), OpenStreetMap/OpenFreeMap (map tiles and place names; coordinates only).</p>
 <h2>Children</h2><p>Coverrrup is not for users under 14.</p>
