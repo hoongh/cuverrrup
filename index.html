@@ -208,7 +208,15 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .cam-ui{position:absolute;left:0;right:0;bottom:0;padding:10px 12px calc(10px + var(--safe));background:linear-gradient(transparent,rgba(0,0,0,.75) 40%);z-index:4}
 .shot-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);aspect-ratio:3/4;height:100%;max-width:100%;display:none;overflow:hidden;background:#000}
 .shot-box.show{display:block}
-.shot-box #shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.shot-box #shot{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.trim-frame{position:absolute;border:2px solid #fff;box-shadow:0 0 0 2000px rgba(0,0,0,.55);touch-action:none;z-index:3}
+.trim-handle{position:absolute;width:22px;height:22px}
+.trim-handle::after{content:'';position:absolute;inset:5px;border:3px solid #fff;border-radius:2px;box-shadow:0 0 4px rgba(0,0,0,.6)}
+.trim-handle[data-h="tl"]{top:-11px;left:-11px;cursor:nwse-resize}
+.trim-handle[data-h="tr"]{top:-11px;right:-11px;cursor:nesw-resize}
+.trim-handle[data-h="bl"]{bottom:-11px;left:-11px;cursor:nesw-resize}
+.trim-handle[data-h="br"]{bottom:-11px;right:-11px;cursor:nwse-resize}
+.edit-prev .trim-frame,.edit-prev .trim-handle{touch-action:none}
 .stickers{position:absolute;inset:0;touch-action:none;z-index:3}
 .stk{position:absolute;transform:translate(-50%,-50%);white-space:pre;font-weight:700;line-height:1.15;cursor:grab;user-select:none;text-align:center;padding:2px 6px;border-radius:6px;border:1.5px dashed transparent;text-shadow:0 1px 6px rgba(0,0,0,.55)}
 .stk.emoji{text-shadow:none}
@@ -309,7 +317,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .mygrid .ph span{position:absolute;left:6px;top:6px;font-size:10px;background:rgba(27,23,20,.8);color:var(--ink);padding:2px 7px;border-radius:999px;border:1px solid var(--line-2)}
 .mygrid .ph span.gold{border-color:var(--gold);color:var(--gold)}
 .edit-prev{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--line-2)}
-.edit-prev img{width:100%;height:100%;object-fit:cover;display:block;touch-action:none}
+.edit-prev img{width:100%;height:100%;object-fit:contain;display:block;touch-action:none}
 .sheet .filters{padding-top:14px}
 .sheet .fchip.on .sw{box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--flag)}
 .row2{display:flex;gap:10px}
@@ -503,7 +511,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
   <section id="screen-camera" class="screen cam">
     <div class="cam-stage" id="cam-stage">
       <video id="video" playsinline muted autoplay></video>
-      <div class="shot-box" id="shot-box"><img id="shot" alt=""><video id="shot-video" playsinline muted loop autoplay hidden></video><div class="stickers" id="stickers"></div><div class="fx-vig" id="fx-vig"></div><div class="fx-tint" id="fx-tint"></div></div>
+      <div class="shot-box" id="shot-box"><img id="shot" alt=""><video id="shot-video" playsinline muted loop autoplay hidden></video><div class="stickers" id="stickers"></div><div class="fx-vig" id="fx-vig"></div><div class="fx-tint" id="fx-tint"></div><div class="trim-frame" hidden><div class="trim-handle" data-h="tl"></div><div class="trim-handle" data-h="tr"></div><div class="trim-handle" data-h="bl"></div><div class="trim-handle" data-h="br"></div></div></div>
       <div class="flash" id="flash"></div>
       <div class="cam-fallback" id="cam-fallback">
         <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
@@ -1230,18 +1238,19 @@ async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverr
 
 const RATIOS=[{id:'1:1',w:1,h:1},{id:'4:5',w:4,h:5},{id:'3:4',w:3,h:4},{id:'9:16',w:9,h:16}],DEFAULT_RATIO='3:4';
 const ratioOf=id=>RATIOS.find(r=>r.id===id)||RATIOS.find(r=>r.id===DEFAULT_RATIO);
-const ratioCss=id=>{const r=ratioOf(id);return r.w+'/'+r.h};
-function newTrim(){return{x:0,y:0,scale:1,rot:0,ratio:DEFAULT_RATIO}}
-function setTrimRatio(tr,id){tr.ratio=id;tr.x=0;tr.y=0}
+function newTrim(){return{ratio:DEFAULT_RATIO,rot:0,fw:1,cx:0.5,cy:0.5}}
+function setTrimRatio(tr,id){tr.ratio=id;tr.fw=1;tr.cx=0.5;tr.cy=0.5}
 let editFilter=null,delArmed=false,editHidden=false,editAnon=false,editTrim=newTrim(),editStickers=[],editStickerSel=null,edTool=null;
 function renderEditStickers(){const box=$('.edit-prev'),layer=$('#edit-stickers');if(!box||!layer)return;const W=box.clientWidth;
   layer.innerHTML=editStickers.map(st=>`<div class="stk emoji${st.id===editStickerSel?' sel':''}" data-id="${st.id}" style="left:${st.x*100}%;top:${st.y*100}%;font-size:${st.size*W}px;transform:translate(-50%,-50%) rotate(${st.rot||0}deg)">${esc(st.text)}</div>`).join('')}
 function addEditSticker(emoji){editStickers.push({id:Date.now()+Math.random(),type:'emoji',text:emoji,size:0.18,x:0.5,y:0.5,rot:0});editStickerSel=editStickers[editStickers.length-1].id;renderEditStickers();renderEdPanel()}
 function setEdTool(name){edTool=edTool===name?null:name;$$('#ed-tools .tool').forEach(b=>b.classList.toggle('on',b.dataset.edtool===edTool));$('#edit-filters').hidden=!!edTool;renderEdPanel()}
 function renderEdPanel(){const pn=$('#ed-panel');if(!pn)return;const sel=editStickerSel!=null?editStickers.find(x=>x.id===editStickerSel):null;
+  const edFrame=$('.edit-prev .trim-frame');if(edFrame)edFrame.hidden=edTool!=='trim';
   if(edTool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="chips">${RATIOS.map(r=>`<button class="chip-btn${editTrim.ratio===r.id?' on':''}" data-ratiosel="${r.id}">${r.id}</button>`).join('')}</div><div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="ed-trim-reset">${t('reset_trim')}</button></div>`;
-    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(editTrim,b.dataset.ratiosel);$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);renderTrim($('#edit-img'),editTrim);renderEdPanel()}));
-    $('#ed-trim-reset').addEventListener('click',()=>{editTrim=newTrim();$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);renderTrim($('#edit-img'),editTrim);renderEdPanel()});return}
+    renderTrim($('#edit-img'),editTrim);
+    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(editTrim,b.dataset.ratiosel);renderTrim($('#edit-img'),editTrim);renderEdPanel()}));
+    $('#ed-trim-reset').addEventListener('click',()=>{editTrim=newTrim();renderTrim($('#edit-img'),editTrim);renderEdPanel()});return}
   if(edTool==='emoji'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="emoji-grid">${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>`;pn.querySelectorAll('.emo').forEach(b=>b.addEventListener('click',()=>{addEditSticker(b.dataset.emo);setEdTool(null)}));return}
   if(sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><label class="hint">${t('size')}</label><input type="range" id="es-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="es-del">${t('remove')}</button></div><div class="prow3"><label class="hint">${t('tilt')}</label><input type="range" id="es-rot" min="-180" max="180" step="1" value="${sel.rot||0}"><span class="hint mono" id="es-rotv">${Math.round(sel.rot||0)}°</span></div>`;
     $('#es-size').addEventListener('input',e=>{sel.size=+e.target.value;renderEditStickers()});
@@ -1266,7 +1275,7 @@ function bakeEditStickers(src){if(!editStickers.length)return src;const c=docume
   return c}
 function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;editHidden=!!ph.hidden;editAnon=!!ph.anonymous;editTrim=newTrim();editStickers=[];editStickerSel=null;edTool=null;const isV=ph.media==='video';S.sheet={type:'edit',key:id};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('edit_title')}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
-  <div class="edit-prev"><img id="edit-img" alt="" crossorigin="anonymous"><div class="stickers" id="edit-stickers"></div></div>
+  <div class="edit-prev"><img id="edit-img" alt="" crossorigin="anonymous"><div class="stickers" id="edit-stickers"></div><div class="trim-frame" hidden><div class="trim-handle" data-h="tl"></div><div class="trim-handle" data-h="tr"></div><div class="trim-handle" data-h="bl"></div><div class="trim-handle" data-h="br"></div></div></div>
   ${isV?'':`<div class="tools" id="ed-tools"><button class="tool" data-edtool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-edtool="emoji">😊 <span data-i18n="tool_emoji"></span></button></div>
   <div class="edit-panel" id="ed-panel" hidden></div>`}
   <div class="filters" id="edit-filters">${FILTERS.map(f=>`<button class="fchip${f===editFilter?' on':''}" data-ef="${f.id}"><span class="sw"><img src="${ph.thumb}" alt="" style="filter:${cssFilter(f)}"></span>${t('f_'+f.id)}</button>`).join('')}</div>
@@ -1274,12 +1283,12 @@ function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FI
   <div class="orig-row"><button class="chip-btn tog${editHidden?' on':''}" id="edit-hide-toggle"><i></i><span>${t('hide_toggle')}</span></button><button class="chip-btn tog${editAnon?' on':''}" id="edit-anon-toggle"><i></i><span>${t('anon_toggle')}</span></button></div>
   <div class="row2"><button class="btn danger" data-act="del-photo" data-key="${id}">${t('delete')}</button><button class="btn primary" data-act="save-photo" data-key="${id}">${t('save_changes')}</button></div>
   <div class="rule"><span>${t('edit_rule')}</span></div>`);
-  const im=$('#edit-img');im.src=ph.full;im.style.filter=cssFilter(editFilter);im.style.transform='none';$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);
+  const im=$('#edit-img');im.src=ph.full;im.style.filter=cssFilter(editFilter);im.style.transform='none';
   $('#edit-filters').addEventListener('click',e=>{const b=e.target.closest('[data-ef]');if(!b)return;editFilter=FILTERS.find(f=>f.id===b.dataset.ef)||FILTERS[0];im.style.filter=cssFilter(editFilter);$$('#edit-filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.ef===editFilter.id))});
   $('#edit-hide-toggle').addEventListener('click',()=>{editHidden=!editHidden;$('#edit-hide-toggle').classList.toggle('on',editHidden)});
   $('#edit-anon-toggle').addEventListener('click',()=>{if(!editAnon){confirmAnon(()=>{editAnon=true;$('#edit-anon-toggle').classList.add('on')})}else{editAnon=false;$('#edit-anon-toggle').classList.remove('on')}});
   if(!isV){const layer=$('#edit-stickers');
-    bindTrimGesture(layer,$('.edit-prev'),editTrim,()=>renderTrim(im,editTrim),()=>edTool==='trim');
+    bindTrimGesture($('.edit-prev'),$('.edit-prev'),editTrim,()=>renderTrim(im,editTrim),()=>edTool==='trim');
     bindEditStickerGesture(layer,$('.edit-prev'),()=>edTool!=='trim');
     $('#ed-tools').addEventListener('click',e=>{const b=e.target.closest('[data-edtool]');if(!b)return;editStickerSel=null;renderEditStickers();setEdTool(b.dataset.edtool)})}}
 function loadImg(url){return new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=url+(url.includes('?')?'&':'?')+'v='+Date.now()})}
@@ -1418,16 +1427,18 @@ const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==
 async function saveOriginal(){if(!saveOrig)return;let blob,name;const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);if(S.cam.video){const useHi=S.cam.video.hi.size>1000;blob=useHi?S.cam.video.hi:S.cam.video.lo;name='coverrrup-'+stamp+'.'+(useHi?S.cam.video.ext:(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'))}else{if(!S.cam.orig)return;blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);name='coverrrup-'+stamp+'.jpg'}
   if(IS_IOS){try{const file=new File([blob],name,{type:blob.type||'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
-function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');setCamState('review')}
+function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');setCamState('review')}
 // --- 스티커(글씨/이모지)
 const EMOJIS=['😀','😂','🥹','😍','😎','🤩','😭','🥰','😴','🤔','🙌','👍','👏','🙏','✌️','🤙','💪','❤️','🧡','💛','💚','💙','💜','🔥','✨','⭐','🌟','💫','🎉','🎈','🎂','🍕','🍔','🍜','☕','🍺','🌸','🌈','☀️','🌙','⛅','🌊','🏖️','⛰️','🗼','🏙️','🚲','✈️','🚗','📍','📸','🎵','⚽','🏀','🐶','🐱','🦋','🍀','💯','🆒'];
 const COLORS=['#FFFFFF','#141A24','#E0876F','#FFC933','#9FD8B3','#8FB6E8','#FF4F8F','#A855F7'];
 let tool=null,drag=null;
 function setTool(name){tool=tool===name?null:name;$$('.tool').forEach(b=>b.classList.toggle('on',b.dataset.tool===tool));$('#filters').hidden=tool!=='filter'&&S.cam.state==='review';renderPanel()}
 function renderPanel(){const pn=$('#edit-panel');const sel=S.cam.sel!=null?S.cam.stickers.find(x=>x.id===S.cam.sel):null;
+  const camFrame=$('#shot-box .trim-frame');if(camFrame)camFrame.hidden=tool!=='trim';
   if(tool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="chips">${RATIOS.map(r=>`<button class="chip-btn${S.cam.trim.ratio===r.id?' on':''}" data-ratiosel="${r.id}">${r.id}</button>`).join('')}</div><div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="trim-reset">${t('reset_trim')}</button></div>`;
-    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(S.cam.trim,b.dataset.ratiosel);$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);renderTrim($('#shot'),S.cam.trim);renderPanel()}));
-    $('#trim-reset').addEventListener('click',()=>{S.cam.trim=newTrim();$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);renderTrim($('#shot'),S.cam.trim);renderPanel()});return}
+    renderTrim($('#shot'),S.cam.trim);
+    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(S.cam.trim,b.dataset.ratiosel);renderTrim($('#shot'),S.cam.trim);renderPanel()}));
+    $('#trim-reset').addEventListener('click',()=>{S.cam.trim=newTrim();renderTrim($('#shot'),S.cam.trim);renderPanel()});return}
   if(tool==='text'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><input id="stk-text" class="email-in" maxlength="60" placeholder="${t('add_text_ph')}"><button class="btn primary small" id="stk-add">${t('done')}</button></div>`;$('#stk-add').addEventListener('click',()=>{const v=$('#stk-text').value.trim();if(!v)return;addSticker({type:'text',text:v,color:'#FFFFFF',size:0.09});setTool(null)});$('#stk-text').focus();return}
   if(tool==='emoji'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="emoji-grid">${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>`;pn.querySelectorAll('.emo').forEach(b=>b.addEventListener('click',()=>{addSticker({type:'emoji',text:b.dataset.emo,size:0.18});setTool(null)}));return}
   if(sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><label class="hint">${t('size')}</label><input type="range" id="stk-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="stk-del">${t('remove')}</button></div><div class="prow3"><label class="hint">${t('tilt')}</label><input type="range" id="stk-rot" min="-180" max="180" step="1" value="${sel.rot||0}"><span class="hint mono" id="stk-rotv">${Math.round(sel.rot||0)}°</span></div>${sel.type==='text'?`<div class="swatches">${COLORS.map(c=>`<button class="sw ${sel.color===c?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>`:''}`;
@@ -1436,38 +1447,59 @@ function renderPanel(){const pn=$('#edit-panel');const sel=S.cam.sel!=null?S.cam
   pn.hidden=true;pn.innerHTML=''}
 function addSticker(st){st.id=Date.now()+Math.random();st.x=0.5;st.y=0.5;S.cam.stickers.push(st);S.cam.sel=st.id;renderStickers();renderPanel()}
 function renderStickers(){const box=$('#shot-box'),W=box.clientWidth,H=box.clientHeight,layer=$('#stickers');layer.innerHTML=S.cam.stickers.map(st=>`<div class="stk ${st.id===S.cam.sel?'sel':''} ${st.type}" data-id="${st.id}" style="left:${st.x*100}%;top:${st.y*100}%;font-size:${st.size*W}px;color:${st.color||'#fff'};transform:translate(-50%,-50%) rotate(${st.rot||0}deg)">${esc(st.text).replace(/\n/g,'<br>')}</div>`).join('')}
-function bindStickers(){const layer=$('#stickers'),box=$('#shot-box'),pts=new Map();let g2=null,g2t=null,dragT=null;
+function bindStickers(){const layer=$('#shot-box'),box=$('#shot-box'),pts=new Map();let g2=null,g2t=null,modeT=null,stT=null;
   const two=()=>{const a=[...pts.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),a:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)*180/Math.PI}};
   layer.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(tool==='trim'){layer.setPointerCapture(e.pointerId);if(pts.size===2){const tw=two();g2t={d0:tw.d,a0:tw.a,s0:S.cam.trim.scale,r0:S.cam.trim.rot};dragT=null}else{dragT={x0:S.cam.trim.x,y0:S.cam.trim.y,sx:e.clientX,sy:e.clientY}}return}
+    if(tool==='trim'){layer.setPointerCapture(e.pointerId);
+      if(pts.size===2){const tw=two();g2t={a0:tw.a,r0:S.cam.trim.rot};modeT=null;return}
+      const frame=box.querySelector('.trim-frame');
+      if(e.target.closest('.trim-handle')){const fr=frame.getBoundingClientRect();modeT='resize';stT={fw0:S.cam.trim.fw,d0:Math.hypot(e.clientX-(fr.left+fr.width/2),e.clientY-(fr.top+fr.height/2))||1}}
+      else{const fit=stageFit($('#shot'));modeT='pan';stT={cx0:S.cam.trim.cx,cy0:S.cam.trim.cy,sx:e.clientX,sy:e.clientY,rw:fit.w,rh:fit.h}}
+      return}
     if(pts.size===2&&S.cam.sel!=null){const st=S.cam.stickers.find(x=>x.id===S.cam.sel);if(st){const tw=two();g2={st,d0:tw.d,a0:tw.a,s0:st.size,r0:st.rot||0};drag=null;layer.setPointerCapture(e.pointerId);return}}const el=e.target.closest('.stk');if(!el){S.cam.sel=null;renderStickers();renderPanel();return}const st=S.cam.stickers.find(x=>String(x.id)===el.dataset.id);if(!st)return;S.cam.sel=st.id;renderStickers();renderPanel();layer.setPointerCapture(e.pointerId);const r=box.getBoundingClientRect();drag={st,dx:(e.clientX-r.left)/r.width-st.x,dy:(e.clientY-r.top)/r.height-st.y,moved:false}});
   layer.addEventListener('pointermove',e=>{if(pts.has(e.pointerId))pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(tool==='trim'){if(g2t&&pts.size===2){const tw=two();S.cam.trim.scale=clamp(g2t.s0*tw.d/g2t.d0,1,3);S.cam.trim.rot=clamp(g2t.r0+(tw.a-g2t.a0),-25,25);clampTrimPan(S.cam.trim);renderTrim($('#shot'),S.cam.trim);return}if(dragT&&pts.size===1){const r=box.getBoundingClientRect();S.cam.trim.x=dragT.x0+(e.clientX-dragT.sx)/r.width*100;S.cam.trim.y=dragT.y0+(e.clientY-dragT.sy)/r.height*100;clampTrimPan(S.cam.trim);renderTrim($('#shot'),S.cam.trim)}return}
+    if(tool==='trim'){
+      if(g2t&&pts.size===2){const tw=two();S.cam.trim.rot=clamp(g2t.r0+(tw.a-g2t.a0),-25,25);renderTrim($('#shot'),S.cam.trim);return}
+      if(modeT==='resize'&&pts.size===1){const frame=box.querySelector('.trim-frame'),fr=frame.getBoundingClientRect(),fcx=fr.left+fr.width/2,fcy=fr.top+fr.height/2;const d=Math.hypot(e.clientX-fcx,e.clientY-fcy)||1;S.cam.trim.fw=clamp(stT.fw0*d/stT.d0,0.3,1);clampTrimFrame(S.cam.trim,$('#shot'));renderTrim($('#shot'),S.cam.trim);return}
+      if(modeT==='pan'&&pts.size===1){S.cam.trim.cx=clamp(stT.cx0+(e.clientX-stT.sx)/stT.rw,0,1);S.cam.trim.cy=clamp(stT.cy0+(e.clientY-stT.sy)/stT.rh,0,1);clampTrimFrame(S.cam.trim,$('#shot'));renderTrim($('#shot'),S.cam.trim)}
+      return}
     if(g2&&pts.size===2){const tw=two();g2.st.size=clamp(g2.s0*tw.d/g2.d0,0.03,0.6);g2.st.rot=g2.r0+(tw.a-g2.a0);renderStickers();return}if(!drag)return;const r=box.getBoundingClientRect();drag.st.x=clamp((e.clientX-r.left)/r.width-drag.dx,0.02,0.98);drag.st.y=clamp((e.clientY-r.top)/r.height-drag.dy,0.02,0.98);drag.moved=true;renderStickers()});
-  const up=e=>{pts.delete(e.pointerId);if(tool==='trim'){if(pts.size<2)g2t=null;if(!pts.size)dragT=null;return}if(pts.size<2){if(g2){g2=null;renderPanel()}}if(!pts.size)drag=null};layer.addEventListener('pointerup',up);layer.addEventListener('pointercancel',up);
+  const up=e=>{pts.delete(e.pointerId);if(tool==='trim'){if(pts.size<2)g2t=null;if(!pts.size)modeT=null;return}if(pts.size<2){if(g2){g2=null;renderPanel()}}if(!pts.size)drag=null};layer.addEventListener('pointerup',up);layer.addEventListener('pointercancel',up);
   new ResizeObserver(()=>{if(S.cam.state==='review')renderStickers()}).observe(box)}
-function trimEffScale(tr){return tr.scale*(1+0.6*Math.abs(Math.sin(tr.rot*Math.PI/180)))}
-function clampTrimPan(tr){const m=(trimEffScale(tr)-1)*50;tr.x=clamp(tr.x,-m,m);tr.y=clamp(tr.y,-m,m)}
-function renderTrim(el,tr){el.style.transform=tr?`translate(${tr.x}%,${tr.y}%) rotate(${tr.rot}deg) scale(${trimEffScale(tr)})`:'none'}
-function isTrimIdentity(tr){return!tr||((!tr.x&&!tr.y&&!tr.rot&&tr.scale===1)&&(!tr.ratio||tr.ratio===DEFAULT_RATIO))}
-function bakeTrim(src,tr){if(isTrimIdentity(tr))return src;const w=src.width,h=src.height,rt=ratioOf(tr.ratio),r=rt.w/rt.h;
-  let bw,bh;if(r>w/h){bw=w;bh=w/r}else{bh=h;bw=h*r}bw=Math.round(bw);bh=Math.round(bh);
-  const c=document.createElement('canvas');c.width=bw;c.height=bh;const x=c.getContext('2d'),es=trimEffScale(tr);
-  const cov=Math.max(bw/w,bh/h),dw=w*cov,dh=h*cov;
-  x.translate(bw/2,bh/2);x.translate(tr.x/100*bw,tr.y/100*bh);x.rotate(tr.rot*Math.PI/180);x.scale(es,es);x.drawImage(src,-dw/2,-dh/2,dw,dh);return c}
-function bindTrimGesture(el,box,tr,onChange,isActive){const pts=new Map();let g2=null,drag=null;
+function maxFrameSize(rt,w,h){const r=rt.w/rt.h;let mw,mh;if(r>w/h){mw=w;mh=w/r}else{mh=h;mw=h*r}return{mw,mh}}
+function stageFit(img){const stage=img.parentElement,natW=img.naturalWidth||stage.clientWidth||1,natH=img.naturalHeight||stage.clientHeight||1;
+  const sw=stage.clientWidth;let sh=stage.clientHeight;
+  const camUi=stage.parentElement&&stage.parentElement.querySelector('.cam-ui');
+  if(camUi){const cr=camUi.getBoundingClientRect(),sr=stage.getBoundingClientRect(),overlap=sr.bottom-cr.top;if(overlap>0)sh=Math.max(40,sh-overlap)}
+  const scale=Math.min(sw/natW,sh/natH)||1,w=natW*scale,h=natH*scale;
+  return{stage,x:(sw-w)/2,y:(sh-h)/2,w,h}}
+function clampTrimFrame(tr,img){const fit=stageFit(img),{mw,mh}=maxFrameSize(ratioOf(tr.ratio),fit.w,fit.h),bw=mw*tr.fw,bh=mh*tr.fw;
+  tr.cx=clamp(tr.cx,bw/2/fit.w,1-bw/2/fit.w);tr.cy=clamp(tr.cy,bh/2/fit.h,1-bh/2/fit.h)}
+function renderTrim(el,tr){el.style.transform=tr?`rotate(${tr.rot}deg)`:'none';const stage=el.parentElement,frame=stage&&stage.querySelector('.trim-frame');if(!frame)return;
+  if(!tr){frame.hidden=true;return}const fit=stageFit(el),{mw,mh}=maxFrameSize(ratioOf(tr.ratio),fit.w,fit.h),bw=mw*tr.fw,bh=mh*tr.fw;
+  frame.style.left=(fit.x+tr.cx*fit.w-bw/2)+'px';frame.style.top=(fit.y+tr.cy*fit.h-bh/2)+'px';frame.style.width=bw+'px';frame.style.height=bh+'px'}
+function isTrimIdentity(tr){return!tr||(!tr.rot&&tr.fw===1&&tr.cx===0.5&&tr.cy===0.5&&(!tr.ratio||tr.ratio===DEFAULT_RATIO))}
+function bakeTrim(src,tr){if(isTrimIdentity(tr))return src;const w=src.width,h=src.height,{mw,mh}=maxFrameSize(ratioOf(tr.ratio),w,h);
+  const bw=Math.max(1,Math.round(mw*tr.fw)),bh=Math.max(1,Math.round(mh*tr.fw)),cx=tr.cx*w,cy=tr.cy*h;
+  const c=document.createElement('canvas');c.width=bw;c.height=bh;const x=c.getContext('2d');
+  x.translate(bw/2,bh/2);x.rotate(tr.rot*Math.PI/180);x.translate(-cx,-cy);x.drawImage(src,0,0,w,h);return c}
+function bindTrimGesture(el,box,tr,onChange,isActive){const pts=new Map();let g2=null,mode=null,st=null;
   const two=()=>{const a=[...pts.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),a:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)*180/Math.PI}};
   el.addEventListener('pointerdown',e=>{if(isActive&&!isActive())return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);
-    if(pts.size===2){const tw=two();g2={d0:tw.d,a0:tw.a,s0:tr.scale,r0:tr.rot};drag=null}else{drag={x0:tr.x,y0:tr.y,sx:e.clientX,sy:e.clientY}}});
+    if(pts.size===2){const tw=two();g2={a0:tw.a,r0:tr.rot};mode=null;return}
+    const frame=box.querySelector('.trim-frame');
+    if(e.target.closest('.trim-handle')){const fr=frame.getBoundingClientRect();mode='resize';st={fw0:tr.fw,d0:Math.hypot(e.clientX-(fr.left+fr.width/2),e.clientY-(fr.top+fr.height/2))||1}}
+    else{const fit=stageFit(box.querySelector('img'));mode='pan';st={cx0:tr.cx,cy0:tr.cy,sx:e.clientX,sy:e.clientY,rw:fit.w,rh:fit.h}}});
   el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(g2&&pts.size===2){const tw=two();tr.scale=clamp(g2.s0*tw.d/g2.d0,1,3);tr.rot=clamp(g2.r0+(tw.a-g2.a0),-25,25);clampTrimPan(tr);onChange();return}
-    if(drag&&pts.size===1){const r=box.getBoundingClientRect();tr.x=drag.x0+(e.clientX-drag.sx)/r.width*100;tr.y=drag.y0+(e.clientY-drag.sy)/r.height*100;clampTrimPan(tr);onChange()}});
-  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)g2=null;if(!pts.size)drag=null};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
+    if(g2&&pts.size===2){const tw=two();tr.rot=clamp(g2.r0+(tw.a-g2.a0),-25,25);onChange();return}
+    if(mode==='resize'&&pts.size===1){const frame=box.querySelector('.trim-frame'),fr=frame.getBoundingClientRect(),fcx=fr.left+fr.width/2,fcy=fr.top+fr.height/2;const d=Math.hypot(e.clientX-fcx,e.clientY-fcy)||1;tr.fw=clamp(st.fw0*d/st.d0,0.3,1);clampTrimFrame(tr,box.querySelector('img'));onChange();return}
+    if(mode==='pan'&&pts.size===1){tr.cx=clamp(st.cx0+(e.clientX-st.sx)/st.rw,0,1);tr.cy=clamp(st.cy0+(e.clientY-st.sy)/st.rh,0,1);clampTrimFrame(tr,box.querySelector('img'));onChange()}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)g2=null;if(!pts.size)mode=null};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
 function bakeStickers(src){if(!S.cam.stickers||!S.cam.stickers.length)return src;const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const x=c.getContext('2d');x.drawImage(src,0,0);
   for(const st of S.cam.stickers){const fs=st.size*c.width;x.font=`700 ${fs}px ${SANS}`;x.textAlign='center';x.textBaseline='middle';const lines=st.text.split('\n');
     x.save();x.translate(st.x*c.width,st.y*c.height);x.rotate((st.rot||0)*Math.PI/180);lines.forEach((ln,i)=>{const y=(i-(lines.length-1)/2)*fs*1.15;if(st.type==='text'){x.shadowColor='rgba(0,0,0,.55)';x.shadowBlur=fs*0.12;x.shadowOffsetY=fs*0.04;x.fillStyle=st.color||'#fff'}else{x.shadowColor='transparent'}x.fillText(ln,0,y)});x.restore()}
   x.shadowColor='transparent';return c}
-function resetShot(){S.cam.shot=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);$('#stickers').innerHTML='';$('#edit-panel').hidden=true;tool=null}
+function resetShot(){S.cam.shot=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('#stickers').innerHTML='';$('#edit-panel').hidden=true;const camFrame=$('#shot-box .trim-frame');if(camFrame)camFrame.hidden=true;tool=null}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
   const mineCov=cell&&n&&coverOf(cell).user.me;const st=S.me.src!=='gps'?t('cam_place_noloc'):n===0?t('cam_place_empty'):mineCov?t('cam_place_mine',{n}):t('cam_place_n',{n});
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps';$('#vidbtn').disabled=S.me.src!=='gps'}
@@ -1521,7 +1553,6 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#filters').addEventListener('click',e=>{const b=e.target.closest('.fchip');if(!b)return;S.filter=FILTERS.find(x=>x.id===b.dataset.f)||FILTERS[0];applyPreviewFilter()});
   $('#shutter').addEventListener('click',async()=>{if(REC.on)return;const v=$('#video');if(!v.videoWidth){toast(t('cam_noframe'));return}const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
     let src=v,sw=v.videoWidth,sh2=v.videoHeight;
-    try{if(window.ImageCapture&&S.cam.stream){const ic=new ImageCapture(S.cam.stream.getVideoTracks()[0]);const blob=await Promise.race([ic.takePhoto(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('slow')),2500))]);const bm=await createImageBitmap(blob);src=bm;sw=bm.width;sh2=bm.height}}catch(e){}
     const dz=digitalZ();if(dz>1){const zc=document.createElement('canvas');zc.width=Math.round(sw/dz);zc.height=Math.round(sh2/dz);zc.getContext('2d').drawImage(src,(sw-sw/dz)/2,(sh2-sh2/dz)/2,sw/dz,sh2/dz,0,0,zc.width,zc.height);src=zc;sw=zc.width;sh2=zc.height}S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropTo34(src,sw,sh2);S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
   $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});bindZoom();
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(camMode==='phone'?'phone':(S.cam.stream?'live':'fallback'))});
