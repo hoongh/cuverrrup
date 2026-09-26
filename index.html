@@ -308,7 +308,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .mygrid .ph{aspect-ratio:3/4;border-radius:8px;border:1px solid var(--line);position:relative;cursor:pointer}
 .mygrid .ph span{position:absolute;left:6px;top:6px;font-size:10px;background:rgba(27,23,20,.8);color:var(--ink);padding:2px 7px;border-radius:999px;border:1px solid var(--line-2)}
 .mygrid .ph span.gold{border-color:var(--gold);color:var(--gold)}
-.edit-prev{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--line-2)}
+.edit-prev{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--line-2)}
 .edit-prev img{width:100%;height:100%;object-fit:cover;display:block;touch-action:none}
 .sheet .filters{padding-top:14px}
 .sheet .fchip.on .sw{box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--flag)}
@@ -1164,10 +1164,13 @@ function drawJourneyGrid(ctx,x0,y0,W,H,order){
   let lngLo=Math.min(...pts.map(p=>p.lng)),lngHi=Math.max(...pts.map(p=>p.lng));
   const latPad=Math.max((latHi-latLo)*0.35,0.0015),lngPad=Math.max((lngHi-lngLo)*0.35,0.0015);
   latLo-=latPad;latHi+=latPad;lngLo-=lngPad;lngHi+=lngPad;
-  const spanLat=latHi-latLo,spanLng=lngHi-lngLo;
-  let p=1;for(let lvl=5;lvl>=1;lvl--){const res=OLC.RES[lvl-1];const cx=(W/spanLng)*res,cy=(H/spanLat)*res;if(Math.min(cx,cy)>=22){p=lvl;break}}
+  const cosLat=Math.cos((latLo+latHi)/2*Math.PI/180),mPerDegLat=111320,mPerDegLng=111320*cosLat;
+  const spanLatM=(latHi-latLo)*mPerDegLat,spanLngM=(lngHi-lngLo)*mPerDegLng;
+  const scale=Math.min(W/spanLngM,H/spanLatM),boxW=spanLngM*scale,boxH=spanLatM*scale;
+  const ox=x0+(W-boxW)/2,oy=y0+(H-boxH)/2;
+  let p=1;for(let lvl=5;lvl>=1;lvl--){const cellPx=OLC.RES[lvl-1]*mPerDegLat*scale;if(cellPx>=22){p=lvl;break}}
   const res=OLC.RES[p-1];
-  const X=lng=>x0+(lng-lngLo)/spanLng*W, Y=lat=>y0+(latHi-lat)/spanLat*H;
+  const X=lng=>ox+(lng-lngLo)*mPerDegLng*scale, Y=lat=>oy+(latHi-lat)*mPerDegLat*scale;
   ctx.save();ctx.beginPath();roundRect(ctx,x0,y0,W,H,20);ctx.clip();
   ctx.fillStyle='#1F1B17';ctx.fillRect(x0,y0,W,H);
   const i0=Math.floor((latLo+90)/res),i1=Math.floor((latHi+90)/res),j0=Math.floor((lngLo+180)/res),j1=Math.floor((lngHi+180)/res);
@@ -1219,12 +1222,38 @@ async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverr
   if(!save){try{const file=new File([JOURNEY_BLOB],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title')});return}}catch(e){if(e&&e.name==='AbortError')return}}
   const url=URL.createObjectURL(JOURNEY_BLOB);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 
-let editFilter=null,delArmed=false,editHidden=false,editAnon=false,editTrim=newTrim(),editTrimActive=false;
-function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;editHidden=!!ph.hidden;editAnon=!!ph.anonymous;editTrim=newTrim();editTrimActive=false;const isV=ph.media==='video';S.sheet={type:'edit',key:id};
+let editFilter=null,delArmed=false,editHidden=false,editAnon=false,editTrim=newTrim(),editTrimActive=false,editStickers=[],editStickerSel=null;
+function renderEditStickers(){const box=$('.edit-prev'),layer=$('#edit-stickers');if(!box||!layer)return;const W=box.clientWidth;
+  layer.innerHTML=editStickers.map(st=>`<div class="stk emoji${st.id===editStickerSel?' sel':''}" data-id="${st.id}" style="left:${st.x*100}%;top:${st.y*100}%;font-size:${st.size*W}px;transform:translate(-50%,-50%) rotate(${st.rot||0}deg)">${esc(st.text)}</div>`).join('')}
+function addEditSticker(emoji){editStickers.push({id:Date.now()+Math.random(),type:'emoji',text:emoji,size:0.18,x:0.5,y:0.5,rot:0});editStickerSel=editStickers[editStickers.length-1].id;renderEditStickers();renderEditStickerPanel()}
+function renderEditStickerPanel(){const pn=$('#edit-sticker-panel');if(!pn)return;const sel=editStickerSel!=null?editStickers.find(x=>x.id===editStickerSel):null;
+  if(!sel){pn.hidden=true;pn.innerHTML='';return}
+  pn.hidden=false;pn.innerHTML=`<label class="hint">${t('size')}</label><input type="range" id="es-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="es-del">${t('remove')}</button>`;
+  $('#es-size').addEventListener('input',e=>{sel.size=+e.target.value;renderEditStickers()});
+  $('#es-del').addEventListener('click',()=>{editStickers=editStickers.filter(x=>x!==sel);editStickerSel=null;renderEditStickers();renderEditStickerPanel()})}
+function bindEditStickerGesture(layer,box,isActive){const pts=new Map();let g2=null,drag=null;
+  const two=()=>{const a=[...pts.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),a:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)*180/Math.PI}};
+  layer.addEventListener('pointerdown',e=>{if(!isActive())return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2&&editStickerSel!=null){const st=editStickers.find(x=>x.id===editStickerSel);if(st){const tw=two();g2={st,d0:tw.d,a0:tw.a,s0:st.size,r0:st.rot||0};drag=null;layer.setPointerCapture(e.pointerId);return}}
+    const el=e.target.closest('.stk');if(!el){editStickerSel=null;renderEditStickers();renderEditStickerPanel();return}
+    const st=editStickers.find(x=>String(x.id)===el.dataset.id);if(!st)return;editStickerSel=st.id;renderEditStickers();renderEditStickerPanel();layer.setPointerCapture(e.pointerId);
+    const r=box.getBoundingClientRect();drag={st,dx:(e.clientX-r.left)/r.width-st.x,dy:(e.clientY-r.top)/r.height-st.y}});
+  layer.addEventListener('pointermove',e=>{if(!isActive())return;if(pts.has(e.pointerId))pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(g2&&pts.size===2){const tw=two();g2.st.size=clamp(g2.s0*tw.d/g2.d0,0.03,0.6);g2.st.rot=g2.r0+(tw.a-g2.a0);renderEditStickers();return}
+    if(!drag)return;const r=box.getBoundingClientRect();drag.st.x=clamp((e.clientX-r.left)/r.width-drag.dx,0.02,0.98);drag.st.y=clamp((e.clientY-r.top)/r.height-drag.dy,0.02,0.98);renderEditStickers()});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2){if(g2){g2=null;renderEditStickerPanel()}}if(!pts.size)drag=null};
+  layer.addEventListener('pointerup',up);layer.addEventListener('pointercancel',up)}
+function bakeEditStickers(src){if(!editStickers.length)return src;const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const x=c.getContext('2d');x.drawImage(src,0,0);
+  for(const st of editStickers){const fs=st.size*c.width;x.font=`700 ${fs}px ${SANS}`;x.textAlign='center';x.textBaseline='middle';
+    x.save();x.translate(st.x*c.width,st.y*c.height);x.rotate((st.rot||0)*Math.PI/180);x.fillText(st.text,0,0);x.restore()}
+  return c}
+function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;editHidden=!!ph.hidden;editAnon=!!ph.anonymous;editTrim=newTrim();editTrimActive=false;editStickers=[];editStickerSel=null;const isV=ph.media==='video';S.sheet={type:'edit',key:id};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('edit_title')}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
-  <div class="edit-prev"><img id="edit-img" alt="" crossorigin="anonymous"></div>
-  ${isV?'':`<div class="orig-row"><button class="chip-btn tog" id="edit-trim-toggle"><i></i><span data-i18n="tool_trim"></span></button></div>
-  <div class="prow3" id="edit-trim-panel" hidden><span class="hint">${t('trim_hint')}</span><button class="like" id="edit-trim-reset">${t('reset_trim')}</button></div>`}
+  <div class="edit-prev"><img id="edit-img" alt="" crossorigin="anonymous"><div class="stickers" id="edit-stickers"></div></div>
+  ${isV?'':`<div class="orig-row"><button class="chip-btn tog" id="edit-trim-toggle"><i></i><span data-i18n="tool_trim"></span></button><button class="chip-btn" id="edit-emoji-btn">😊 <span data-i18n="tool_emoji"></span></button></div>
+  <div class="prow3" id="edit-trim-panel" hidden><span class="hint">${t('trim_hint')}</span><button class="like" id="edit-trim-reset">${t('reset_trim')}</button></div>
+  <div class="emoji-grid" id="edit-emoji-grid" hidden>${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>
+  <div class="prow3" id="edit-sticker-panel" hidden></div>`}
   <div class="filters" id="edit-filters">${FILTERS.map(f=>`<button class="fchip${f===editFilter?' on':''}" data-ef="${f.id}"><span class="sw"><img src="${ph.thumb}" alt="" style="filter:${cssFilter(f)}"></span>${t('f_'+f.id)}</button>`).join('')}</div>
   <input id="edit-cap" class="email-in" maxlength="200" value="${esc(ph.caption||'')}" placeholder="${t('caption_ph')}">
   <div class="orig-row"><button class="chip-btn tog${editHidden?' on':''}" id="edit-hide-toggle"><i></i><span>${t('hide_toggle')}</span></button><button class="chip-btn tog${editAnon?' on':''}" id="edit-anon-toggle"><i></i><span>${t('anon_toggle')}</span></button></div>
@@ -1234,17 +1263,21 @@ function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FI
   $('#edit-filters').addEventListener('click',e=>{const b=e.target.closest('[data-ef]');if(!b)return;editFilter=FILTERS.find(f=>f.id===b.dataset.ef)||FILTERS[0];im.style.filter=cssFilter(editFilter);$$('#edit-filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.ef===editFilter.id))});
   $('#edit-hide-toggle').addEventListener('click',()=>{editHidden=!editHidden;$('#edit-hide-toggle').classList.toggle('on',editHidden)});
   $('#edit-anon-toggle').addEventListener('click',()=>{if(!editAnon){confirmAnon(()=>{editAnon=true;$('#edit-anon-toggle').classList.add('on')})}else{editAnon=false;$('#edit-anon-toggle').classList.remove('on')}});
-  if(!isV){bindTrimGesture(im,$('.edit-prev'),editTrim,()=>renderTrim(im,editTrim),()=>editTrimActive);
+  if(!isV){const layer=$('#edit-stickers');
+    bindTrimGesture(layer,$('.edit-prev'),editTrim,()=>renderTrim(im,editTrim),()=>editTrimActive);
+    bindEditStickerGesture(layer,$('.edit-prev'),()=>!editTrimActive);
     $('#edit-trim-toggle').addEventListener('click',()=>{editTrimActive=!editTrimActive;$('#edit-trim-toggle').classList.toggle('on',editTrimActive);$('#edit-trim-panel').hidden=!editTrimActive});
-    $('#edit-trim-reset').addEventListener('click',()=>{editTrim=newTrim();renderTrim(im,editTrim)})}}
+    $('#edit-trim-reset').addEventListener('click',()=>{editTrim=newTrim();renderTrim(im,editTrim)});
+    $('#edit-emoji-btn').addEventListener('click',()=>{$('#edit-emoji-grid').hidden=!$('#edit-emoji-grid').hidden});
+    $('#edit-emoji-grid').addEventListener('click',e=>{const b=e.target.closest('[data-emo]');if(!b)return;addEditSticker(b.dataset.emo);$('#edit-emoji-grid').hidden=true})}}
 function loadImg(url){return new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=url+(url.includes('?')?'&':'?')+'v='+Date.now()})}
-async function savePhotoFilter(id){const ph=S.photos.get(id);if(!ph){closeSheet();return}const cap=($('#edit-cap')?$('#edit-cap').value.trim().slice(0,200):ph.caption)||'';const fchg=editFilter&&editFilter.id!==ph.filter;const hchg=editHidden!==!!ph.hidden,achg=editAnon!==!!ph.anonymous,tchg=ph.media!=='video'&&!isTrimIdentity(editTrim);
-  if(!fchg&&!hchg&&!achg&&!tchg&&cap===(ph.caption||'')){closeSheet();return}toast(t('changing'));
-  try{if(fchg||tchg){const useFilter=fchg?editFilter:(FILTERS.find(f=>f.id===ph.filter)||FILTERS[0]);const base=await loadImg(ph.media==='video'?ph.thumb.split('?')[0]:ph.full);const composed=tchg?bakeTrim(base,editTrim):base;
+async function savePhotoFilter(id){const ph=S.photos.get(id);if(!ph){closeSheet();return}const cap=($('#edit-cap')?$('#edit-cap').value.trim().slice(0,200):ph.caption)||'';const fchg=editFilter&&editFilter.id!==ph.filter;const hchg=editHidden!==!!ph.hidden,achg=editAnon!==!!ph.anonymous,tchg=ph.media!=='video'&&!isTrimIdentity(editTrim),stchg=ph.media!=='video'&&editStickers.length>0;
+  if(!fchg&&!hchg&&!achg&&!tchg&&!stchg&&cap===(ph.caption||'')){closeSheet();return}toast(t('changing'));
+  try{if(fchg||tchg||stchg){const useFilter=fchg?editFilter:(FILTERS.find(f=>f.id===ph.filter)||FILTERS[0]);const base=await loadImg(ph.media==='video'?ph.thumb.split('?')[0]:ph.full);let composed=tchg?bakeTrim(base,editTrim):base;if(stchg)composed=bakeEditStickers(composed);const pixelchg=tchg||stchg;
       const tb=await canvasBlob(makeThumbCanvas(composed,useFilter),0.75);const upT=await sb.storage.from('photos').upload(thumbPath(ph.path),tb,{contentType:'image/jpeg',upsert:true});if(upT.error)throw upT.error;
-      if(tchg){const fb=await canvasBlob(composed,0.9);const upF=await sb.storage.from('photos').upload(ph.path,fb,{contentType:'image/jpeg',upsert:true});if(upF.error)throw upF.error}}
+      if(pixelchg){const fb=await canvasBlob(composed,0.9);const upF=await sb.storage.from('photos').upload(ph.path,fb,{contentType:'image/jpeg',upsert:true});if(upF.error)throw upF.error}}
     const {error}=await sb.from('photos').update({filter:fchg?editFilter.id:ph.filter,caption:cap||null,hidden:editHidden,anonymous:editAnon}).eq('id',id);if(error)throw error;
-    if(fchg)ph.filter=editFilter.id;if(fchg||tchg){ph.thumb=pubUrl(thumbPath(ph.path))+'?v='+Date.now();IMG_CACHE.delete(id)}if(tchg)ph.full=pubUrl(ph.path)+'?v='+Date.now();ph.caption=cap;ph.anonymous=editAnon;
+    if(fchg)ph.filter=editFilter.id;if(fchg||tchg||stchg){ph.thumb=pubUrl(thumbPath(ph.path))+'?v='+Date.now();IMG_CACHE.delete(id)}if(tchg||stchg)ph.full=pubUrl(ph.path)+'?v='+Date.now();ph.caption=cap;ph.anonymous=editAnon;
     if(hchg){ph.hidden=editHidden;const cell=ensureCell(ph.key);if(editHidden)cell.photos=cell.photos.filter(p=>p.id!==id);else if(!cell.photos.includes(ph))cell.photos.push(ph);rebuildAgg()}
     closeSheet();requestRender();refreshViews();toast(t('saved'))}
   catch(e){console.warn(e);toast(t('change_fail')+': '+(e.message||''))}}
