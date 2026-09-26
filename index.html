@@ -1078,7 +1078,7 @@ function buildFollowList(){const keys=[...S.follows].filter(k=>!S.followSel.size
   ps.sort((a,b)=>b.p.ts-a.p.ts);
   return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.g,isCover:x.isCover,followed:true}))}
 const ownsUid=(p,uid)=>(S.user&&uid===S.user.id)?p.user.me:p.user.id===uid;
-function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)).sort((a,b)=>b.ts-a.ts);return ps.map((p,i)=>{const c=S.world.get(p.key);return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
+function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)).sort((a,b)=>b.ts-a.ts);return ps.map((p,i)=>{let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
 function renderReels(id,items,reset,emptyHTML,startAt){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');
   if(reset){st.items=items;st.shown=0;st.cur=0;el.innerHTML='';el.scrollTop=0}
   if(!st.items.length){el.innerHTML=emptyHTML||'';if(dist)dist.hidden=true;return}
