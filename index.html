@@ -368,6 +368,10 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .pg-k{position:absolute;left:6px;bottom:6px;font-size:10px;background:rgba(0,0,0,.6);color:#fff;padding:2px 6px;border-radius:999px}
 .pg-c{position:absolute;left:6px;top:6px;padding:2px 7px;font-size:10px}
 .pg-e{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.6);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0}
+.jsel-item{transition:outline-color .15s}.jsel-item.sel{outline:3px solid var(--sky);outline-offset:-3px}
+.jsel-order{position:absolute;left:6px;top:6px;min-width:24px;height:24px;padding:0 5px;border-radius:12px;background:var(--sky);color:#141A24;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+.jcard-wrap{width:100%;border-radius:14px;overflow:hidden;margin:14px 0;background:#000}
+#journey-canvas{width:100%;height:auto;display:block}
 #edit-cap{margin-top:12px;width:100%}
 .sh-h3{font-size:13px;color:var(--muted);font-weight:400;margin:18px 0 0}
 .sh-back{display:inline-block;margin:0 0 10px;font-size:14px;color:var(--sky)}
@@ -550,6 +554,12 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <div id="pf-grid"></div>
       <p class="hint" id="my-photos-hint" style="margin-top:10px"></p>
 
+      <h2 data-i18n="h_journey"></h2>
+      <div class="box">
+        <p class="hint" data-i18n="journey_hint"></p>
+        <button class="btn primary" id="journey-start" data-i18n="journey_start"></button>
+      </div>
+
       <h2 data-i18n="h_progress"></h2>
       <div class="box">
         <div class="earth2"><div class="earth"><div class="ring sm"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-all" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><b id="earth-all-val">0%</b></div></div><span data-i18n="earth_all"></span><small id="earth-all-sub"></small></div><div class="earth"><div class="ring sm"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="90" stroke-dasharray="424 565"/><circle class="val" id="ring-me" cx="100" cy="100" r="90" stroke-dasharray="0 565"/></svg><div class="c"><b id="earth-me-val">0%</b></div></div><span data-i18n="earth_me"></span><small id="earth-me-sub"></small></div></div>
@@ -703,6 +713,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  me_title:'나',me_sub:'이름을 바꾸면 내가 올린 사진에도 바로 반영돼요.',save:'저장',need_login:'로그인이 필요해요',google_acct:'구글 계정',
  st_cells:'덮은 칸',st_photos:'올린 사진',st_covers:'커버 보유',st_likes:'받은 좋아요',
  h_my_photos:'내 사진',my_photos_hint:'사진을 누르면 크게 보고, 거기서 필터를 바꾸거나 지울 수 있어요.',my_photos_none:'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.',
+ h_journey:'커버럽 여정 공유',journey_hint:'내 사진 중 몇 장을 골라서, 다녀온 여정을 지도와 함께 이미지로 만들어요.',journey_start:'사진 선택해서 만들기',journey_pick_title:'여정에 넣을 사진 선택',journey_pick_hint:'{n}장 선택됨 (최대 {max}장)',journey_next:'다음',journey_max:'최대 {max}장까지 선택할 수 있어요',journey_none_sel:'사진을 1장 이상 선택해 주세요',journey_share_title:'여정 카드',journey_points_n:'{n}개 지점',journey_title_tpl:'{d} 커버럽 여정',
  h_progress:'얼마나 덮었나',ring_label:'구역 커버',ring_sub:'▲ {n} 이 구역',ring_zero:'아직 0칸',ring_cap:'{z} 구역 400칸 중 내가 덮은 비율',prog_block:'지금 있는 {z} 구역 (400칸)',prog_earth:'지구 전체',prog_earth_val:'{n}칸, {p}%',prog_hint:'14m 칸 기준으로 지구 표면은 약 4조 1,472억 칸이에요. Coverrrup 전체에서 덮인 칸은 지금 {n}개.',
  h_loc:'내 위치',loc_now:'지금 위치',loc_gps:'GPS 위치',loc_acc:' (오차 약 {m}m)',loc_none:'위치를 아직 못 받았어요 (기본 위치)',relocate:'위치 다시 받기',
  h_lang:'언어',h_account:'계정',signout:'로그아웃',acct_hint:'사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.',
@@ -728,6 +739,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  me_title:'Me',me_sub:'Changing your name updates all your photos.',save:'Save',need_login:'Sign in required',google_acct:'Google account',
  st_cells:'Cells',st_photos:'Photos',st_covers:'Covers held',st_likes:'Likes',
  h_my_photos:'My photos',my_photos_hint:'Tap a photo to view it; edit the filter or delete it from there.',my_photos_none:'No photos yet. Take your first one in the Coverrrup tab.',
+ h_journey:'Share a journey',journey_hint:'Pick a few of your photos and turn the trip into a shareable image with a map.',journey_start:'Pick photos to build it',journey_pick_title:'Choose photos for the journey',journey_pick_hint:'{n} selected (max {max})',journey_next:'Next',journey_max:'You can select up to {max} photos',journey_none_sel:'Select at least 1 photo',journey_share_title:'Journey card',journey_points_n:'{n} points',journey_title_tpl:'{d} coverrrup journey',
  h_progress:'Coverage',ring_label:'Block coverage',ring_sub:'▲ {n} in this block',ring_zero:'0 cells yet',ring_cap:'My share of the 400 cells in block {z}',prog_block:'Current block {z} (400 cells)',prog_earth:'Whole Earth',prog_earth_val:'{n} cells, {p}%',prog_hint:'Earth has about 4.1 trillion 14 m cells. Coverrrup has {n} covered so far.',
  h_loc:'My location',loc_now:'Current location',loc_gps:'GPS location',loc_acc:' (±{m} m)',loc_none:'No location yet (default position)',relocate:'Refresh location',
  h_lang:'Language',h_account:'Account',signout:'Sign out',acct_hint:'Photos are stored at 720 px. Deleted photos are removed immediately.',
@@ -753,6 +765,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  me_title:'我',me_sub:'修改名字会同步到你上传的所有照片。',save:'保存',need_login:'需要登录',google_acct:'Google 账号',
  st_cells:'格子',st_photos:'照片',st_covers:'封面数',st_likes:'获赞',
  h_my_photos:'我的照片',my_photos_hint:'点击照片查看，可在其中更换滤镜或删除。',my_photos_none:'还没有照片。去“覆盖”标签拍第一张吧。',
+ h_journey:'分享旅程',journey_hint:'挑选几张我的照片，把这次旅程做成带地图的分享图片。',journey_start:'选择照片开始制作',journey_pick_title:'选择要放进旅程的照片',journey_pick_hint:'已选 {n} 张（最多 {max} 张）',journey_next:'下一步',journey_max:'最多可以选择 {max} 张照片',journey_none_sel:'请至少选择1张照片',journey_share_title:'旅程卡片',journey_points_n:'{n} 个地点',journey_title_tpl:'{d} 覆盖旅程',
  h_progress:'覆盖进度',ring_label:'街区覆盖',ring_sub:'▲ {n} 本街区',ring_zero:'还是0格',ring_cap:'{z} 街区400格中我覆盖的比例',prog_block:'当前 {z} 街区（400格）',prog_earth:'全球',prog_earth_val:'{n}格，{p}%',prog_hint:'按14米格子计算，地球表面约有4.1万亿格。Coverrrup 目前已覆盖 {n} 格。',
  h_loc:'我的位置',loc_now:'当前位置',loc_gps:'GPS位置',loc_acc:'（误差约{m}米）',loc_none:'尚未获取位置（默认位置）',relocate:'重新定位',
  h_lang:'语言',h_account:'账号',signout:'退出登录',acct_hint:'照片以长边720px存储。删除的照片会立即移除。',
@@ -918,7 +931,7 @@ const sheetStack=[];
 function pushSheet(){if(S.sheet&&$('#sheet').classList.contains('open'))sheetStack.push({...S.sheet,scroll:$('#sheet-body').scrollTop})}
 function openSheet(html){const back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';$('#sheet-body').innerHTML=back+html;$('#sheet-body').scrollTop=0;$('#sheet').classList.add('open');$('#backdrop').classList.add('open');mountPhotos($('#sheet-body'))}
 function closeSheet(){$('#sheet').classList.remove('open');$('#backdrop').classList.remove('open');S.sheet=null;S.selected=null;sheetStack.length=0;requestRender()}
-function backSheet(){const prev=sheetStack.pop();if(!prev){closeSheet();return}S.sheet={type:prev.type,key:prev.key};const html=prev.type==='cell'?cellSheetHTML(prev.key):prev.type==='block'?blockSheetHTML(prev.key):prev.type==='photo'&&S.photos.get(prev.key)?photoSheetHTML(S.photos.get(prev.key)):prev.type==='hashtag'?hashtagSheetHTML(prev.key):null;if(html==null){closeSheet();return}openSheet(html);$('#sheet-body').scrollTop=prev.scroll||0}
+function backSheet(){const prev=sheetStack.pop();if(!prev){closeSheet();return}S.sheet={type:prev.type,key:prev.key};const html=prev.type==='cell'?cellSheetHTML(prev.key):prev.type==='block'?blockSheetHTML(prev.key):prev.type==='photo'&&S.photos.get(prev.key)?photoSheetHTML(S.photos.get(prev.key)):prev.type==='hashtag'?hashtagSheetHTML(prev.key):prev.type==='journeyPick'?journeyPickHTML():null;if(html==null){closeSheet();return}openSheet(html);if(prev.type==='journeyPick')mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=prev.scroll||0}
 function refreshSheet(){if(!S.sheet)return;const st=$('#sheet-body').scrollTop,back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';if(S.sheet.type==='cell')$('#sheet-body').innerHTML=back+cellSheetHTML(S.sheet.key);else if(S.sheet.type==='block')$('#sheet-body').innerHTML=back+blockSheetHTML(S.sheet.key);else if(S.sheet.type==='photo'&&S.photos.get(S.sheet.key))$('#sheet-body').innerHTML=back+photoSheetHTML(S.photos.get(S.sheet.key));else if(S.sheet.type==='hashtag')$('#sheet-body').innerHTML=back+hashtagSheetHTML(S.sheet.key);else return;mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=st}
 function openCellSheet(key){pushSheet();S.sheet={type:'cell',key};openSheet(cellSheetHTML(key))}
 function openBlockSheet(key){pushSheet();S.sheet={type:'block',key};openSheet(blockSheetHTML(key))}
@@ -1120,6 +1133,92 @@ function openViewer(uid,startId){const items=buildUserList(uid);const idx=Math.m
   requestAnimationFrame(()=>renderReels('vreels',items,true,'',idx))}
 // ---------- 내 사진 수정
 function renderMyPhotos(){const n=[...S.photos.values()].filter(p=>p.user.me).length;$('#my-photos-hint').textContent=n?t('my_photos_hint'):t('my_photos_none')}
+
+// ---------- 여정 공유
+const JOURNEY_MAX=8;let journeySel=new Set(),JOURNEY_BLOB=null;
+function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
+function journeyOrder(){return[...journeySel].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts)}
+function toggleJourneySel(id){if(journeySel.has(id))journeySel.delete(id);else{if(journeySel.size>=JOURNEY_MAX){toast(t('journey_max',{max:JOURNEY_MAX}));return}journeySel.add(id)}refreshJourneyPick()}
+function journeyPickHTML(){const mine=journeyMinePhotos();const order=journeyOrder(),rank=new Map(order.map((p,i)=>[p.id,i+1]));
+  return`<div class="sh-head"><div><div class="sh-title">${t('journey_pick_title')}</div><div class="sh-sub">${t('journey_pick_hint',{n:journeySel.size,max:JOURNEY_MAX})}</div></div></div>
+  <div class="pgrid" id="journey-grid">${mine.map(p=>`<div class="ph pg jsel-item${journeySel.has(p.id)?' sel':''}" data-photo="${p.id}" data-size="small" data-jsel="${p.id}">${journeySel.has(p.id)?`<span class="jsel-order">${rank.get(p.id)}</span>`:''}</div>`).join('')}</div>
+  ${mine.length?'':`<p class="hint">${t('my_photos_none')}</p>`}
+  <div class="row2"><button class="btn primary" id="journey-next" data-act="journey-next"${journeySel.size?'':' disabled'}>${t('journey_next')}${journeySel.size?' ('+journeySel.size+')':''}</button></div>`}
+function openJourneyPick(){journeySel=new Set();S.sheet={type:'journeyPick'};openSheet(journeyPickHTML())}
+function refreshJourneyPick(){if(!S.sheet||S.sheet.type!=='journeyPick')return;const st=$('#sheet-body').scrollTop;const back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';$('#sheet-body').innerHTML=back+journeyPickHTML();mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=st}
+function openJourneyPreview(){const order=journeyOrder();if(!order.length){toast(t('journey_none_sel'));return}
+  pushSheet();S.sheet={type:'journeyPreview'};
+  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('journey_share_title')}</div><div class="sh-sub">${t('journey_points_n',{n:order.length})}</div></div></div>
+  <div class="jcard-wrap"><canvas id="journey-canvas"></canvas></div>
+  <p class="hint" id="journey-msg">${t('making')}</p>
+  <div class="row2"><button class="btn" id="journey-save" data-act="journey-save">${t('save_card')}</button><button class="btn primary" id="journey-share" data-act="journey-share">${t('share_btn')}</button></div>`);
+  renderJourneyCanvas(order)}
+function journeyLocale(){return LANG==='zh'?'zh-CN':LANG==='en'?'en-US':'ko-KR'}
+function fmtDateShort(d){return d.toLocaleDateString(journeyLocale(),{year:'numeric',month:'2-digit',day:'2-digit'})}
+function fmtDateTimeShort(d){return d.toLocaleDateString(journeyLocale(),{month:'2-digit',day:'2-digit'})+' '+d.toLocaleTimeString(journeyLocale(),{hour:'2-digit',minute:'2-digit'})}
+function clientHashtags(caption){return caption?(caption.match(/#[^\s#]+/g)||[]):[]}
+function fitSmall(ctx,txt,px,py,maxW){if(ctx.measureText(txt).width<=maxW){ctx.fillText(txt,px,py);return}let s=txt;while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);ctx.fillText(s+'…',px,py)}
+function drawJourneyGrid(ctx,x0,y0,W,H,order){
+  const pts=order.map(p=>{const b=OLC.bounds(p.key);return{lat:b.lat,lng:b.lng,key:p.key}});
+  let latLo=Math.min(...pts.map(p=>p.lat)),latHi=Math.max(...pts.map(p=>p.lat));
+  let lngLo=Math.min(...pts.map(p=>p.lng)),lngHi=Math.max(...pts.map(p=>p.lng));
+  const latPad=Math.max((latHi-latLo)*0.35,0.0015),lngPad=Math.max((lngHi-lngLo)*0.35,0.0015);
+  latLo-=latPad;latHi+=latPad;lngLo-=lngPad;lngHi+=lngPad;
+  const spanLat=latHi-latLo,spanLng=lngHi-lngLo;
+  let p=1;for(let lvl=5;lvl>=1;lvl--){const res=OLC.RES[lvl-1];const cx=(W/spanLng)*res,cy=(H/spanLat)*res;if(Math.min(cx,cy)>=22){p=lvl;break}}
+  const res=OLC.RES[p-1];
+  const X=lng=>x0+(lng-lngLo)/spanLng*W, Y=lat=>y0+(latHi-lat)/spanLat*H;
+  ctx.save();ctx.beginPath();roundRect(ctx,x0,y0,W,H,20);ctx.clip();
+  ctx.fillStyle='#1F1B17';ctx.fillRect(x0,y0,W,H);
+  const i0=Math.floor((latLo+90)/res),i1=Math.floor((latHi+90)/res),j0=Math.floor((lngLo+180)/res),j1=Math.floor((lngHi+180)/res);
+  ctx.strokeStyle='rgba(241,234,226,.10)';ctx.lineWidth=1;ctx.beginPath();
+  for(let j=j0;j<=j1+1;j++){const gx=Math.round(X(j*res-180))+0.5;ctx.moveTo(gx,y0);ctx.lineTo(gx,y0+H)}
+  for(let i=i0;i<=i1+1;i++){const gy=Math.round(Y(i*res-90))+0.5;ctx.moveTo(x0,gy);ctx.lineTo(x0+W,gy)}
+  ctx.stroke();
+  const selKeys=new Set(pts.map(pt=>OLC.key(pt.lat,pt.lng,p)));
+  for(const k of selKeys){const b=OLC.bounds(k);const rx=X(b.lngLo),ry=Y(b.latHi),rw=X(b.lngHi)-rx,rh=Y(b.latLo)-ry;
+    ctx.fillStyle='rgba(143,182,232,.55)';ctx.fillRect(rx,ry,rw,rh);
+    ctx.strokeStyle='#8FB6E8';ctx.lineWidth=2;ctx.strokeRect(rx+1,ry+1,rw-2,rh-2)}
+  ctx.strokeStyle='#8FB6E8';ctx.lineWidth=4;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+  pts.forEach((pt,i)=>{const gx=X(pt.lng),gy=Y(pt.lat);if(i===0)ctx.moveTo(gx,gy);else ctx.lineTo(gx,gy)});
+  ctx.stroke();
+  pts.forEach((pt,i)=>{const gx=X(pt.lng),gy=Y(pt.lat);
+    ctx.fillStyle=i===pts.length-1?'#E0876F':'#8FB6E8';ctx.beginPath();ctx.arc(gx,gy,15,0,7);ctx.fill();
+    ctx.strokeStyle='#F1EAE2';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.fillStyle='#141A24';ctx.font='700 15px '+MONO;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,gx,gy+1)});
+  ctx.restore()}
+async function renderJourneyCanvas(order){
+  const W=1080,H=1350;const cv=document.getElementById('journey-canvas');if(!cv)return;cv.width=W;cv.height=H;
+  const x=cv.getContext('2d');x.fillStyle='#1B1714';x.fillRect(0,0,W,H);
+  x.fillStyle='#8FB6E8';x.font='700 26px '+MONO;x.textAlign='left';x.textBaseline='alphabetic';x.fillText('COVERRRUP',56,66);
+  const d0=new Date(order[0].ts),d1=new Date(order[order.length-1].ts);
+  const dateStr=d0.toDateString()===d1.toDateString()?fmtDateShort(d0):fmtDateShort(d0)+' - '+fmtDateShort(d1);
+  x.fillStyle='#F1EAE2';x.font='400 42px '+SANS;x.fillText(t('journey_title_tpl',{d:dateStr}),56,124);
+  let totalDist=0;for(let i=1;i<order.length;i++){const b0=OLC.bounds(order[i-1].key),b1=OLC.bounds(order[i].key);totalDist+=distM(b0.lat,b0.lng,b1.lat,b1.lng)}
+  x.fillStyle='#B7ADA2';x.font='400 26px '+SANS;x.fillText(t('journey_points_n',{n:order.length})+' · '+fmtDist(totalDist),56,162);
+  const stripY=204,stripH=320,pad=56,gap=12,n=order.length,thumbW=(W-2*pad-gap*(n-1))/n;
+  for(let i=0;i<n;i++){const p=order[i],tx=pad+i*(thumbW+gap);
+    x.save();x.beginPath();roundRect(x,tx,stripY,thumbW,stripH,14);x.clip();
+    try{const img=await loadImgAny(p.thumb);const s=Math.max(thumbW/img.width,stripH/img.height);x.drawImage(img,tx+(thumbW-img.width*s)/2,stripY+(stripH-img.height*s)/2,img.width*s,img.height*s)}
+    catch(e){x.fillStyle='#3A2A1F';x.fillRect(tx,stripY,thumbW,stripH)}
+    x.restore();
+    x.fillStyle='rgba(20,17,15,.75)';x.beginPath();x.arc(tx+22,stripY+22,17,0,7);x.fill();
+    x.strokeStyle='#8FB6E8';x.lineWidth=2;x.stroke();
+    x.fillStyle='#fff';x.font='700 16px '+MONO;x.textAlign='center';x.textBaseline='middle';x.fillText(i+1,tx+22,stripY+23);
+    const capY=stripY+stripH+24,fs=Math.max(11,Math.min(16,thumbW*0.13));
+    x.textAlign='left';x.textBaseline='alphabetic';
+    x.fillStyle='#F1EAE2';x.font='600 '+fs+'px '+MONO;fitSmall(x,OLC.short(p.key),tx,capY,thumbW);
+    const tags=clientHashtags(p.caption).slice(0,2).join(' ');let ly=capY;
+    if(tags){ly+=fs+6;x.fillStyle='#8FB6E8';x.font='400 '+fs+'px '+SANS;fitSmall(x,tags,tx,ly,thumbW)}
+    ly+=fs+6;x.fillStyle='#7E756D';x.font='400 '+(fs-1)+'px '+MONO;fitSmall(x,fmtDateTimeShort(new Date(p.ts)),tx,ly,thumbW)}
+  const mapY=stripY+stripH+118,mapH=H-mapY-56;
+  drawJourneyGrid(x,pad,mapY,W-2*pad,mapH,order);
+  const msg=document.getElementById('journey-msg');if(msg)msg.textContent='';
+  JOURNEY_BLOB=await canvasBlob(cv,0.92)}
+async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverrrup-journey-${Date.now()}.jpg`;
+  if(!save){try{const file=new File([JOURNEY_BLOB],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title')});return}}catch(e){if(e&&e.name==='AbortError')return}}
+  const url=URL.createObjectURL(JOURNEY_BLOB);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
+
 let editFilter=null,delArmed=false,editHidden=false,editAnon=false,editTrim=newTrim(),editTrimActive=false;
 function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FILTERS.find(f=>f.id===ph.filter)||FILTERS[0];delArmed=false;editHidden=!!ph.hidden;editAnon=!!ph.anonymous;editTrim=newTrim();editTrimActive=false;const isV=ph.media==='video';S.sheet={type:'edit',key:id};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('edit_title')}</div><div class="sh-sub"><span class="mono">${OLC.format(ph.key)}</span><span>${timeAgo(ph.ts)}</span></div></div></div>
@@ -1346,12 +1445,13 @@ function switchTab(name){const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('
   if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}if(prev==='map'&&name!=='map'){S.followMap=false}}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
-  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.className='card-prev '+SHARE.fmt;$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.className='card-prev '+SHARE.fmt;$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
   $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
     if(a==='back'){backSheet()}else if(a==='share-card'){shareCard(false)}else if(a==='save-card'){shareCard(true)}else if(a==='shoot'){closeSheet();switchTab('camera')}else if(a==='zoomto'){const b=OLC.bounds(k);closeSheet();centerOn(b.lat,b.lng,b.res*111320*Math.cos(b.lat*Math.PI/180)*1.25,true)}
-    else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}});
+    else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}
+    else if(a==='journey-next')openJourneyPreview();else if(a==='journey-save')shareJourneyCard(true);else if(a==='journey-share')shareJourneyCard(false)});
   for(const id of ['reels','freels','vreels']){const el=$('#'+id);el.addEventListener('click',handleAction);el.addEventListener('scroll',()=>{const st=reelState(id);clearTimeout(st._t);st._t=setTimeout(()=>updateReelDist(id),60)},{passive:true})}
   $('#follow-chips').addEventListener('click',handleAction);$('#userpage-body').addEventListener('click',handleAction);$('#pf-grid').addEventListener('click',handleAction);$('#admin-box').addEventListener('click',handleAction);$('#pf-seg').addEventListener('click',handleAction);
   $('#userpage-back').addEventListener('click',()=>$('#userpage').classList.remove('show'));$('#viewer-close').addEventListener('click',()=>$('#viewer').classList.remove('show'));
@@ -1364,6 +1464,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
       S.profile.avatar=pubUrl(path)+'?v='+Date.now();S.avatars.set(S.user.id,S.profile.avatar);renderProfile();toast(t('avatar_saved'))}
     catch(err){console.warn(err);toast(t('avatar_fail')+': '+(err.message||''))}});
   $('#pf-save').addEventListener('click',saveName);$('#pf-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveName();e.target.blur()}});
+  $('#journey-start').addEventListener('click',openJourneyPick);
   $('#loc-gps').addEventListener('click',()=>locate(false));$('#locate').addEventListener('click',()=>{if(S.me.src==='gps')centerOn(S.me.lat,S.me.lng,180,true);else locate(false)});
   $('#zin').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1.7));$('#zout').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1/1.7));
   $$('[data-lang]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
