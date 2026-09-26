@@ -363,7 +363,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .cform .btn{white-space:nowrap}
 .lang-top{margin-bottom:6px}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
-.pg{aspect-ratio:3/4;border-radius:8px;border:1px solid var(--line);position:relative;cursor:pointer}
+.pg{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);position:relative;cursor:pointer}
 .pg-l{position:absolute;right:6px;bottom:6px;font-size:11px;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:999px}
 .pg-k{position:absolute;left:6px;bottom:6px;font-size:10px;background:rgba(0,0,0,.6);color:#fff;padding:2px 6px;border-radius:999px}
 .pg-c{position:absolute;left:6px;top:6px;padding:2px 7px;font-size:10px}
@@ -1228,13 +1228,20 @@ async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverr
   if(!save){try{const file=new File([JOURNEY_BLOB],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title')});return}}catch(e){if(e&&e.name==='AbortError')return}}
   const url=URL.createObjectURL(JOURNEY_BLOB);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 
+const RATIOS=[{id:'1:1',w:1,h:1},{id:'4:5',w:4,h:5},{id:'3:4',w:3,h:4},{id:'9:16',w:9,h:16}],DEFAULT_RATIO='3:4';
+const ratioOf=id=>RATIOS.find(r=>r.id===id)||RATIOS.find(r=>r.id===DEFAULT_RATIO);
+const ratioCss=id=>{const r=ratioOf(id);return r.w+'/'+r.h};
+function newTrim(){return{x:0,y:0,scale:1,rot:0,ratio:DEFAULT_RATIO}}
+function setTrimRatio(tr,id){tr.ratio=id;tr.x=0;tr.y=0}
 let editFilter=null,delArmed=false,editHidden=false,editAnon=false,editTrim=newTrim(),editStickers=[],editStickerSel=null,edTool=null;
 function renderEditStickers(){const box=$('.edit-prev'),layer=$('#edit-stickers');if(!box||!layer)return;const W=box.clientWidth;
   layer.innerHTML=editStickers.map(st=>`<div class="stk emoji${st.id===editStickerSel?' sel':''}" data-id="${st.id}" style="left:${st.x*100}%;top:${st.y*100}%;font-size:${st.size*W}px;transform:translate(-50%,-50%) rotate(${st.rot||0}deg)">${esc(st.text)}</div>`).join('')}
 function addEditSticker(emoji){editStickers.push({id:Date.now()+Math.random(),type:'emoji',text:emoji,size:0.18,x:0.5,y:0.5,rot:0});editStickerSel=editStickers[editStickers.length-1].id;renderEditStickers();renderEdPanel()}
 function setEdTool(name){edTool=edTool===name?null:name;$$('#ed-tools .tool').forEach(b=>b.classList.toggle('on',b.dataset.edtool===edTool));$('#edit-filters').hidden=!!edTool;renderEdPanel()}
 function renderEdPanel(){const pn=$('#ed-panel');if(!pn)return;const sel=editStickerSel!=null?editStickers.find(x=>x.id===editStickerSel):null;
-  if(edTool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="ed-trim-reset">${t('reset_trim')}</button></div>`;$('#ed-trim-reset').addEventListener('click',()=>{editTrim=newTrim();renderTrim($('#edit-img'),editTrim)});return}
+  if(edTool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="chips">${RATIOS.map(r=>`<button class="chip-btn${editTrim.ratio===r.id?' on':''}" data-ratiosel="${r.id}">${r.id}</button>`).join('')}</div><div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="ed-trim-reset">${t('reset_trim')}</button></div>`;
+    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(editTrim,b.dataset.ratiosel);$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);renderTrim($('#edit-img'),editTrim);renderEdPanel()}));
+    $('#ed-trim-reset').addEventListener('click',()=>{editTrim=newTrim();$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);renderTrim($('#edit-img'),editTrim);renderEdPanel()});return}
   if(edTool==='emoji'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="emoji-grid">${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>`;pn.querySelectorAll('.emo').forEach(b=>b.addEventListener('click',()=>{addEditSticker(b.dataset.emo);setEdTool(null)}));return}
   if(sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><label class="hint">${t('size')}</label><input type="range" id="es-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="es-del">${t('remove')}</button></div><div class="prow3"><label class="hint">${t('tilt')}</label><input type="range" id="es-rot" min="-180" max="180" step="1" value="${sel.rot||0}"><span class="hint mono" id="es-rotv">${Math.round(sel.rot||0)}°</span></div>`;
     $('#es-size').addEventListener('input',e=>{sel.size=+e.target.value;renderEditStickers()});
@@ -1267,7 +1274,7 @@ function openEditSheet(id){const ph=S.photos.get(id);if(!ph)return;editFilter=FI
   <div class="orig-row"><button class="chip-btn tog${editHidden?' on':''}" id="edit-hide-toggle"><i></i><span>${t('hide_toggle')}</span></button><button class="chip-btn tog${editAnon?' on':''}" id="edit-anon-toggle"><i></i><span>${t('anon_toggle')}</span></button></div>
   <div class="row2"><button class="btn danger" data-act="del-photo" data-key="${id}">${t('delete')}</button><button class="btn primary" data-act="save-photo" data-key="${id}">${t('save_changes')}</button></div>
   <div class="rule"><span>${t('edit_rule')}</span></div>`);
-  const im=$('#edit-img');im.src=ph.full;im.style.filter=cssFilter(editFilter);im.style.transform='none';
+  const im=$('#edit-img');im.src=ph.full;im.style.filter=cssFilter(editFilter);im.style.transform='none';$('.edit-prev').style.aspectRatio=ratioCss(editTrim.ratio);
   $('#edit-filters').addEventListener('click',e=>{const b=e.target.closest('[data-ef]');if(!b)return;editFilter=FILTERS.find(f=>f.id===b.dataset.ef)||FILTERS[0];im.style.filter=cssFilter(editFilter);$$('#edit-filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.ef===editFilter.id))});
   $('#edit-hide-toggle').addEventListener('click',()=>{editHidden=!editHidden;$('#edit-hide-toggle').classList.toggle('on',editHidden)});
   $('#edit-anon-toggle').addEventListener('click',()=>{if(!editAnon){confirmAnon(()=>{editAnon=true;$('#edit-anon-toggle').classList.add('on')})}else{editAnon=false;$('#edit-anon-toggle').classList.remove('on')}});
@@ -1364,7 +1371,7 @@ function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target
   st.addEventListener('touchmove',e=>{if(e.touches.length===2&&d0){e.preventDefault();setZoom(z0*dist(e.touches)/d0)}},{passive:false});
   st.addEventListener('touchend',()=>{d0=0});
   st.addEventListener('wheel',e=>{if(S.cam.state!=='live')return;e.preventDefault();setZoom(ZOOM.z*Math.exp(-e.deltaY*0.002))},{passive:false})}
-function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=360;tc.height=480;tc.getContext('2d').drawImage(src,0,0,360,480);return bake(tc,f)}
+function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=360;tc.height=360;const s=Math.min(src.width,src.height),sx=(src.width-s)/2,sy=(src.height-s)/2;tc.getContext('2d').drawImage(src,sx,sy,s,s,0,0,360,360);return bake(tc,f)}
 function canvasBlob(c,q){return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 // --- 동영상 녹화 (길게 누르기): 업로드용 저용량 + 폰 저장용 고화질 동시 녹화
 const REC={on:false,lo:null,hi:null,loChunks:[],hiChunks:[],raf:0,timer:0,t0:0,canvas:null,mime:''};
@@ -1411,14 +1418,16 @@ const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==
 async function saveOriginal(){if(!saveOrig)return;let blob,name;const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);if(S.cam.video){const useHi=S.cam.video.hi.size>1000;blob=useHi?S.cam.video.hi:S.cam.video.lo;name='coverrrup-'+stamp+'.'+(useHi?S.cam.video.ext:(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'))}else{if(!S.cam.orig)return;blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);name='coverrrup-'+stamp+'.jpg'}
   if(IS_IOS){try{const file=new File([blob],name,{type:blob.type||'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
-function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');setCamState('review')}
+function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');setCamState('review')}
 // --- 스티커(글씨/이모지)
 const EMOJIS=['😀','😂','🥹','😍','😎','🤩','😭','🥰','😴','🤔','🙌','👍','👏','🙏','✌️','🤙','💪','❤️','🧡','💛','💚','💙','💜','🔥','✨','⭐','🌟','💫','🎉','🎈','🎂','🍕','🍔','🍜','☕','🍺','🌸','🌈','☀️','🌙','⛅','🌊','🏖️','⛰️','🗼','🏙️','🚲','✈️','🚗','📍','📸','🎵','⚽','🏀','🐶','🐱','🦋','🍀','💯','🆒'];
 const COLORS=['#FFFFFF','#141A24','#E0876F','#FFC933','#9FD8B3','#8FB6E8','#FF4F8F','#A855F7'];
 let tool=null,drag=null;
 function setTool(name){tool=tool===name?null:name;$$('.tool').forEach(b=>b.classList.toggle('on',b.dataset.tool===tool));$('#filters').hidden=tool!=='filter'&&S.cam.state==='review';renderPanel()}
 function renderPanel(){const pn=$('#edit-panel');const sel=S.cam.sel!=null?S.cam.stickers.find(x=>x.id===S.cam.sel):null;
-  if(tool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="trim-reset">${t('reset_trim')}</button></div>`;$('#trim-reset').addEventListener('click',()=>{S.cam.trim=newTrim();renderTrim($('#shot'),S.cam.trim)});return}
+  if(tool==='trim'){pn.hidden=false;pn.innerHTML=`<div class="chips">${RATIOS.map(r=>`<button class="chip-btn${S.cam.trim.ratio===r.id?' on':''}" data-ratiosel="${r.id}">${r.id}</button>`).join('')}</div><div class="prow3"><span class="hint">${t('trim_hint')}</span><button class="like" id="trim-reset">${t('reset_trim')}</button></div>`;
+    pn.querySelectorAll('[data-ratiosel]').forEach(b=>b.addEventListener('click',()=>{setTrimRatio(S.cam.trim,b.dataset.ratiosel);$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);renderTrim($('#shot'),S.cam.trim);renderPanel()}));
+    $('#trim-reset').addEventListener('click',()=>{S.cam.trim=newTrim();$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);renderTrim($('#shot'),S.cam.trim);renderPanel()});return}
   if(tool==='text'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><input id="stk-text" class="email-in" maxlength="60" placeholder="${t('add_text_ph')}"><button class="btn primary small" id="stk-add">${t('done')}</button></div>`;$('#stk-add').addEventListener('click',()=>{const v=$('#stk-text').value.trim();if(!v)return;addSticker({type:'text',text:v,color:'#FFFFFF',size:0.09});setTool(null)});$('#stk-text').focus();return}
   if(tool==='emoji'&&!sel){pn.hidden=false;pn.innerHTML=`<div class="emoji-grid">${EMOJIS.map(e=>`<button class="emo" data-emo="${e}">${e}</button>`).join('')}</div>`;pn.querySelectorAll('.emo').forEach(b=>b.addEventListener('click',()=>{addSticker({type:'emoji',text:b.dataset.emo,size:0.18});setTool(null)}));return}
   if(sel){pn.hidden=false;pn.innerHTML=`<div class="prow3"><label class="hint">${t('size')}</label><input type="range" id="stk-size" min="0.04" max="0.45" step="0.005" value="${sel.size}"><button class="like" id="stk-del">${t('remove')}</button></div><div class="prow3"><label class="hint">${t('tilt')}</label><input type="range" id="stk-rot" min="-180" max="180" step="1" value="${sel.rot||0}"><span class="hint mono" id="stk-rotv">${Math.round(sel.rot||0)}°</span></div>${sel.type==='text'?`<div class="swatches">${COLORS.map(c=>`<button class="sw ${sel.color===c?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>`:''}`;
@@ -1437,13 +1446,15 @@ function bindStickers(){const layer=$('#stickers'),box=$('#shot-box'),pts=new Ma
     if(g2&&pts.size===2){const tw=two();g2.st.size=clamp(g2.s0*tw.d/g2.d0,0.03,0.6);g2.st.rot=g2.r0+(tw.a-g2.a0);renderStickers();return}if(!drag)return;const r=box.getBoundingClientRect();drag.st.x=clamp((e.clientX-r.left)/r.width-drag.dx,0.02,0.98);drag.st.y=clamp((e.clientY-r.top)/r.height-drag.dy,0.02,0.98);drag.moved=true;renderStickers()});
   const up=e=>{pts.delete(e.pointerId);if(tool==='trim'){if(pts.size<2)g2t=null;if(!pts.size)dragT=null;return}if(pts.size<2){if(g2){g2=null;renderPanel()}}if(!pts.size)drag=null};layer.addEventListener('pointerup',up);layer.addEventListener('pointercancel',up);
   new ResizeObserver(()=>{if(S.cam.state==='review')renderStickers()}).observe(box)}
-function newTrim(){return{x:0,y:0,scale:1,rot:0}}
 function trimEffScale(tr){return tr.scale*(1+0.6*Math.abs(Math.sin(tr.rot*Math.PI/180)))}
 function clampTrimPan(tr){const m=(trimEffScale(tr)-1)*50;tr.x=clamp(tr.x,-m,m);tr.y=clamp(tr.y,-m,m)}
 function renderTrim(el,tr){el.style.transform=tr?`translate(${tr.x}%,${tr.y}%) rotate(${tr.rot}deg) scale(${trimEffScale(tr)})`:'none'}
-function isTrimIdentity(tr){return!tr||(!tr.x&&!tr.y&&!tr.rot&&tr.scale===1)}
-function bakeTrim(src,tr){if(isTrimIdentity(tr))return src;const w=src.width,h=src.height,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),es=trimEffScale(tr);
-  x.translate(w/2,h/2);x.translate(tr.x/100*w,tr.y/100*h);x.rotate(tr.rot*Math.PI/180);x.scale(es,es);x.drawImage(src,-w/2,-h/2,w,h);return c}
+function isTrimIdentity(tr){return!tr||((!tr.x&&!tr.y&&!tr.rot&&tr.scale===1)&&(!tr.ratio||tr.ratio===DEFAULT_RATIO))}
+function bakeTrim(src,tr){if(isTrimIdentity(tr))return src;const w=src.width,h=src.height,rt=ratioOf(tr.ratio),r=rt.w/rt.h;
+  let bw,bh;if(r>w/h){bw=w;bh=w/r}else{bh=h;bw=h*r}bw=Math.round(bw);bh=Math.round(bh);
+  const c=document.createElement('canvas');c.width=bw;c.height=bh;const x=c.getContext('2d'),es=trimEffScale(tr);
+  const cov=Math.max(bw/w,bh/h),dw=w*cov,dh=h*cov;
+  x.translate(bw/2,bh/2);x.translate(tr.x/100*bw,tr.y/100*bh);x.rotate(tr.rot*Math.PI/180);x.scale(es,es);x.drawImage(src,-dw/2,-dh/2,dw,dh);return c}
 function bindTrimGesture(el,box,tr,onChange,isActive){const pts=new Map();let g2=null,drag=null;
   const two=()=>{const a=[...pts.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),a:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)*180/Math.PI}};
   el.addEventListener('pointerdown',e=>{if(isActive&&!isActive())return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);
@@ -1456,7 +1467,7 @@ function bakeStickers(src){if(!S.cam.stickers||!S.cam.stickers.length)return src
   for(const st of S.cam.stickers){const fs=st.size*c.width;x.font=`700 ${fs}px ${SANS}`;x.textAlign='center';x.textBaseline='middle';const lines=st.text.split('\n');
     x.save();x.translate(st.x*c.width,st.y*c.height);x.rotate((st.rot||0)*Math.PI/180);lines.forEach((ln,i)=>{const y=(i-(lines.length-1)/2)*fs*1.15;if(st.type==='text'){x.shadowColor='rgba(0,0,0,.55)';x.shadowBlur=fs*0.12;x.shadowOffsetY=fs*0.04;x.fillStyle=st.color||'#fff'}else{x.shadowColor='transparent'}x.fillText(ln,0,y)});x.restore()}
   x.shadowColor='transparent';return c}
-function resetShot(){S.cam.shot=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('#stickers').innerHTML='';$('#edit-panel').hidden=true;tool=null}
+function resetShot(){S.cam.shot=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('.shot-box').style.aspectRatio=ratioCss(S.cam.trim.ratio);$('#stickers').innerHTML='';$('#edit-panel').hidden=true;tool=null}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
   const mineCov=cell&&n&&coverOf(cell).user.me;const st=S.me.src!=='gps'?t('cam_place_noloc'):n===0?t('cam_place_empty'):mineCov?t('cam_place_mine',{n}):t('cam_place_n',{n});
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps';$('#vidbtn').disabled=S.me.src!=='gps'}
