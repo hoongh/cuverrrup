@@ -212,7 +212,7 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:10px;color:rgba(255,255,255,.75);padding:1px 0 0;min-height:12px}
-.cam-ui{flex:none;padding:2px 10px calc(4px + var(--safe));background:#000}
+.cam-ui{flex:1;min-height:0;overflow-y:auto;padding:2px 10px calc(4px + var(--safe));background:#000}
 .zoom-wrap,.filter-wrap{position:relative}
 #filter-wrap{justify-self:start}
 #zoom-wrap{justify-self:end}
@@ -280,9 +280,6 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .ov-retake{margin:0;width:auto;padding:8px 14px;font-size:13px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);flex:none}
 .ov-tools{margin-bottom:0;flex:1 1 auto;min-width:0;flex-wrap:wrap;justify-content:flex-end;gap:6px}
 .ov-tools .tool{padding:6px 10px;font-size:12px}
-.ov-bottom{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:10px 12px calc(10px + var(--safe));display:flex;flex-direction:column;gap:6px;background:linear-gradient(to top,rgba(0,0,0,.78),rgba(0,0,0,.4) 65%,transparent)}
-.ov-bottom .edit-panel,.ov-bottom .filters,.ov-bottom .caption-row,.ov-bottom .orig-row{margin-bottom:0;margin-top:0}
-.ov-upload{width:100%;padding:12px;font-size:15px;font-weight:600}
 
 /* profile */
 .pf-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:14px}
@@ -539,22 +536,20 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <button class="btn ghost ov-retake" id="retake" hidden data-i18n="retake"></button>
         <div class="tools ov-tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
       </div>
-      <div class="ov-bottom" id="ov-bottom">
-        <div class="edit-panel" id="edit-panel" hidden></div>
-        <div class="filters" id="filters" hidden></div>
-        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
-        <button class="btn primary ov-upload" id="upload" hidden data-i18n="upload"></button>
-      </div>
     </div>
     <div class="cam-status" id="cam-status"></div>
     <div class="cam-ui">
+      <div class="edit-panel" id="edit-panel" hidden></div>
+      <div class="filters" id="filters" hidden></div>
+      <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
       <div class="cam-actions" id="cam-actions">
         <div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div>
         <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
         <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div>
       </div>
+      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+      <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+      <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
     </div>
     <div class="cam-fallback" id="cam-fallback">
@@ -720,7 +715,7 @@ const FILTERS=[
 ];
 
 // ---------- 설정
-const SITE_ORIGIN='https://cuverrrup.pages.dev';
+const SITE_ORIGIN='https://coverrrup.com';
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
 const MAP_STYLE='https://tiles.openfreemap.org/styles/positron';
@@ -1133,13 +1128,13 @@ function buildFollowList(){const keys=[...S.follows].filter(k=>!S.followSel.size
   return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.g,isCover:x.isCover,followed:true}))}
 const ownsUid=(p,uid)=>(S.user&&uid===S.user.id)?p.user.me:p.user.id===uid;
 function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)).sort((a,b)=>b.ts-a.ts);return ps.map((p,i)=>{let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
-function renderReels(id,items,reset,emptyHTML,startAt){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');
+function renderReels(id,items,reset,emptyHTML,startAt,noCta){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');
   if(reset){st.items=items;st.shown=0;st.cur=0;el.innerHTML='';el.scrollTop=0}
   if(!st.items.length){el.innerHTML=emptyHTML||'';if(dist)dist.hidden=true;return}
   if(dist)dist.hidden=false;const end=Math.min(st.items.length,Math.max(st.shown+12,(startAt||0)+3));let h='';
   for(let i=st.shown;i<end;i++)h+=reelHTML(st.items[i],i);
   const old=el.querySelector('.reel-end');if(old)old.remove();el.insertAdjacentHTML('beforeend',h);
-  if(end>=st.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div><button class="btn primary" data-goto="camera">${t('do_cover')}</button></div>`);
+  if(end>=st.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div>${noCta?'':`<button class="btn primary" data-goto="camera">${t('do_cover')}</button>`}</div>`);
   st.shown=end;if(startAt){el.scrollTop=startAt*el.clientHeight}updateReelDist(id)}
 function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
   return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}" data-open-key="${it.g}">${it.mine?t('my_zone')+' · ':''}${geoHTML(it.g)}</span><span class="badge dark mono" data-open-key="${it.c.key}">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?coverMark('lg'):''}${p.hidden?`<span class="badge warn">${t('hidden_badge')}</span>`:''}</div>
@@ -1197,8 +1192,12 @@ function renderMyPhotos(){const n=[...S.photos.values()].filter(p=>p.user.me).le
 const JOURNEY_MAX=32;let journeySel=new Set(),JOURNEY_BLOB=null;
 function loadMyJourneys(){try{return JSON.parse(localStorage.getItem('ctw-journeys')||'[]')}catch(e){return[]}}
 function blobToDataUrl(blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(blob)})}
+let EDIT_JOURNEY_ID=null;
 async function addMyJourney(blob,order,cap){const img=await blobToDataUrl(blob),list=loadMyJourneys();
-  list.unshift({id:'j'+Date.now(),img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''});
+  const idx=EDIT_JOURNEY_ID?list.findIndex(x=>x.id===EDIT_JOURNEY_ID):-1;
+  if(idx>=0)list[idx]={...list[idx],img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''};
+  else list.unshift({id:'j'+Date.now(),img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''});
+  EDIT_JOURNEY_ID=null;
   try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,20)))}catch(e){try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,5)))}catch(e2){}}
   if(S.tab==='profile'&&mineFilter==='journeys')renderProfile()}
 function b64uEncode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
@@ -1206,24 +1205,29 @@ function b64uDecode(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.l
 function myJourneysPayload(){return loadMyJourneys().filter(j=>j.ids&&j.ids.length).map(j=>({ids:j.ids,cap:j.cap||'',ts:j.ts}))}
 function journeysShareLink(){if(!S.user)return null;const payload=myJourneysPayload();if(!payload.length)return null;
   return SITE_ORIGIN+'/j/'+S.user.id+'#d='+b64uEncode(JSON.stringify(payload))}
+function journeyShareLinkFor(j){if(!S.user||!j.ids||!j.ids.length)return null;
+  return SITE_ORIGIN+'/j/'+S.user.id+'#d='+b64uEncode(JSON.stringify([{ids:j.ids,cap:j.cap||'',ts:j.ts}]))}
 function deleteMyJourney(id){saveMyJourneysList(loadMyJourneys().filter(j=>j.id!==id));renderProfile()}
 function saveMyJourneysList(list){localStorage.setItem('ctw-journeys',JSON.stringify(list))}
 function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
 function journeyOrder(){return[...journeySel].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts)}
 function toggleJourneySel(id){if(journeySel.has(id))journeySel.delete(id);else{if(journeySel.size>=JOURNEY_MAX){toast(t('journey_max',{max:JOURNEY_MAX}));return}journeySel.add(id)}refreshJourneyPick()}
 function journeyPickHTML(){const mine=journeyMinePhotos();const order=journeyOrder(),rank=new Map(order.map((p,i)=>[p.id,i+1]));
-  return`<div class="sh-head jpick-head"><div><div class="sh-title">${t('journey_pick_title')}</div><div class="sh-sub">${t('journey_pick_hint',{n:journeySel.size,max:JOURNEY_MAX})}</div></div><button class="btn small primary" id="journey-next" data-act="journey-next"${journeySel.size?'':' disabled'}>${t('journey_create')}</button></div>
+  return`<div class="sh-head jpick-head"><div><div class="sh-title">${t('journey_pick_title')}</div><div class="sh-sub">${t('journey_pick_hint',{n:journeySel.size,max:JOURNEY_MAX})}</div></div><button class="btn small primary" id="journey-next" data-act="journey-next"${journeySel.size?'':' disabled'}>${EDIT_JOURNEY_ID?t('save_changes'):t('journey_create')}</button></div>
   <div class="pgrid jpick" id="journey-grid">${mine.map(p=>`<div class="ph pg jsel-item${journeySel.has(p.id)?' sel':''}" data-photo="${p.id}" data-size="small" data-jsel="${p.id}">${journeySel.has(p.id)?`<span class="jsel-order">${rank.get(p.id)}</span>`:''}</div>`).join('')}</div>
   ${mine.length?'':`<p class="hint">${t('my_photos_none')}</p>`}`}
-function openJourneyPick(){journeySel=new Set();S.sheet={type:'journeyPick'};openSheet(journeyPickHTML())}
+function openJourneyPick(){journeySel=new Set();EDIT_JOURNEY_ID=null;S.sheet={type:'journeyPick'};openSheet(journeyPickHTML())}
+function editJourney(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;
+  journeySel=new Set(j.ids||[]);EDIT_JOURNEY_ID=id;pushSheet();S.sheet={type:'journeyPick'};openSheet(journeyPickHTML())}
 function refreshJourneyPick(){if(!S.sheet||S.sheet.type!=='journeyPick')return;const st=$('#sheet-body').scrollTop;const back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';$('#sheet-body').innerHTML=back+journeyPickHTML();mountPhotos($('#sheet-body'));$('#sheet-body').scrollTop=st}
 let JOURNEY_CAP='';
 function openJourneyPreview(){const order=journeyOrder();if(!order.length){toast(t('journey_none_sel'));return}
-  JOURNEY_CAP='';pushSheet();S.sheet={type:'journeyPreview'};
+  const editing=loadMyJourneys().find(x=>x.id===EDIT_JOURNEY_ID);
+  JOURNEY_CAP=editing?editing.cap||'':'';pushSheet();S.sheet={type:'journeyPreview'};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('journey_share_title')}</div><div class="sh-sub">${t('journey_points_n',{n:order.length})}</div></div></div>
   <div class="jcard-wrap"><canvas id="journey-canvas"></canvas></div>
   <p class="hint" id="journey-msg">${t('making')}</p>
-  <input id="journey-cap" class="email-in" maxlength="80" placeholder="${t('caption_ph')}">
+  <input id="journey-cap" class="email-in" maxlength="80" placeholder="${t('caption_ph')}" value="${esc(JOURNEY_CAP)}">
   <div class="row2"><button class="btn" data-act="journey-mine">${t('journey_save_mine')}</button></div>
   <div class="row2" style="margin-top:8px"><button class="btn" id="journey-save" data-act="journey-save">${t('save_card')}</button><button class="btn primary" id="journey-share" data-act="journey-share">${t('share_btn')}</button></div>`);
   let capT;$('#journey-cap').addEventListener('input',e=>{JOURNEY_CAP=e.target.value.slice(0,80);clearTimeout(capT);capT=setTimeout(()=>renderJourneyCanvas(order),250)});
@@ -1269,7 +1273,7 @@ function drawJourneyStatsRow(ctx,x0,y0,W,vals,order){
   vals.forEach((c,i)=>{const cx=x0+colW*i+colW/2;
     ctx.textAlign='center';ctx.fillStyle='#8FB6E8';ctx.font='700 40px '+MONO;ctx.fillText(c.v,cx,y0);
     ctx.fillStyle='#7E756D';ctx.font='400 22px '+SANS;ctx.fillText(c.l,cx,y0+28)});
-  const sw=colW-20,sh=58,sx=x0+colW*vals.length+10,sy=y0-46;
+  const sw=colW-12,sh=76,sx=x0+colW*vals.length+6,sy=y0-38;
   drawJourneySignatureSmall(ctx,sx,sy,sw,sh,order)}
 async function renderJourneyCanvas(order,capOverride,canvasEl){
   const cv=canvasEl||document.getElementById('journey-canvas');if(!cv||!order.length)return;
@@ -1324,7 +1328,7 @@ function journeysToReelItems(payload){const items=[];
   return items}
 function openJourneysReels(payload){const items=journeysToReelItems(payload);
   $('#jreels').hidden=false;
-  renderReels('jreels-list',items,true,emptyReel(t('journey_reels_empty'),''))}
+  renderReels('jreels-list',items,true,emptyReel(t('journey_reels_empty'),''),undefined,true)}
 function closeJourneysReels(){$('#jreels').hidden=true;$('#jreels-list').innerHTML='';reelState('jreels-list').items=[]}
 async function copyJourneysLink(){const link=journeysShareLink();if(!link){toast(t('journey_link_none'));return}
   try{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}catch(e){toast(link)}}
@@ -1414,7 +1418,19 @@ function journeyGridHTML(){const list=loadMyJourneys();if(!list.length)return`<p
 function openJourneyView(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;pushSheet();S.sheet={type:'journeyView'};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('journeys_tab')}</div></div></div>
   <div class="jcard-wrap"><img src="${j.img}" style="width:100%;border-radius:14px;display:block" alt=""></div>
+  <div class="row2"><button class="btn" data-jview-reels="${j.id}">${t('journey_view_reels')}</button><button class="btn" data-jview-link="${j.id}">${t('journey_copy_link')}</button></div>
+  <div class="row2" style="margin-top:8px"><button class="btn" data-jview-edit="${j.id}">${t('edit')}</button><button class="btn primary" data-jview-share="${j.id}">${t('share_btn')}</button></div>
   <div class="row2" style="margin-top:10px"><button class="btn danger" data-del-journey="${j.id}">${t('delete')}</button></div>`)}
+function viewJourneyReels(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;
+  openJourneysReels([{ids:j.ids||[],cap:j.cap||''}])}
+async function copyJourneyLink(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;
+  const link=journeyShareLinkFor(j);if(!link){toast(t('journey_link_none'));return}
+  try{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}catch(e){toast(link)}}
+async function shareExistingJourney(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;const name=`coverrrup-journey-${id}.jpg`;
+  let blob;try{blob=await(await fetch(j.img)).blob()}catch(e){toast(t('share_fail'));return}
+  const link=journeyShareLinkFor(j);
+  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title'),url:link||undefined});return}}catch(e){if(e&&e.name==='AbortError')return}
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 function renderProfile(){renderMyPhotos();$('#admin-box').hidden=!S.profile.is_admin;if(S.profile.is_admin&&S.tab==='profile')loadAdmin();if(S.user){$('#pf-grid').innerHTML=mineFilter==='journeys'?journeyGridHTML():userGridHTML(S.user.id,mineFilter);mountPhotos($('#pf-grid'))}else $('#pf-grid').innerHTML='';$$('[data-mf]').forEach(b=>b.classList.toggle('on',b.dataset.mf===mineFilter));const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
   $('#pf-name').value=S.profile.name;$('#pf-avatar').innerHTML=S.profile.avatar?`<img src="${S.profile.avatar}" alt="">`:esc((S.profile.name||'?')[0]);$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
@@ -1456,48 +1472,46 @@ function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.he
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));
   $$('#filter-pop button').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));const btnSw=$('#filter-btn-sw');if(btnSw)btnSw.innerHTML=`<img src="${sampleSwatch()}" alt="" style="filter:${css}">`}
 function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#phone-mode').hidden=st!=='phone';$('#cam-mode').hidden=!(st==='live'||st==='phone'||st==='fallback'||st==='starting');$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===camMode));$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
-  $('#cam-actions').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=$('#ov-bottom').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=!(st==='review'&&tool==='filter');$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
+  $('#cam-actions').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=!(st==='review'&&tool==='filter');$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
   if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
 let camMode=localStorage.getItem('ctw-cammode')||'phone';
 function setCamMode(m){camMode=m;localStorage.setItem('ctw-cammode',m);$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===m));if(S.tab!=='camera')return;if(m==='phone'){stopCamera();S.cam.stream=null;setCamState('phone')}else{startCamera()}}
 async function startCamera(){if(camMode==='phone'){setCamState('phone');return}if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
   try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const vc=CAM.dev?{deviceId:{exact:CAM.dev},width:{ideal:1920},height:{ideal:1440}}:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}};let st;try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:true})}catch(e1){try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:false})}catch(e2){CAM.dev=null;localStorage.removeItem('ctw-cam');st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}}
-    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});CAM.cur=st.getVideoTracks()[0].getSettings().deviceId||CAM.dev;buildZoomChips();applyZoomValue();buildFilterPop();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
+    S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});CAM.cur=st.getVideoTracks()[0].getSettings().deviceId||CAM.dev;if(!CAM.defaultDev)CAM.defaultDev=CAM.cur;buildZoomChips();applyZoomValue();buildFilterPop();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
 function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(tr=>tr.stop());S.cam.stream=null}$('#video').srcObject=null}
 function cropToSquare(src,sw,sh,size){size=size||1080;const s=Math.min(sw,sh),cx=(sw-s)/2,cy=(sh-s)/2;
   const c=document.createElement('canvas');c.width=size;c.height=size;c.getContext('2d').drawImage(src,cx,cy,s,s,0,0,size,size);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본)
-const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[],wide:null};
-function classifyLens(label){if(!label)return null;if(/ultra.?wide|초광각|超广角/i.test(label))return'ultra';if(/tele(photo)?|망원|长焦/i.test(label))return'tele';return'main'}
+const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[],defaultDev:null,otherDev:null};
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
-    const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label)&&(/back|rear|environment|후면|后|camera2? ?\d+,? ?facing back/i.test(d.label)||!d.label));
-    CAM.list=backs;CAM.cur=cur;CAM.wide=backs.find(d=>classifyLens(d.label)==='ultra')||null;
+    const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label));
+    CAM.list=backs;CAM.cur=cur;
+    CAM.otherDev=(backs.find(d=>d.deviceId!==CAM.defaultDev)||{}).deviceId||null;
     buildZoomChips()}catch(e){console.warn(e)}}
-// with exactly 2 back lenses the label often can't be classified (mainly Android), but the 2nd lens is almost always the ultra-wide, so guess it rather than show no option at all
-function wideCandidate(){return CAM.wide||(CAM.list.length===2?CAM.list.find(d=>d.deviceId!==CAM.cur)||CAM.list[1]:null)}
 async function switchLens(id){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);stopCamera();S.cam.stream=null;await startCamera()}
-// --- 줌: 하나의 배율 목록(0.6~5x)만 있을 뿐 "광각 모드"라는 별개 개념은 없다. 1 미만은 광각 렌즈, 1 이상은 메인 렌즈를
-// 뒤에서 알아서 골라 전환한다. 하드웨어 줌(MediaTrackConstraints zoom)을 지원하는 폰은 그걸 그대로 쓰고,
-// 미지원 브라우저에서는 현재 렌즈 스트림을 그대로 잘라내는 디지털 줌으로 대체한다.
+// --- 줌: 배율 목록(0.6~5x) 하나뿐. 1 미만을 고르면 항상 "다른 카메라"로, 1 이상을 고르면 항상 원래
+// 기본 카메라로 돌아가서 그 안에서 배율을 맞춘다. 어느 렌즈가 광각인지 라벨로 구분하려 하지 않고,
+// 그냥 처음 열린 카메라를 "기본", 나머지 후면 카메라를 "다른 카메라"로 취급한다.
 const ZOOM_STEPS=[0.6,0.8,1,1.2,1.5,2,3,5];
 let zoomValue=1,zoomDivisor=1;
 function fmtZoom(v){return(Math.round(v*10)/10).toString()+'x'}
-function buildZoomChips(){const wc=wideCandidate();
+function buildZoomChips(){
   $('#zoom-btn').textContent=fmtZoom(zoomValue);
-  const pop=$('#zoom-pop'),wantSteps=ZOOM_STEPS.filter(v=>v>=1||wc),curSteps=[...pop.children].map(b=>+b.dataset.zoom);
+  const pop=$('#zoom-pop'),wantSteps=ZOOM_STEPS.filter(v=>v>=1||CAM.otherDev),curSteps=[...pop.children].map(b=>+b.dataset.zoom);
   const sameSet=curSteps.length===wantSteps.length&&curSteps.every((v,i)=>v===wantSteps[i]);
   if(sameSet)[...pop.children].forEach(b=>b.classList.toggle('on',+b.dataset.zoom===zoomValue));
   else pop.innerHTML=wantSteps.map(v=>`<button class="${v===zoomValue?'on':''}" data-zoom="${v}">${fmtZoom(v)}</button>`).join('')}
-async function setZoomValue(v){if(REC.on||v===zoomValue)return;const wc=wideCandidate();
-  const needWide=v<1,onWide=wc&&CAM.cur===wc.deviceId;
+async function setZoomValue(v){if(REC.on||v===zoomValue)return;
+  const onOther=CAM.otherDev&&CAM.cur===CAM.otherDev;
   zoomValue=v;
-  if(needWide&&wc&&!onWide){await switchLens(wc.deviceId);return}
-  if(!needWide&&onWide){const main=CAM.list.find(d=>d.deviceId!==wc.deviceId);if(main){await switchLens(main.deviceId);return}}
+  if(v<1){if(CAM.otherDev&&!onOther){await switchLens(CAM.otherDev);return}}
+  else if(onOther&&CAM.defaultDev){await switchLens(CAM.defaultDev);return}
   await applyZoomValue();buildZoomChips()}
 async function applyZoomValue(){const v=$('#video'),track=S.cam.stream&&S.cam.stream.getVideoTracks()[0];
-  const wc=wideCandidate(),onWide=!!(wc&&CAM.cur===wc.deviceId);
-  if(onWide){let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
+  const onOther=!!(CAM.otherDev&&CAM.cur===CAM.otherDev);
+  if(onOther){let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
     if(caps&&caps.zoom&&caps.zoom.min<1){try{await track.applyConstraints({advanced:[{zoom:caps.zoom.min}]})}catch(e){}}
     const base=ZOOM_STEPS[0];zoomDivisor=zoomValue/base;v.style.transform=`scale(${zoomDivisor})`;return}
   let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
@@ -1595,9 +1609,7 @@ function bindStickers(){const layer=$('#shot-box'),box=$('#shot-box'),pts=new Ma
   new ResizeObserver(()=>{if(S.cam.state==='review')renderStickers()}).observe(box)}
 function maxFrameSize(rt,w,h){const r=rt.w/rt.h;let mw,mh;if(r>w/h){mw=w;mh=w/r}else{mh=h;mw=h*r}return{mw,mh}}
 function stageFit(img){const natW=img.naturalWidth,natH=img.naturalHeight;if(!natW||!natH)return null;const stage=img.parentElement;
-  const sw=stage.clientWidth;let sh=stage.clientHeight;
-  const ovBottom=stage.parentElement&&stage.parentElement.querySelector('#ov-bottom');
-  if(ovBottom&&!ovBottom.hidden){const cr=ovBottom.getBoundingClientRect(),sr=stage.getBoundingClientRect(),overlap=sr.bottom-cr.top;if(overlap>0)sh=Math.max(40,sh-overlap)}
+  const sw=stage.clientWidth,sh=stage.clientHeight;
   const scale=Math.min(sw/natW,sh/natH)||1,w=natW*scale,h=natH*scale;
   return{stage,x:(sw-w)/2,y:(sh-h)/2,w,h}}
 function clampTrimFrame(tr,img){const fit=stageFit(img);if(!fit)return;const{mw,mh}=maxFrameSize(ratioOf(tr.ratio),fit.w,fit.h),bw=mw*tr.fw,bh=mh*tr.fw;
@@ -1651,7 +1663,8 @@ function openMyCoverMap(){S.mapOverlay=true;S.myMapOnly=true;S.followMap=false;$
 function closeMyCoverMap(){S.mapOverlay=false;S.myMapOnly=false;$('#screen-map').classList.remove('active','mymap-overlay');$('#mymap-back').hidden=true}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
-  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}const jr=e.target.closest('[data-jreels]');if(jr){openJourneysReels(myJourneysPayload());return true}const jl=e.target.closest('[data-jlink]');if(jl){copyJourneysLink();return true}return false}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}const jr=e.target.closest('[data-jreels]');if(jr){openJourneysReels(myJourneysPayload());return true}const jl=e.target.closest('[data-jlink]');if(jl){copyJourneysLink();return true}
+  const jvr=e.target.closest('[data-jview-reels]');if(jvr){viewJourneyReels(jvr.dataset.jviewReels);return true}const jvl=e.target.closest('[data-jview-link]');if(jvl){copyJourneyLink(jvl.dataset.jviewLink);return true}const jve=e.target.closest('[data-jview-edit]');if(jve){editJourney(jve.dataset.jviewEdit);return true}const jvs=e.target.closest('[data-jview-share]');if(jvs){shareExistingJourney(jvs.dataset.jviewShare);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
   $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
