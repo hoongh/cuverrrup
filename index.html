@@ -212,9 +212,9 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:10px;color:rgba(255,255,255,.75);padding:1px 0 0;min-height:12px}
-.cam-ui{flex:1;min-height:0;display:flex;flex-direction:column;padding:2px 10px calc(4px + var(--safe));background:#000}
-.cam-review{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
-.cam-review #upload{position:sticky;bottom:0;background:#000;z-index:1}
+.cam-ui{flex:none;display:flex;flex-direction:column;padding:2px 10px calc(4px + var(--safe));background:#000}
+.cam-review{position:absolute;left:0;right:0;bottom:0;z-index:4;max-height:82%;overflow-y:auto;display:flex;flex-direction:column;padding:10px 12px calc(8px + var(--safe));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.55) 22%,rgba(0,0,0,.85))}
+.cam-review #upload{position:sticky;bottom:0;z-index:1}
 .zoom-wrap,.filter-wrap{position:relative}
 #filter-wrap{justify-self:start}
 #zoom-wrap{justify-self:end}
@@ -538,6 +538,14 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <button class="btn ghost ov-retake" id="retake" hidden data-i18n="retake"></button>
         <div class="tools ov-tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
       </div>
+      <div class="ov-bottom cam-review" id="cam-review">
+        <div class="edit-panel" id="edit-panel" hidden></div>
+        <div class="filters" id="filters" hidden></div>
+        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
+      </div>
     </div>
     <div class="cam-status" id="cam-status"></div>
     <div class="cam-ui">
@@ -547,14 +555,6 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div>
       </div>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
-      <div class="cam-review" id="cam-review">
-        <div class="edit-panel" id="edit-panel" hidden></div>
-        <div class="filters" id="filters" hidden></div>
-        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
-        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
-      </div>
     </div>
     <div class="cam-fallback" id="cam-fallback">
       <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
@@ -905,7 +905,7 @@ let animId=0;
 function animateTo(lat,lng,scale,ms){ms=ms||380;cancelAnimationFrame(animId);const l=scaleLimits();scale=clamp(scale,l.min,l.max);const s0={...S.view},t0=performance.now(),ls0=Math.log(s0.scale),ls1=Math.log(scale);
   const step=now=>{const tt=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-tt,3);S.view.lat=s0.lat+(lat-s0.lat)*e;S.view.lng=s0.lng+(lng-s0.lng)*e;S.view.scale=Math.exp(ls0+(ls1-ls0)*e);requestRender();if(tt<1)animId=requestAnimationFrame(step)};animId=requestAnimationFrame(step)}
 
-function render(){if(S.tab!=='map'||map.W<50)return;const c=map.ctx,W=map.W,H=map.H;c.setTransform(map.dpr,0,0,map.dpr,0,0);c.clearRect(0,0,W,H);
+function render(){if((S.tab!=='map'&&!S.mapOverlay)||map.W<50)return;const c=map.ctx,W=map.W,H=map.H;c.setTransform(map.dpr,0,0,map.dpr,0,0);c.clearRect(0,0,W,H);
   if(!map.ml){c.fillStyle='#1F1B17';c.fillRect(0,0,W,H)}
   const p=pairsForScale(),res=OLC.RES[p-1];
   const tl=toWorld(0,0),br=toWorld(W,H),cen=center();
@@ -1332,6 +1332,22 @@ function openJourneysReels(payload){const items=journeysToReelItems(payload);
   $('#jreels').hidden=false;
   renderReels('jreels-list',items,true,emptyReel(t('journey_reels_empty'),''),undefined,true)}
 function closeJourneysReels(){$('#jreels').hidden=true;$('#jreels-list').innerHTML='';reelState('jreels-list').items=[]}
+async function openDeepJourneyLink(data){try{
+    const payload=JSON.parse(b64uDecode(data));
+    const ids=[...new Set(payload.flatMap(j=>j.ids||[]))];
+    const missing=ids.filter(id=>!S.photos.has(id));
+    if(missing.length&&sb){
+      const {data:rows}=await sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').in('id',missing);
+      const uids=[...new Set((rows||[]).map(r=>r.user_id).filter(Boolean))];
+      const {data:profs}=uids.length?await sb.from('profiles').select('id,name').in('id',uids):{data:[]};
+      const names=new Map((profs||[]).map(p=>[p.id,p.name]));
+      for(const r of rows||[]){if(S.photos.has(r.id))continue;
+        const ownerId=r.user_id||(r.path?r.path.split('/')[0]:null);
+        const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&ownerId===S.user.id},ts:new Date(r.created_at).getTime(),likes:0,filter:r.filter,caption:r.caption||'',media:r.media||'photo',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path),hidden:!!r.hidden,anonymous:!!r.anonymous};
+        if(!r.hidden)ensureCell(r.cell).photos.push(ph);
+        S.photos.set(ph.id,ph)}}
+    openJourneysReels(payload)
+  }catch(e){console.warn('journey link failed',e)}}
 
 const RATIOS=[{id:'1:1',w:1,h:1},{id:'4:5',w:4,h:5},{id:'3:4',w:3,h:4},{id:'9:16',w:9,h:16}],DEFAULT_RATIO='3:4';
 const ratioOf=id=>RATIOS.find(r=>r.id===id)||RATIOS.find(r=>r.id===DEFAULT_RATIO);
@@ -1716,8 +1732,9 @@ async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,
   const m=location.pathname.match(/\/c\/([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i)||location.hash.match(/c=([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i);if(m){S.deepKey=m[1].toUpperCase().replace('+','');history.replaceState(null,'',location.origin+'/')}
   const mj=location.pathname.match(/\/j\/([0-9a-fA-F-]{8,36})/);if(mj){const hd=location.search.match(/d=([A-Za-z0-9\-_]+)/)||location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
   let tries=0;const kick=()=>{resizeMap();requestRender();if(map.W<50&&tries++<30)setTimeout(kick,120)};kick();window.addEventListener('resize',()=>{resizeMap();requestRender()});
-  await initAuth();if(S.deepKey){const k=S.deepKey;S.deepKey=null;const b=OLC.bounds(k);S.selected=k;centerOn(b.lat,b.lng,160);setTimeout(()=>openCellSheet(k),400);$('#login').classList.remove('show')}
-  if(S.deepJData){const data=S.deepJData;S.deepJData=null;try{openJourneysReels(JSON.parse(b64uDecode(data)))}catch(e){}}
+  if(S.deepJData){const data=S.deepJData;S.deepJData=null;openDeepJourneyLink(data)}
+  await initAuth();
+  if(S.deepKey){const k=S.deepKey;S.deepKey=null;const b=OLC.bounds(k);S.selected=k;centerOn(b.lat,b.lng,160);setTimeout(()=>openCellSheet(k),400);$('#login').classList.remove('show')}
   locate(true);startWatch();setInterval(maybeReload,60000)}
 init();
 
