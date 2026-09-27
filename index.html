@@ -179,17 +179,16 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 
 /* camera */
 .cam{background:#000;color:#fff}
-.cam-top{position:absolute;top:0;left:0;right:0;padding:14px 16px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
-.cam-mode{pointer-events:auto}.cam-mode .chip-btn{background:rgba(0,0,0,.45);color:#B7ADA2;border-color:rgba(255,255,255,.3);padding:6px 12px;font-size:12px}.cam-mode .chip-btn.on{background:#fff;color:#000;border-color:#fff}
-.phone-mode{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000)}
+.cam-top{flex:none;padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.cam-mode .chip-btn{background:rgba(0,0,0,.45);color:#B7ADA2;border-color:rgba(255,255,255,.3);padding:6px 12px;font-size:12px}.cam-mode .chip-btn.on{background:#fff;color:#000;border-color:#fff}
+.phone-mode{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000);z-index:6}
 .phone-mode .btn.big{width:min(100%,320px);padding:18px;font-size:16px;margin:0}
 .phone-mode .hint{color:#B7ADA2;max-width:30ch;line-height:1.55;margin-top:6px}
-.cam-status{z-index:5;bottom:auto;top:56px}
 .chip{background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-size:12px;color:#fff;max-width:100%;text-align:center;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
 .chip .mono{color:#B7ADA2}
 .chip .st{color:var(--mint)}
-.cam-stage{position:relative;flex:1;overflow:hidden;background:#000}
-#video{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);object-fit:cover;display:none}
+.cam-stage{position:relative;flex:none;width:100%;aspect-ratio:1/1;overflow:hidden;background:#000}
+#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
 #video.show{display:block}
 .cam-ratio-mask{position:absolute;pointer-events:none;border:2px solid rgba(241,234,226,.55);box-shadow:0 0 0 2000px rgba(0,0,0,.72)}
 .fx-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,var(--vig,0)) 100%)}
@@ -198,15 +197,15 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .flash.go{animation:flash .35s ease-out}
 @keyframes flash{0%{opacity:.9}100%{opacity:0}}
-.cam-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000)}
+.cam-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000);z-index:6}
 .cam-fallback.show{display:flex}
 .fb-icon{width:64px;height:64px;border-radius:50%;border:1px dashed rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center}
 .fb-icon svg{width:30px;height:30px;fill:none;stroke:#fff;stroke-width:1.4;stroke-linejoin:round}
 .cam-fallback p{margin:0;color:#B7ADA2;font-size:14px;line-height:1.55;max-width:26ch}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
-.cam-status{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:rgba(255,255,255,.8);pointer-events:none}
-.cam-ui{position:absolute;left:0;right:0;bottom:0;padding:10px 12px calc(10px + var(--safe));background:linear-gradient(transparent,rgba(0,0,0,.75) 40%);z-index:4}
+.cam-status{flex:none;text-align:center;font-size:12px;color:rgba(255,255,255,.8);padding:6px 0}
+.cam-ui{flex:1;min-height:0;overflow-y:auto;padding:10px 12px calc(10px + var(--safe));background:#000}
 .shot-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);aspect-ratio:3/4;height:100%;max-width:100%;display:none;overflow:hidden;background:#000}
 .shot-box.show{display:block}
 .shot-box #shot{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
@@ -503,39 +502,39 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 
   <!-- 3. 촬영 -->
   <section id="screen-camera" class="screen cam">
+    <div class="cam-top"><div class="chip" id="cam-place"></div><div class="chips cam-mode" id="cam-mode"><button class="chip-btn" data-cammode="phone" data-i18n="mode_phone"></button><button class="chip-btn" data-cammode="app" data-i18n="mode_app"></button></div></div>
     <div class="cam-stage" id="cam-stage">
       <video id="video" playsinline muted autoplay></video>
       <div class="cam-ratio-mask" id="cam-ratio-mask" hidden></div>
       <div class="shot-box" id="shot-box"><img id="shot" alt=""><video id="shot-video" playsinline muted loop autoplay hidden></video><div class="stickers" id="stickers"></div><div class="fx-vig" id="fx-vig"></div><div class="fx-tint" id="fx-tint"></div><div class="trim-frame" hidden></div></div>
       <div class="flash" id="flash"></div>
-      <div class="cam-fallback" id="cam-fallback">
-        <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
-        <p data-i18n="cam_fb"></p>
-        <label class="btn light"><span data-i18n="cam_fb_btn"></span><input type="file" accept="image/*" capture="environment" id="file-in" hidden></label>
+    </div>
+    <div class="cam-status" id="cam-status"></div>
+    <div class="cam-ui">
+      <div class="tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
+      <div class="edit-panel" id="edit-panel" hidden></div>
+      <div class="filters" id="filters"></div>
+      <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+      <div class="chips" id="cam-ratio-row"></div>
+      <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span></div>
+      <div class="cam-actions">
+        <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
+        <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
+        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
       </div>
-      <div class="phone-mode" id="phone-mode" hidden>
-        <label class="btn primary big"><span data-i18n="take_photo"></span><input type="file" accept="image/*" capture="environment" id="phone-photo" hidden></label>
-        <label class="btn ghost big"><span data-i18n="take_video"></span><input type="file" accept="video/*" capture="environment" id="phone-video" hidden></label>
-        <p class="hint" data-i18n="phone_hint"></p>
-      </div>
-      <div class="cam-top"><div class="chip" id="cam-place"></div><div class="chips cam-mode" id="cam-mode"><button class="chip-btn" data-cammode="phone" data-i18n="mode_phone"></button><button class="chip-btn" data-cammode="app" data-i18n="mode_app"></button></div></div>
-      <div class="cam-status" id="cam-status"></div>
-      <div class="cam-ui">
-        <div class="tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
-        <div class="edit-panel" id="edit-panel" hidden></div>
-        <div class="filters" id="filters"></div>
-        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="chips" id="cam-ratio-row"></div>
-        <div class="zoom-row" id="zoom-row"><span id="zoom-chips" style="display:flex;gap:8px"></span><span class="zval" id="zoom-val">1x</span></div>
-        <div class="cam-actions">
-          <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
-          <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
-          <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
-        </div>
-        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
-        <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
-      </div>
+      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+      <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+      <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
+    </div>
+    <div class="cam-fallback" id="cam-fallback">
+      <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+      <p data-i18n="cam_fb"></p>
+      <label class="btn light"><span data-i18n="cam_fb_btn"></span><input type="file" accept="image/*" capture="environment" id="file-in" hidden></label>
+    </div>
+    <div class="phone-mode" id="phone-mode" hidden>
+      <label class="btn primary big"><span data-i18n="take_photo"></span><input type="file" accept="image/*" capture="environment" id="phone-photo" hidden></label>
+      <label class="btn ghost big"><span data-i18n="take_video"></span><input type="file" accept="video/*" capture="environment" id="phone-video" hidden></label>
+      <p class="hint" data-i18n="phone_hint"></p>
     </div>
   </section>
 
@@ -1402,12 +1401,10 @@ const camRatioOf=id=>CAM_RATIOS.find(r=>r.id===id)||CAM_RATIOS[0];
 let camRatio=localStorage.getItem('ctw-camratio')||'1:1';
 function buildCamRatioChips(){$('#cam-ratio-row').innerHTML=CAM_RATIOS.map(r=>`<button class="chip-btn${camRatio===r.id?' on':''}" data-camratio="${r.id}">${r.id}</button>`).join('')}
 function setCamRatio(id){camRatio=id;localStorage.setItem('ctw-camratio',id);renderCamRatioMask();$$('[data-camratio]').forEach(b=>b.classList.toggle('on',b.dataset.camratio===id))}
-function sizeCamSquare(){const stage=$('#cam-stage');if(!stage)return;const s=Math.min(stage.clientWidth,stage.clientHeight);if(s<10)return;
-  const v=$('#video');v.style.width=s+'px';v.style.height=s+'px';renderCamRatioMask()}
-function renderCamRatioMask(){const mask=$('#cam-ratio-mask');const stage=$('#cam-stage');if(!mask||!stage)return;const s=Math.min(stage.clientWidth,stage.clientHeight);if(s<10)return;
-  const vx=(stage.clientWidth-s)/2,vy=(stage.clientHeight-s)/2;
+function sizeCamSquare(){renderCamRatioMask()}
+function renderCamRatioMask(){const mask=$('#cam-ratio-mask');const stage=$('#cam-stage');if(!mask||!stage)return;const s=stage.clientWidth;if(s<10)return;
   const rt=camRatioOf(camRatio),{mw,mh}=maxFrameSize(rt,s,s);
-  mask.hidden=false;mask.style.left=(vx+(s-mw)/2)+'px';mask.style.top=(vy+(s-mh)/2)+'px';mask.style.width=mw+'px';mask.style.height=mh+'px'}
+  mask.hidden=false;mask.style.left=((s-mw)/2)+'px';mask.style.top=((s-mh)/2)+'px';mask.style.width=mw+'px';mask.style.height=mh+'px'}
 function cropToRatio(src,sw,sh,rt,z){z=z||1;const r=rt.w/rt.h;const TW=1080,TH=Math.round(1080*rt.h/rt.w);let cw=sw,ch=sh;if(sw/sh>r)cw=sh*r;else ch=sw/r;cw/=z;ch/=z;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본/망원)
 const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[]};
@@ -1418,10 +1415,12 @@ function nextLens(){if(REC.on||CAM.list.length<2)return;const i=CAM.list.findInd
 async function switchLens(id,z){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);ZOOM.pending=z||1;stopCamera();S.cam.stream=null;await startCamera()}
 // --- 줌: 안정성을 위해 디지털 줌만 사용 (화면 확대 + 촬영 시 같은 범위로 잘라냄). 렌즈 전환은 ⟳ 버튼
 const ZOOM={z:1,hw:null,max:5,base:1};
+// getUserMedia's raw back-camera stream is wider than the phone's native "1x" lens output; correct for it so our 1x/2x/3x match real optical zoom
+const RAW_LENS_ZOOM=1/0.6;
 function initZoom(){ZOOM.z=ZOOM.pending||1;ZOOM.pending=0;ZOOM.hw=null;ZOOM.max=5;buildZoomChips();applyZoom()}
 function buildZoomChips(){$('#zoom-chips').innerHTML=[1,2,3].map(z=>`<button class="zchip" data-z="${z}">${z}x</button>`).join('')}
-function digitalZ(){return ZOOM.z}
-function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`translate(-50%,-50%) scale(${ZOOM.z})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
+function digitalZ(){return ZOOM.z*RAW_LENS_ZOOM}
+function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${digitalZ()})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
 function setZoom(eff){ZOOM.z=eff;applyZoom()}
 function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});
   const st=$('#cam-stage');let d0=0,z0=1;const dist=ts=>Math.hypot(ts[0].clientX-ts[1].clientX,ts[0].clientY-ts[1].clientY);
