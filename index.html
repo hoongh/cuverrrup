@@ -538,14 +538,6 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <button class="btn ghost ov-retake" id="retake" hidden data-i18n="retake"></button>
         <div class="tools ov-tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
       </div>
-      <div class="ov-bottom cam-review" id="cam-review">
-        <div class="edit-panel" id="edit-panel" hidden></div>
-        <div class="filters" id="filters" hidden></div>
-        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
-        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
-      </div>
     </div>
     <div class="cam-status" id="cam-status"></div>
     <div class="cam-ui">
@@ -555,6 +547,14 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div>
       </div>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
+    </div>
+    <div class="ov-bottom cam-review" id="cam-review">
+      <div class="edit-panel" id="edit-panel" hidden></div>
+      <div class="filters" id="filters" hidden></div>
+      <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+      <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+      <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
     </div>
     <div class="cam-fallback" id="cam-fallback">
       <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
@@ -1207,8 +1207,17 @@ async function addMyJourney(blob,order,cap){const img=await blobToDataUrl(blob),
   return rec}
 function b64uEncode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64uDecode(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const bin=atob(str),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new TextDecoder().decode(bytes)}
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function encodeJourneyIds(ids){if(!ids.every(id=>UUID_RE.test(id)))return null;
+  const bytes=new Uint8Array(ids.length*16);ids.forEach((id,i)=>{const hex=id.replace(/-/g,'');for(let j=0;j<16;j++)bytes[i*16+j]=parseInt(hex.substr(j*2,2),16)});
+  let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function decodeJourneyIds(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const bin=atob(str);const n=Math.floor(bin.length/16),ids=[];
+  for(let i=0;i<n;i++){let hex='';for(let j=0;j<16;j++)hex+=bin.charCodeAt(i*16+j).toString(16).padStart(2,'0');
+    ids.push(`${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`)}
+  return ids}
 function journeyShareLinkFor(j){if(!S.user||!j.ids||!j.ids.length)return null;
-  return SITE_ORIGIN+'/j/'+S.user.id+'?d='+b64uEncode(JSON.stringify([{ids:j.ids,cap:j.cap||'',ts:j.ts}]))}
+  const enc=encodeJourneyIds(j.ids);if(!enc)return null;
+  return SITE_ORIGIN+'/j/'+j.id+'?d='+enc}
 function deleteMyJourney(id){saveMyJourneysList(loadMyJourneys().filter(j=>j.id!==id));renderProfile()}
 function saveMyJourneysList(list){localStorage.setItem('ctw-journeys',JSON.stringify(list))}
 function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
@@ -1331,10 +1340,11 @@ function journeysToReelItems(payload){const items=[];
 function openJourneysReels(payload){const items=journeysToReelItems(payload);
   $('#jreels').hidden=false;
   renderReels('jreels-list',items,true,emptyReel(t('journey_reels_empty'),''),undefined,true)}
-function closeJourneysReels(){$('#jreels').hidden=true;$('#jreels-list').innerHTML='';reelState('jreels-list').items=[]}
+function closeJourneysReels(){$('#jreels').hidden=true;$('#jreels-list').innerHTML='';reelState('jreels-list').items=[];S.suppressLogin=false}
 async function openDeepJourneyLink(data){try{
-    const payload=JSON.parse(b64uDecode(data));
-    const ids=[...new Set(payload.flatMap(j=>j.ids||[]))];
+    const ids=decodeJourneyIds(data);
+    if(!ids.length)return;
+    const payload=[{ids}];
     const missing=ids.filter(id=>!S.photos.has(id));
     if(missing.length&&sb){
       const {data:rows}=await sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').in('id',missing);
@@ -1444,7 +1454,7 @@ async function copyJourneyLink(id){const j=loadMyJourneys().find(x=>x.id===id);i
 async function shareExistingJourney(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;const name=`coverrrup-journey-${id}.jpg`;
   let blob;try{blob=await(await fetch(j.img)).blob()}catch(e){toast(t('share_fail'));return}
   const link=journeyShareLinkFor(j);
-  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title'),url:link||undefined});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title'),url:link||undefined});closeSheet();return}}catch(e){if(e&&e.name==='AbortError')return}
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 function renderProfile(){renderMyPhotos();$('#admin-box').hidden=!S.profile.is_admin;if(S.profile.is_admin&&S.tab==='profile')loadAdmin();if(S.user){$('#pf-grid').innerHTML=mineFilter==='journeys'?journeyGridHTML():userGridHTML(S.user.id,mineFilter);mountPhotos($('#pf-grid'))}else $('#pf-grid').innerHTML='';$$('[data-mf]').forEach(b=>b.classList.toggle('on',b.dataset.mf===mineFilter));const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
   $('#pf-name').value=S.profile.name;$('#pf-avatar').innerHTML=S.profile.avatar?`<img src="${S.profile.avatar}" alt="">`:esc((S.profile.name||'?')[0]);$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
@@ -1471,7 +1481,7 @@ async function initAuth(){if(!sb){toast(t('server_fail'));return}
 async function applySession(session){S.user=session?session.user:null;
   if(S.user){const {data}=await sb.from('profiles').select('name,avatar_path,is_admin').eq('id',S.user.id).maybeSingle();
     if(data){S.profile.name=data.name;S.profile.avatar=data.avatar_path?pubUrl(data.avatar_path):null;S.profile.is_admin=!!data.is_admin}else{const nm=(S.user.user_metadata&&(S.user.user_metadata.name||S.user.user_metadata.full_name))||t('traveler');await sb.from('profiles').upsert({id:S.user.id,name:nm});S.profile.name=nm}
-    $('#login').classList.remove('show')}else{S.profile.name=t('traveler');$('#login').classList.add('show')}
+    $('#login').classList.remove('show')}else{S.profile.name=t('traveler');if(!S.suppressLogin)$('#login').classList.add('show')}
   await loadWorld();renderProfile()}
 async function signInGoogle(){$('#login-msg').textContent=t('login_going');const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)$('#login-msg').textContent=t('login_gerr',{e:error.message})}
 async function signInEmail(){const email=$('#login-email').value.trim();if(!email.includes('@')){toast(t('check_email'));return}
@@ -1503,7 +1513,18 @@ const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[],defaultDev:null,oth
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
     const backs=devs.filter(d=>d.kind==='videoinput'&&!/front|user|전면|前/i.test(d.label));
     CAM.list=backs;CAM.cur=cur;
-    CAM.otherDev=(backs.find(d=>d.deviceId!==CAM.defaultDev)||{}).deviceId||null;
+    const others=backs.filter(d=>d.deviceId!==CAM.defaultDev);
+    CAM.otherDev=others[0]?others[0].deviceId:null;
+    if(others.length>1&&CAM.wideDev===undefined){
+      let found=null;
+      for(const d of others){try{
+        const st=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:d.deviceId}},audio:false});
+        const tr=st.getVideoTracks()[0],caps=tr.getCapabilities?tr.getCapabilities():null;
+        st.getTracks().forEach(tk=>tk.stop());
+        if(caps&&caps.zoom&&caps.zoom.min<1){found=d.deviceId;break}
+      }catch(e){}}
+      CAM.wideDev=found;if(found)CAM.otherDev=found
+    }else if(CAM.wideDev){CAM.otherDev=CAM.wideDev}
     buildZoomChips()}catch(e){console.warn(e)}}
 async function switchLens(id){if(REC.on||!id)return;CAM.dev=id;localStorage.setItem('ctw-cam',id);stopCamera();S.cam.stream=null;await startCamera()}
 // --- 줌: 배율 목록(0.6~5x) 하나뿐. 1 미만을 고르면 항상 "다른 카메라"로, 1 이상을 고르면 항상 원래
@@ -1527,7 +1548,8 @@ async function setZoomValue(v){if(REC.on||v===zoomValue)return;
 async function applyZoomValue(){const v=$('#video'),track=S.cam.stream&&S.cam.stream.getVideoTracks()[0];
   const onOther=!!(CAM.otherDev&&CAM.cur===CAM.otherDev);
   if(onOther){let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
-    if(caps&&caps.zoom&&caps.zoom.min<1){try{await track.applyConstraints({advanced:[{zoom:caps.zoom.min}]})}catch(e){}}
+    if(caps&&caps.zoom&&caps.zoom.min<1){
+      try{await track.applyConstraints({advanced:[{zoom:clamp(zoomValue,caps.zoom.min,Math.min(caps.zoom.max,1))}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
     const base=ZOOM_STEPS[0];zoomDivisor=zoomValue/base;v.style.transform=`scale(${zoomDivisor})`;return}
   let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
   if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:clamp(zoomValue,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
@@ -1730,9 +1752,9 @@ function fitViewport(){const h=(window.visualViewport&&window.visualViewport.hei
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
   const m=location.pathname.match(/\/c\/([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i)||location.hash.match(/c=([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i);if(m){S.deepKey=m[1].toUpperCase().replace('+','');history.replaceState(null,'',location.origin+'/')}
-  const mj=location.pathname.match(/\/j\/([0-9a-fA-F-]{8,36})/);if(mj){const hd=location.search.match(/d=([A-Za-z0-9\-_]+)/)||location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
+  const mj=/^\/j\//.test(location.pathname);if(mj){const hd=location.search.match(/d=([A-Za-z0-9\-_]+)/)||location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
   let tries=0;const kick=()=>{resizeMap();requestRender();if(map.W<50&&tries++<30)setTimeout(kick,120)};kick();window.addEventListener('resize',()=>{resizeMap();requestRender()});
-  if(S.deepJData){const data=S.deepJData;S.deepJData=null;openDeepJourneyLink(data)}
+  if(S.deepJData){S.suppressLogin=true;const data=S.deepJData;S.deepJData=null;openDeepJourneyLink(data)}
   await initAuth();
   if(S.deepKey){const k=S.deepKey;S.deepKey=null;const b=OLC.bounds(k);S.selected=k;centerOn(b.lat,b.lng,160);setTimeout(()=>openCellSheet(k),400);$('#login').classList.remove('show')}
   locate(true);startWatch();setInterval(maybeReload,60000)}
