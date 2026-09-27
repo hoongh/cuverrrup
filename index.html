@@ -212,7 +212,9 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:10px;color:rgba(255,255,255,.75);padding:1px 0 0;min-height:12px}
-.cam-ui{flex:1;min-height:0;overflow-y:auto;padding:2px 10px calc(4px + var(--safe));background:#000}
+.cam-ui{flex:1;min-height:0;display:flex;flex-direction:column;padding:2px 10px calc(4px + var(--safe));background:#000}
+.cam-review{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+.cam-review #upload{position:sticky;bottom:0;background:#000;z-index:1}
 .zoom-wrap,.filter-wrap{position:relative}
 #filter-wrap{justify-self:start}
 #zoom-wrap{justify-self:end}
@@ -539,18 +541,20 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
     </div>
     <div class="cam-status" id="cam-status"></div>
     <div class="cam-ui">
-      <div class="edit-panel" id="edit-panel" hidden></div>
-      <div class="filters" id="filters" hidden></div>
-      <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
       <div class="cam-actions" id="cam-actions">
         <div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div>
         <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
         <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div>
       </div>
-      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-      <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
-      <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
+      <div class="cam-review" id="cam-review">
+        <div class="edit-panel" id="edit-panel" hidden></div>
+        <div class="filters" id="filters" hidden></div>
+        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
+      </div>
     </div>
     <div class="cam-fallback" id="cam-fallback">
       <div class="fb-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
@@ -1174,7 +1178,7 @@ function openFollowAction(k,isF){S.sheet={type:'faction',key:k};const shown=!S.f
   openSheet(`<div class="sh-head"><div><div class="sh-title">${k.length>=8?placeTitle(k):esc(labelFor(k))+' '+LEVEL_NAME(k.length/2)}</div><div class="sh-sub"><span class="mono">${OLC.format(k)}</span><span>${LEVEL_NAME(k.length/2)}</span></div></div></div>
   ${isF?`<div class="row2"><button class="btn" data-fa="toggle" data-key="${k}">${shown?t('fm_hide'):t('fm_show')}</button><button class="btn danger" data-fa="unfollow" data-key="${k}">${t('fm_unfollow')}</button></div>`:`<button class="btn primary" data-fa="follow" data-key="${k}">+ ${t('fm_follow')}</button>`}
   <button class="btn" data-fa="photos" data-key="${k}">${t('fm_photos')}</button>`)}
-function viewFollowsOnMap(){closeSheet();switchTab('map');S.followMap=true;const keys=[...S.follows];if(!keys.length)return;let la=90,lb=-90,lo=180,ro=-180;for(const k of keys){const b=OLC.bounds(k);la=Math.min(la,b.latLo);lb=Math.max(lb,b.latHi);lo=Math.min(lo,b.lngLo);ro=Math.max(ro,b.lngHi)}
+function viewFollowsOnMap(){closeSheet();S.myMapOnly=false;S.followMap=true;openMapOverlay();const keys=[...S.follows];if(!keys.length)return;let la=90,lb=-90,lo=180,ro=-180;for(const k of keys){const b=OLC.bounds(k);la=Math.min(la,b.latLo);lb=Math.max(lb,b.latHi);lo=Math.min(lo,b.lngLo);ro=Math.max(ro,b.lngHi)}
   requestAnimationFrame(()=>{if(map.ml){map.ml.fitBounds([[lo,la],[ro,lb]],{padding:60,duration:500,maxZoom:18})}else{const w=distM((la+lb)/2,lo,(la+lb)/2,ro);centerOn((la+lb)/2,(lo+ro)/2,Math.max(200,w*1.3),true)}})}
 // ---------- 사용자 페이지 / 뷰어
 function userStats(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)),cells=new Set(ps.map(p=>p.key)),covers=[...cells].filter(k=>{const c=S.world.get(k);return c&&ownsUid(coverOf(c),uid)}).length,likes=ps.reduce((a,p)=>a+p.likes,0);return{ps,cells:cells.size,covers,likes}}
@@ -1195,18 +1199,16 @@ function blobToDataUrl(blob){return new Promise(res=>{const r=new FileReader();r
 let EDIT_JOURNEY_ID=null;
 async function addMyJourney(blob,order,cap){const img=await blobToDataUrl(blob),list=loadMyJourneys();
   const idx=EDIT_JOURNEY_ID?list.findIndex(x=>x.id===EDIT_JOURNEY_ID):-1;
-  if(idx>=0)list[idx]={...list[idx],img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''};
-  else list.unshift({id:'j'+Date.now(),img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''});
+  const rec=idx>=0?{...list[idx],img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''}:{id:'j'+Date.now(),img,ts:Date.now(),n:order.length,ids:order.map(p=>p.id),cap:cap||''};
+  if(idx>=0)list[idx]=rec;else list.unshift(rec);
   EDIT_JOURNEY_ID=null;
   try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,20)))}catch(e){try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,5)))}catch(e2){}}
-  if(S.tab==='profile'&&mineFilter==='journeys')renderProfile()}
+  if(S.tab==='profile'&&mineFilter==='journeys')renderProfile();
+  return rec}
 function b64uEncode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64uDecode(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const bin=atob(str),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new TextDecoder().decode(bytes)}
-function myJourneysPayload(){return loadMyJourneys().filter(j=>j.ids&&j.ids.length).map(j=>({ids:j.ids,cap:j.cap||'',ts:j.ts}))}
-function journeysShareLink(){if(!S.user)return null;const payload=myJourneysPayload();if(!payload.length)return null;
-  return SITE_ORIGIN+'/j/'+S.user.id+'#d='+b64uEncode(JSON.stringify(payload))}
 function journeyShareLinkFor(j){if(!S.user||!j.ids||!j.ids.length)return null;
-  return SITE_ORIGIN+'/j/'+S.user.id+'#d='+b64uEncode(JSON.stringify([{ids:j.ids,cap:j.cap||'',ts:j.ts}]))}
+  return SITE_ORIGIN+'/j/'+S.user.id+'?d='+b64uEncode(JSON.stringify([{ids:j.ids,cap:j.cap||'',ts:j.ts}]))}
 function deleteMyJourney(id){saveMyJourneysList(loadMyJourneys().filter(j=>j.id!==id));renderProfile()}
 function saveMyJourneysList(list){localStorage.setItem('ctw-journeys',JSON.stringify(list))}
 function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
@@ -1316,8 +1318,8 @@ async function renderJourneyCanvas(order,capOverride,canvasEl){
     {v:String(firstN),l:t('journey_stat_first')}],order);
   if(!canvasEl){const msg=document.getElementById('journey-msg');if(msg)msg.textContent='';JOURNEY_BLOB=await canvasBlob(cv,0.92)}}
 async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverrrup-journey-${Date.now()}.jpg`;
-  await addMyJourney(JOURNEY_BLOB,journeyOrder(),JOURNEY_CAP);
-  const link=journeysShareLink();
+  const rec=await addMyJourney(JOURNEY_BLOB,journeyOrder(),JOURNEY_CAP);
+  const link=journeyShareLinkFor(rec);
   if(!save){try{const file=new File([JOURNEY_BLOB],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:t('journey_share_title'),url:link||undefined});return}}catch(e){if(e&&e.name==='AbortError')return}}
   const url=URL.createObjectURL(JOURNEY_BLOB);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 async function saveJourneyMineOnly(){if(!JOURNEY_BLOB)return;await addMyJourney(JOURNEY_BLOB,journeyOrder(),JOURNEY_CAP);toast(t('journey_saved_mine'));closeSheet()}
@@ -1330,8 +1332,6 @@ function openJourneysReels(payload){const items=journeysToReelItems(payload);
   $('#jreels').hidden=false;
   renderReels('jreels-list',items,true,emptyReel(t('journey_reels_empty'),''),undefined,true)}
 function closeJourneysReels(){$('#jreels').hidden=true;$('#jreels-list').innerHTML='';reelState('jreels-list').items=[]}
-async function copyJourneysLink(){const link=journeysShareLink();if(!link){toast(t('journey_link_none'));return}
-  try{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}catch(e){toast(link)}}
 
 const RATIOS=[{id:'1:1',w:1,h:1},{id:'4:5',w:4,h:5},{id:'3:4',w:3,h:4},{id:'9:16',w:9,h:16}],DEFAULT_RATIO='3:4';
 const ratioOf=id=>RATIOS.find(r=>r.id===id)||RATIOS.find(r=>r.id===DEFAULT_RATIO);
@@ -1413,8 +1413,7 @@ async function deletePhoto(id){const ph=S.photos.get(id);if(!ph)return;
 
 // ---------- 나
 function journeyGridHTML(){const list=loadMyJourneys();if(!list.length)return`<p class="hint">${t('journey_empty')}</p>`;
-  return`<div class="row2" style="margin-bottom:10px"><button class="btn small" data-jreels="1">${t('journey_view_reels')}</button><button class="btn small ghost" data-jlink="1">${t('journey_copy_link')}</button></div>
-  <div class="pgrid">${list.map(j=>`<div class="ph pg" data-jview="${j.id}" style="background-image:url('${esc(j.img)}');background-size:cover;background-position:center"><button class="like" data-del-journey="${j.id}" style="position:absolute;top:6px;right:6px;z-index:1">🗑</button></div>`).join('')}</div>`}
+  return`<div class="pgrid">${list.map(j=>`<div class="ph pg" data-jview="${j.id}" style="background-image:url('${esc(j.img)}');background-size:cover;background-position:center"><button class="like" data-del-journey="${j.id}" style="position:absolute;top:6px;right:6px;z-index:1">🗑</button></div>`).join('')}</div>`}
 function openJourneyView(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;pushSheet();S.sheet={type:'journeyView'};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('journeys_tab')}</div></div></div>
   <div class="jcard-wrap"><img src="${j.img}" style="width:100%;border-radius:14px;display:block" alt=""></div>
@@ -1654,16 +1653,17 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
   btn.disabled=false;btn.textContent=t('upload')}
 
 // ---------- 탭 / 이벤트
-function switchTab(name){if(S.mapOverlay)closeMyCoverMap();const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('#userpage').classList.remove('show');$('#viewer').classList.remove('show');$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name));
+function switchTab(name){if(S.mapOverlay)closeMapOverlay();const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('#userpage').classList.remove('show');$('#viewer').classList.remove('show');$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name));
   if(prev==='camera'&&name!=='camera'){stopCamera();resetShot()}
   if(name==='camera'){if(!S.user){needLogin();switchTab(prev==='camera'?'map':prev);return}updateCamPlace();startCamera();locate(true)}
   if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}if(name==='follow'){maybeReload();renderFollow(true)}
   if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}if(prev==='map'&&name!=='map'){S.followMap=false;S.myMapOnly=false}}
-function openMyCoverMap(){S.mapOverlay=true;S.myMapOnly=true;S.followMap=false;$('#screen-map').classList.add('active','mymap-overlay');$('#mymap-back').hidden=false;resizeMap();requestRender()}
-function closeMyCoverMap(){S.mapOverlay=false;S.myMapOnly=false;$('#screen-map').classList.remove('active','mymap-overlay');$('#mymap-back').hidden=true}
+function openMapOverlay(){S.mapOverlay=true;$('#screen-map').classList.add('active','mymap-overlay');$('#mymap-back').hidden=false;maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}
+function closeMapOverlay(){S.mapOverlay=false;S.myMapOnly=false;S.followMap=false;$('#screen-map').classList.remove('active','mymap-overlay');$('#mymap-back').hidden=true;requestRender()}
+function openMyCoverMap(){S.myMapOnly=true;S.followMap=false;openMapOverlay()}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
-  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}const jr=e.target.closest('[data-jreels]');if(jr){openJourneysReels(myJourneysPayload());return true}const jl=e.target.closest('[data-jlink]');if(jl){copyJourneysLink();return true}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}
   const jvr=e.target.closest('[data-jview-reels]');if(jvr){viewJourneyReels(jvr.dataset.jviewReels);return true}const jvl=e.target.closest('[data-jview-link]');if(jvl){copyJourneyLink(jvl.dataset.jviewLink);return true}const jve=e.target.closest('[data-jview-edit]');if(jve){editJourney(jve.dataset.jviewEdit);return true}const jvs=e.target.closest('[data-jview-share]');if(jvs){shareExistingJourney(jvs.dataset.jviewShare);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
@@ -1684,7 +1684,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
       S.profile.avatar=pubUrl(path)+'?v='+Date.now();S.avatars.set(S.user.id,S.profile.avatar);renderProfile();toast(t('avatar_saved'))}
     catch(err){console.warn(err);toast(t('avatar_fail')+': '+(err.message||''))}});
   $('#pf-save').addEventListener('click',saveName);$('#pf-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveName();e.target.blur()}});
-  $('#pf-mymap').addEventListener('click',openMyCoverMap);$('#mymap-back').addEventListener('click',closeMyCoverMap);
+  $('#pf-mymap').addEventListener('click',openMyCoverMap);$('#mymap-back').addEventListener('click',closeMapOverlay);
   $('#pf-journey-new').addEventListener('click',openJourneyPick);
   $('#loc-gps').addEventListener('click',()=>locate(false));$('#locate').addEventListener('click',()=>{if(S.me.src==='gps')centerOn(S.me.lat,S.me.lng,180,true);else locate(false)});
   $('#zin').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1.7));$('#zout').addEventListener('click',()=>zoomAt(map.W/2,map.H/2,1/1.7));
@@ -1714,7 +1714,7 @@ function fitViewport(){const h=(window.visualViewport&&window.visualViewport.hei
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
   const m=location.pathname.match(/\/c\/([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i)||location.hash.match(/c=([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i);if(m){S.deepKey=m[1].toUpperCase().replace('+','');history.replaceState(null,'',location.origin+'/')}
-  const mj=location.pathname.match(/\/j\/([0-9a-fA-F-]{8,36})/);if(mj){const hd=location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
+  const mj=location.pathname.match(/\/j\/([0-9a-fA-F-]{8,36})/);if(mj){const hd=location.search.match(/d=([A-Za-z0-9\-_]+)/)||location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
   let tries=0;const kick=()=>{resizeMap();requestRender();if(map.W<50&&tries++<30)setTimeout(kick,120)};kick();window.addEventListener('resize',()=>{resizeMap();requestRender()});
   await initAuth();if(S.deepKey){const k=S.deepKey;S.deepKey=null;const b=OLC.bounds(k);S.selected=k;centerOn(b.lat,b.lng,160);setTimeout(()=>openCellSheet(k),400);$('#login').classList.remove('show')}
   if(S.deepJData){const data=S.deepJData;S.deepJData=null;try{openJourneysReels(JSON.parse(b64uDecode(data)))}catch(e){}}
