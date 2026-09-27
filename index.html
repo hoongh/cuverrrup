@@ -179,7 +179,7 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 
 /* camera */
 .cam{background:#000;color:#fff}
-.screen.cam{overflow-y:auto}
+.screen.cam{overflow:hidden}
 .cam-top{flex:none;padding:8px 12px;display:flex;align-items:center;gap:8px}
 .cam-top .chip{flex:1;min-width:0;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;justify-content:flex-start;padding:6px 10px}
 .cam-top .chip .st{overflow:hidden;text-overflow:ellipsis}
@@ -191,8 +191,8 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .chip{background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-size:12px;color:#fff;max-width:100%;text-align:center;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
 .chip .mono{color:#B7ADA2}
 .chip .st{color:var(--mint)}
-.cam-stage{position:relative;flex:none;width:100%;aspect-ratio:1/1;overflow:hidden;background:#000}
-#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.cam-stage{position:relative;flex:1;min-height:0;overflow:hidden;background:#000}
+#video{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);object-fit:cover;display:none}
 #video.show{display:block}
 .fx-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,var(--vig,0)) 100%)}
 .fx-tint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:var(--tint,transparent)}
@@ -208,7 +208,7 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:11px;color:rgba(255,255,255,.75);padding:3px 0 0;min-height:16px}
-.cam-ui{flex:none;padding:6px 12px calc(8px + var(--safe));background:#000;max-height:60vh;overflow-y:auto}
+.cam-ui{flex:none;padding:6px 12px calc(8px + var(--safe));background:#000}
 .cam-ui .filters{padding:2px 4px 6px}
 .cam-ui .fchip .sw{width:42px;height:42px}
 .zoom-row{display:flex;justify-content:center;gap:6px;margin-bottom:6px}
@@ -1396,7 +1396,7 @@ function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.he
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id))}
 function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#phone-mode').hidden=st!=='phone';$('#cam-mode').hidden=!(st==='live'||st==='phone'||st==='fallback'||st==='starting');$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===camMode));$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
   $('#shoot-group').hidden=st!=='live';$('#zoom-row').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=st==='review'&&tool!=='filter';$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
-  if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
+  if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter();if(st==='live')sizeCamSquare()}
 let camMode=localStorage.getItem('ctw-cammode')||'phone';
 function setCamMode(m){camMode=m;localStorage.setItem('ctw-cammode',m);$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===m));if(S.tab!=='camera')return;if(m==='phone'){stopCamera();S.cam.stream=null;setCamState('phone')}else{startCamera()}}
 async function startCamera(){if(camMode==='phone'){setCamState('phone');return}if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
@@ -1404,6 +1404,8 @@ async function startCamera(){if(camMode==='phone'){setCamState('phone');return}i
     S.cam.stream=st;const v=$('#video');v.srcObject=st;await v.play().catch(()=>{});buildZoomChips();applyZoomMode();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
 function stopCamera(){if(S.cam.stream){S.cam.stream.getTracks().forEach(tr=>tr.stop());S.cam.stream=null}$('#video').srcObject=null}
+function sizeCamSquare(){const stage=$('#cam-stage');if(!stage)return;const s=Math.min(stage.clientWidth,stage.clientHeight);if(s<10)return;
+  $('#video').style.width=s+'px';$('#video').style.height=s+'px'}
 function cropToSquare(src,sw,sh,size){size=size||1080;const s=Math.min(sw,sh),cx=(sw-s)/2,cy=(sh-s)/2;
   const c=document.createElement('canvas');c.width=size;c.height=size;c.getContext('2d').drawImage(src,cx,cy,s,s,0,0,size,size);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본)
@@ -1430,9 +1432,9 @@ async function setZoomMode(mode){if(REC.on||mode===zoomMode)return;const wc=wide
   await applyZoomMode();buildZoomChips()}
 async function applyZoomMode(){const v=$('#video'),track=S.cam.stream&&S.cam.stream.getVideoTracks()[0];const n=zoomMode==='wide'?1:+zoomMode;
   let caps=null;try{caps=track&&track.getCapabilities?track.getCapabilities():null}catch(e){}
-  if(caps&&caps.zoom&&zoomMode!=='wide'){try{await track.applyConstraints({advanced:[{zoom:clamp(n,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
+  if(caps&&caps.zoom&&zoomMode!=='wide'){try{await track.applyConstraints({advanced:[{zoom:clamp(n,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='translate(-50%,-50%) scale(1)';return}catch(e){}}
   if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:caps.zoom.min}]})}catch(e){}}
-  zoomDivisor=n;v.style.transform=`scale(${n})`}
+  zoomDivisor=n;v.style.transform=`translate(-50%,-50%) scale(${n})`}
 function digitalZ(){return zoomDivisor}
 function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('[data-zmode]');if(b)setZoomMode(b.dataset.zmode)})}
 function makeThumbCanvas(src,f){const tc=document.createElement('canvas');tc.width=360;tc.height=360;const s=Math.min(src.width,src.height),sx=(src.width-s)/2,sy=(src.height-s)/2;tc.getContext('2d').drawImage(src,sx,sy,s,s,0,0,360,360);return bake(tc,f)}
@@ -1606,6 +1608,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
     const q=Math.round(Math.min(sw,sh2)/digitalZ());{const zc=document.createElement('canvas');zc.width=q;zc.height=q;zc.getContext('2d').drawImage(src,(sw-q)/2,(sh2-q)/2,q,q,0,0,q,q);src=zc;sw=q;sh2=q}
     S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropToSquare(src,sw,sh2);S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
   $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});bindZoom();
+  new ResizeObserver(()=>{if(S.cam.state==='live')sizeCamSquare()}).observe($('#cam-stage'));
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(camMode==='phone'?'phone':(S.cam.stream?'live':'fallback'))});
   $('#upload').addEventListener('click',uploadShot);
   $$('.tool').forEach(b=>b.addEventListener('click',()=>{S.cam.sel=null;renderStickers();setTool(b.dataset.tool)}));bindStickers();
