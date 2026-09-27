@@ -209,13 +209,16 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:10px;color:rgba(255,255,255,.75);padding:1px 0 0;min-height:12px}
 .cam-ui{flex:none;padding:2px 10px calc(4px + var(--safe));background:#000}
-.cam-ui .filters{padding:1px 4px 3px;gap:5px}
-.zoom-wrap,.filter-wrap{position:relative;margin-left:4px}
+.zoom-wrap,.filter-wrap{position:relative}
+#filter-wrap{justify-self:start}
+#zoom-wrap{justify-self:end}
 .zoom-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-variant-numeric:tabular-nums;padding:0}
 .filter-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);padding:0;overflow:hidden}
 .filter-btn .sw{width:100%;height:100%;display:block}
 .filter-btn .sw img{width:100%;height:100%;object-fit:cover;display:block}
 .zoom-pop,.filter-pop{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:2px;background:rgba(20,18,16,.94);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:6px;backdrop-filter:blur(8px);z-index:6}
+.filter-pop{left:0;transform:none}
+.zoom-pop{left:auto;right:0;transform:none}
 .zoom-pop button{border:0;background:none;color:#fff;font-size:13px;padding:6px 16px;white-space:nowrap;border-radius:8px;text-align:center}
 .zoom-pop button.on{color:#8FB6E8;font-weight:600}
 .filter-pop button{display:flex;align-items:center;gap:8px;border:0;background:none;color:#fff;font-size:13px;padding:5px 12px 5px 5px;white-space:nowrap;border-radius:8px}
@@ -265,12 +268,17 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .fchip.on{color:#fff}
 .fchip.on .sw{border-color:var(--flag);box-shadow:0 0 0 2px #000,0 0 0 3px var(--flag)}
 .cam-actions{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;min-height:64px}
-#retake{grid-column:1;justify-self:end;margin:0;width:auto;padding:8px 14px}
-#upload{grid-column:3;justify-self:start;margin:0;width:auto;padding:8px 16px}
 .shutter{grid-column:2;width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:radial-gradient(circle,#fff 0 58%,transparent 60%);position:relative}
 .shutter:active{transform:scale(.94)}
 .shutter[disabled]{opacity:.35;cursor:default}
 .cam-note{text-align:center;font-size:9px;color:#7E756D;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-top{position:absolute;top:10px;left:10px;right:10px;z-index:5;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ov-retake{margin:0;width:auto;padding:8px 14px;font-size:13px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);flex:none}
+.ov-tools{margin-bottom:0;flex:1 1 auto;min-width:0;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.ov-tools .tool{padding:6px 10px;font-size:12px}
+.ov-bottom{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:10px 12px calc(10px + var(--safe));display:flex;flex-direction:column;gap:6px;background:linear-gradient(to top,rgba(0,0,0,.78),rgba(0,0,0,.4) 65%,transparent)}
+.ov-bottom .edit-panel,.ov-bottom .filters,.ov-bottom .caption-row,.ov-bottom .orig-row{margin-bottom:0;margin-top:0}
+.ov-upload{width:100%;padding:12px;font-size:15px;font-weight:600}
 
 /* profile */
 .pf-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:14px}
@@ -519,20 +527,26 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <video id="video" playsinline muted autoplay></video>
       <div class="shot-box" id="shot-box"><img id="shot" alt=""><video id="shot-video" playsinline muted loop autoplay hidden></video><div class="stickers" id="stickers"></div><div class="fx-vig" id="fx-vig"></div><div class="fx-tint" id="fx-tint"></div><div class="trim-frame" hidden></div></div>
       <div class="flash" id="flash"></div>
+      <div class="ov-top" id="ov-top">
+        <button class="btn ghost ov-retake" id="retake" hidden data-i18n="retake"></button>
+        <div class="tools ov-tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
+      </div>
+      <div class="ov-bottom" id="ov-bottom">
+        <div class="edit-panel" id="edit-panel" hidden></div>
+        <div class="filters" id="filters" hidden></div>
+        <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
+        <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
+        <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
+        <button class="btn primary ov-upload" id="upload" hidden data-i18n="upload"></button>
+      </div>
     </div>
     <div class="cam-status" id="cam-status"></div>
     <div class="cam-ui">
-      <div class="tools" id="tools" hidden><button class="tool" data-tool="trim">⛶ <span data-i18n="tool_trim"></span></button><button class="tool" data-tool="text">Aa <span data-i18n="tool_text"></span></button><button class="tool" data-tool="emoji">😊 <span data-i18n="tool_emoji"></span></button><button class="tool" data-tool="filter">◐ <span data-i18n="tool_filter"></span></button></div>
-      <div class="edit-panel" id="edit-panel" hidden></div>
-      <div class="filters" id="filters" hidden></div>
-      <div class="caption-row" id="caption-row" hidden><input id="caption" class="email-in" maxlength="200" data-i18n-ph="caption_ph"></div>
-      <div class="cam-actions">
-        <button class="btn ghost" id="retake" hidden data-i18n="retake"></button>
-        <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button><div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div><div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div></div>
-        <button class="btn primary" id="upload" hidden data-i18n="upload"></button>
+      <div class="cam-actions" id="cam-actions">
+        <div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div>
+        <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
+        <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden></div></div>
       </div>
-      <div class="orig-row" id="orig-row" hidden><button class="chip-btn tog" id="orig-toggle"><i></i><span data-i18n="save_orig"></span></button></div>
-      <div class="orig-row" id="privacy-row" hidden><button class="chip-btn tog" id="hide-toggle"><i></i><span data-i18n="hide_toggle"></span></button><button class="chip-btn tog" id="anon-toggle"><i></i><span data-i18n="anon_toggle"></span></button></div>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
     </div>
     <div class="cam-fallback" id="cam-fallback">
@@ -1401,7 +1415,7 @@ function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.he
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));
   $$('#filter-pop button').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));const btnSw=$('#filter-btn-sw');if(btnSw)btnSw.innerHTML=`<img src="${sampleSwatch()}" alt="" style="filter:${css}">`}
 function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#phone-mode').hidden=st!=='phone';$('#cam-mode').hidden=!(st==='live'||st==='phone'||st==='fallback'||st==='starting');$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===camMode));$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
-  $('#shoot-group').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=!(st==='review'&&tool==='filter');$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
+  $('#cam-actions').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=$('#ov-bottom').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=!(st==='review'&&tool==='filter');$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
   if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
 let camMode=localStorage.getItem('ctw-cammode')||'phone';
 function setCamMode(m){camMode=m;localStorage.setItem('ctw-cammode',m);$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===m));if(S.tab!=='camera')return;if(m==='phone'){stopCamera();S.cam.stream=null;setCamState('phone')}else{startCamera()}}
@@ -1534,8 +1548,8 @@ function bindStickers(){const layer=$('#shot-box'),box=$('#shot-box'),pts=new Ma
 function maxFrameSize(rt,w,h){const r=rt.w/rt.h;let mw,mh;if(r>w/h){mw=w;mh=w/r}else{mh=h;mw=h*r}return{mw,mh}}
 function stageFit(img){const natW=img.naturalWidth,natH=img.naturalHeight;if(!natW||!natH)return null;const stage=img.parentElement;
   const sw=stage.clientWidth;let sh=stage.clientHeight;
-  const camUi=stage.parentElement&&stage.parentElement.querySelector('.cam-ui');
-  if(camUi){const cr=camUi.getBoundingClientRect(),sr=stage.getBoundingClientRect(),overlap=sr.bottom-cr.top;if(overlap>0)sh=Math.max(40,sh-overlap)}
+  const ovBottom=stage.parentElement&&stage.parentElement.querySelector('#ov-bottom');
+  if(ovBottom&&!ovBottom.hidden){const cr=ovBottom.getBoundingClientRect(),sr=stage.getBoundingClientRect(),overlap=sr.bottom-cr.top;if(overlap>0)sh=Math.max(40,sh-overlap)}
   const scale=Math.min(sw/natW,sh/natH)||1,w=natW*scale,h=natH*scale;
   return{stage,x:(sw-w)/2,y:(sh-h)/2,w,h}}
 function clampTrimFrame(tr,img){const fit=stageFit(img);if(!fit)return;const{mw,mh}=maxFrameSize(ratioOf(tr.ratio),fit.w,fit.h),bw=mw*tr.fw,bh=mh*tr.fw;
