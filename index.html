@@ -1407,7 +1407,7 @@ function sizeCamSquare(){const stage=$('#cam-stage');if(!stage)return;const s=Ma
 function renderCamRatioMask(){const mask=$('#cam-ratio-mask');const stage=$('#cam-stage');if(!mask||!stage)return;const s=Math.min(stage.clientWidth,stage.clientHeight);if(s<10)return;
   const vx=(stage.clientWidth-s)/2,vy=(stage.clientHeight-s)/2;
   const rt=camRatioOf(camRatio),{mw,mh}=maxFrameSize(rt,s,s);
-  mask.hidden=false;mask.style.left=(vx+(s-mw)/2)+'px';mask.style.top=(vy+(s-mh)/2)+'px';mask.style.width=mw+'px';mask.style.height=mh+'px'}
+  mask.hidden=S.cam.state!=='live';mask.style.left=(vx+(s-mw)/2)+'px';mask.style.top=(vy+(s-mh)/2)+'px';mask.style.width=mw+'px';mask.style.height=mh+'px'}
 function cropToRatio(src,sw,sh,rt,z){z=z||1;const r=rt.w/rt.h;const TW=1080,TH=Math.round(1080*rt.h/rt.w);let cw=sw,ch=sh;if(sw/sh>r)cw=sh*r;else ch=sw/r;cw/=z;ch/=z;const c=document.createElement('canvas');c.width=TW;c.height=TH;c.getContext('2d').drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,TW,TH);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본/망원)
 const CAM={dev:localStorage.getItem('ctw-cam')||null,list:[]};
@@ -1423,7 +1423,7 @@ const RAW_LENS_ZOOM=1/0.6;
 function initZoom(){ZOOM.z=ZOOM.pending||1;ZOOM.pending=0;ZOOM.hw=null;ZOOM.max=5;buildZoomChips();applyZoom()}
 function buildZoomChips(){$('#zoom-chips').innerHTML=[1,2,3].map(z=>`<button class="zchip" data-z="${z}">${z}x</button>`).join('')}
 function digitalZ(){return ZOOM.z*RAW_LENS_ZOOM}
-function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`scale(${digitalZ()})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
+function applyZoom(){const v=$('#video');ZOOM.z=clamp(ZOOM.z,1,ZOOM.max);v.style.transform=`translate(-50%,-50%) scale(${digitalZ()})`;$('#zoom-val').textContent=(Math.round(ZOOM.z*10)/10).toFixed(1).replace(/\.0$/,'')+'x';$$('.zchip').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-ZOOM.z)<0.05))}
 function setZoom(eff){ZOOM.z=eff;applyZoom()}
 function bindZoom(){$('#zoom-row').addEventListener('click',e=>{const b=e.target.closest('.zchip');if(b)setZoom(+b.dataset.z)});
   const st=$('#cam-stage');let d0=0,z0=1;const dist=ts=>Math.hypot(ts[0].clientX-ts[1].clientX,ts[0].clientY-ts[1].clientY);
@@ -1600,7 +1600,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#filters').addEventListener('click',e=>{const b=e.target.closest('.fchip');if(!b)return;S.filter=FILTERS.find(x=>x.id===b.dataset.f)||FILTERS[0];applyPreviewFilter()});
   $('#shutter').addEventListener('click',async()=>{if(REC.on)return;const v=$('#video');if(!v.videoWidth){toast(t('cam_noframe'));return}const fl=$('#flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
     let src=v,sw=v.videoWidth,sh2=v.videoHeight;
-    const dz=digitalZ();if(dz>1){const zc=document.createElement('canvas');zc.width=Math.round(sw/dz);zc.height=Math.round(sh2/dz);zc.getContext('2d').drawImage(src,(sw-sw/dz)/2,(sh2-sh2/dz)/2,sw/dz,sh2/dz,0,0,zc.width,zc.height);src=zc;sw=zc.width;sh2=zc.height}S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropToRatio(src,sw,sh2,camRatioOf(camRatio));S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
+    const q=Math.round(Math.min(sw,sh2)/digitalZ());{const zc=document.createElement('canvas');zc.width=q;zc.height=q;zc.getContext('2d').drawImage(src,(sw-q)/2,(sh2-q)/2,q,q,0,0,q,q);src=zc;sw=q;sh2=q}S.cam.video=null;setOriginal(src,sw,sh2);S.cam.shot=cropToRatio(src,sw,sh2,camRatioOf(camRatio));S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
   $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});bindZoom();
   buildCamRatioChips();$('#cam-ratio-row').addEventListener('click',e=>{const b=e.target.closest('[data-camratio]');if(b)setCamRatio(b.dataset.camratio)});
   new ResizeObserver(sizeCamSquare).observe($('#cam-stage'));
