@@ -830,15 +830,23 @@ function applyLang(){document.documentElement.lang=LANG==='zh'?'zh-CN':LANG;$$('
 function setLang(l){LANG=l;localStorage.setItem('ctw-lang',l);applyLang()}
 
 const S={user:null,profile:{name:'여행자',avatar:null},avatars:new Map(),me:{lat:37.4979,lng:127.0276,src:'default',acc:null},view:{lat:37.4979,lng:127.0276,scale:2.2},
-  myLikes:new Set(),follows:new Set(),followSel:new Set(),followMap:false,myMapOnly:false,mapOverlay:false,tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},cam:{state:'idle',stream:null,shot:null,trim:{x:0,y:0,scale:1,rot:0}},lastLoad:0,ccount:new Map()};
+  myLikes:new Set(),follows:new Set(),followSel:new Set(),followMap:false,myMapOnly:false,mapOverlay:false,tab:'map',selected:null,sheet:null,filter:FILTERS[0],world:new Map(),photos:new Map(),agg:{},aggMine:{},cam:{state:'idle',stream:null,shot:null,trim:{x:0,y:0,scale:1,rot:0}},lastLoad:0,ccount:new Map()};
 
 const nameOf=ph=>ph.anonymous?t('anon'):(ph.user.me?S.profile.name:(ph.user.name||t('anon')));
 function better(a,b){return a.likes!==b.likes?a.likes>b.likes:a.ts<b.ts}
 function coverOf(cell){let c=null;for(const p of cell.photos)if(!c||better(p,c))c=p;return c}
-function rebuildAgg(){const agg={5:new Map(),4:new Map(),3:new Map(),2:new Map(),1:new Map()};
-  for(const cell of S.world.values()){if(!cell.photos.length)continue;const cov=coverOf(cell),mine=cell.photos.some(p=>p.user.me);
-    for(const p of [5,4,3,2,1]){const k=cell.key.slice(0,2*p);let e=agg[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false,mineCover:false};agg[p].set(k,e)}e.cells++;e.photos+=cell.photos.length;e.mine=e.mine||mine;e.mineCover=e.mineCover||!!cov.user.me;if(better(cov,e.cover))e.cover=cov}}
-  S.agg=agg}
+// S.agg: public map (hidden photos excluded, they never enter cell.photos).
+// S.aggMine: "my cover map" — every cell where I have a photo, including hidden ones,
+// so a hidden-only cell still gets a tile. The tile keeps the public cover when the
+// cell has one (dashed border = not mine); otherwise my best photo is the cover.
+function rebuildAgg(){const mk=()=>({5:new Map(),4:new Map(),3:new Map(),2:new Map(),1:new Map()}),agg=mk(),mine=mk();
+  const add=(A,key,cov,n,isMine,mineCov)=>{for(const p of [5,4,3,2,1]){const k=key.slice(0,2*p);let e=A[p].get(k);if(!e){e={key:k,cover:cov,cells:0,photos:0,mine:false,mineCover:false};A[p].set(k,e)}e.cells++;e.photos+=n;e.mine=e.mine||isMine;e.mineCover=e.mineCover||mineCov;if(better(cov,e.cover))e.cover=cov}};
+  for(const cell of S.world.values()){if(!cell.photos.length)continue;const cov=coverOf(cell);add(agg,cell.key,cov,cell.photos.length,cell.photos.some(p=>p.user.me),!!cov.user.me)}
+  const byCell=new Map();for(const p of S.photos.values())if(p.user.me){let a=byCell.get(p.key);if(!a)byCell.set(p.key,a=[]);a.push(p)}
+  for(const [key,ps] of byCell){const cell=S.world.get(key),cov=cell&&cell.photos.length?coverOf(cell):coverOf({photos:ps});add(mine,key,cov,ps.length,true,!!cov.user.me)}
+  S.agg=agg;S.aggMine=mine}
+const myHiddenIn=prefix=>[...S.photos.values()].filter(p=>p.user.me&&p.hidden&&p.key.startsWith(prefix));
+const privBadges=p=>(p.hidden||p.anonymous)?`<div class="pg-badges">${p.hidden?`<span class="pg-badge hidden">${t('hidden_badge')}</span>`:''}${p.anonymous?`<span class="pg-badge anon">${t('anon')}</span>`:''}</div>`:'';
 function ensureCell(key){let c=S.world.get(key);if(!c){const b=OLC.bounds(key);c={key,lat:b.lat,lng:b.lng,photos:[]};S.world.set(key,c)}return c}
 const pubUrl=path=>sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
 const thumbPath=path=>path.replace(/\.(jpg|mp4|webm)$/,'_t.jpg');
@@ -935,7 +943,7 @@ function render(){if((S.tab!=='map'&&!S.mapOverlay)||map.W<50)return;const c=map
     c.stroke();
     if(Math.abs(PX(pj0+1)-PX(pj0))>=120){c.fillStyle=C.label;c.font='500 11px '+MONO;c.textBaseline='top';c.textAlign='left';
       for(let i=pi0;i<=pi1;i++)for(let j=pj0;j<=pj1;j++)c.fillText(labelFor(OLC.keyFromIdx(i,((j%(360/pres))+(360/pres))%(360/pres),p-1)),PX(j)+6,PY(i)+5)}}
-  const A=S.agg[p]||new Map(),nj=Math.round(360/res);
+  const A=(S.myMapOnly?S.aggMine[p]:S.agg[p])||new Map(),nj=Math.round(360/res);
   if(S.followMap){for(const fk of S.follows){const fb=OLC.bounds(fk);const a1=toScreen(fb.latHi,fb.lngLo),a2=toScreen(fb.latLo,fb.lngHi);let fw=a2.x-a1.x,fh=a2.y-a1.y;let fx=a1.x,fy=a1.y;if(fw<8){fx+=fw/2-4;fy+=fh/2-4;fw=fh=8}if(a2.x<0||a1.x>W||a2.y<0||a1.y>H)continue;const on=!S.followSel.size||S.followSel.has(fk);c.fillStyle=on?'rgba(143,182,232,.62)':'rgba(143,182,232,.22)';c.fillRect(fx,fy,fw,fh);if(on){c.strokeStyle='#8FB6E8';c.lineWidth=2;c.strokeRect(fx+1,fy+1,fw-2,fh-2)}}}
   else for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const jj=((j%nj)+nj)%nj,k=OLC.keyFromIdx(i,jj,p),e=A.get(k);const ch=Math.abs(ys[i-1]-ys[i]);
     if(!e||(S.myMapOnly&&!e.mine)){if(p===5&&cw>=96&&!S.myMapOnly){c.fillStyle='rgba(241,234,226,.14)';c.font='400 9px '+MONO;c.textAlign='center';c.textBaseline='middle';c.fillText(k.slice(8),xs[j]+cw/2,ys[i]+ch/2)}continue}
@@ -990,21 +998,25 @@ const cmtBtn=p=>`<button class="like cmt" data-comments="${p.id}">💬 ${S.ccoun
 const stats3=(a,b,c)=>`<div class="stats2"><div><b>${a[0]}</b><span>${a[1]}</span></div><div><b>${b[0]}</b><span>${b[1]}</span></div><div><b>${c[0]}</b><span>${c[1]}</span></div></div>`;
 const pgItem=(p,extra)=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-open-photo="${p.id}"><span class="pg-l">♥ ${p.likes}</span>${extra||''}</div>`;
 function cellSheetHTML(key){const cell=S.world.get(key),b=OLC.bounds(key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),isHere=OLC.key(S.me.lat,S.me.lng)===key;
-  const photos=cell?sortedPhotos(cell):[],cover=photos[0]||null,likes=photos.reduce((a,p)=>a+p.likes,0),people=new Set(photos.map(p=>p.user.id)).size;
+  let photos=cell?sortedPhotos(cell):[];const cover=photos[0]||null;
+  // In "my cover map" mode my hidden photos in this cell are listed too (they never hold the cover).
+  if(S.myMapOnly){const hid=myHiddenIn(key);if(hid.length)photos=photos.concat(hid.sort((a,b)=>better(a,b)?-1:1))}
+  const likes=photos.reduce((a,p)=>a+p.likes,0),people=new Set(photos.map(p=>p.user.me?'me':p.user.id)).size;
   let h=`<div class="sh-head"><div><div class="sh-title">${placeTitle(key)}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${isHere?t('here'):t('from_me',{d:fmtDist(dist)})}</span></div></div>${followBtn(key)}</div>`;
-  if(cover){h+=stats3([photos.length,t('photos')],[likes,t('likes_sum')],[people,t('people')]);
-    h+=`<div class="pgrid">${photos.map(p=>pgItem(p,p===cover?coverMark('pg'):'')).join('')}</div>`}
+  if(photos.length){h+=stats3([photos.length,t('photos')],[likes,t('likes_sum')],[people,t('people')]);
+    h+=`<div class="pgrid">${photos.map(p=>pgItem(p,(p===cover?coverMark('pg'):'')+(S.myMapOnly&&p.user.me?privBadges(p):''))).join('')}</div>`}
   else h+=`<div class="empty-cell"><div class="big">${t('empty_cell')}</div><p>${t('empty_cell_p')}</p></div>`;
   if(isHere)h+=`<button class="btn primary" data-act="shoot">${photos.length?t('shoot_more'):t('shoot_first')}</button>`;else h+=`<div class="note">${t('must_be_here',{d:fmtDist(dist)})}</div>`;
   h+=`<div class="rule"><span>${t('rule')}</span></div>`;return h}
-function blockSheetHTML(key){const b=OLC.bounds(key),e=(S.agg[b.p]||new Map()).get(key),name=LEVEL_NAME(b.p);
+function blockSheetHTML(key){const b=OLC.bounds(key),e=((S.myMapOnly?S.aggMine:S.agg)[b.p]||new Map()).get(key),name=LEVEL_NAME(b.p);
   let h=`<div class="sh-head"><div><div class="sh-title">${b.p>=4?placeTitle(key):esc(labelFor(key))+' '+name}</div><div class="sh-sub"><span class="mono">${OLC.format(key)}</span><span>${name}</span></div></div>${b.p>=2?followBtn(key):''}</div>`;
   if(e){const total=Math.pow(400,5-b.p),pct=e.cells/total*100;h+=`<div class="cover"><div class="ph" data-photo="${e.cover.id}" data-size="large"></div><div class="cover-badges"><span class="badge gold">${t('best')}</span><span class="badge dark">${e.cover.user.me?t('me'):esc(nameOf(e.cover))} ♥ ${e.cover.likes}</span></div></div>`;
     h+=stats3([fmtInt(e.cells),t('covered_cells')],[fmtInt(e.photos),t('photos')],[(pct<0.01?pct.toExponential(1):pct.toFixed(2))+'%',t('coverage')]);
     const cellsIn=[...S.world.values()].filter(c=>c.key.startsWith(key)&&c.photos.length);const covers=cellsIn.map(c=>coverOf(c)).sort((x,y)=>better(x,y)?-1:1);const coverIds=new Set(covers.map(p=>p.id));
-    const rest=[];for(const c of cellsIn)for(const p of c.photos)if(!coverIds.has(p.id))rest.push(p);rest.sort((x,y)=>better(x,y)?-1:1);
-    h+=`<h3 class="sh-h3">${t('sub_covers')} · ${covers.length}</h3><div class="pgrid">${covers.slice(0,300).map(p=>pgItem(p,`<span class="pg-k mono">${OLC.short(p.key)}</span>`)).join('')}</div>`;
-    if(rest.length)h+=`<h3 class="sh-h3">${t('all_in_area')} · ${rest.length}</h3><div class="pgrid">${rest.slice(0,300).map(p=>pgItem(p,`<span class="pg-k mono">${OLC.short(p.key)}</span>`)).join('')}</div>`}
+    const rest=[];for(const c of cellsIn)for(const p of c.photos)if(!coverIds.has(p.id))rest.push(p);if(S.myMapOnly)rest.push(...myHiddenIn(key));rest.sort((x,y)=>better(x,y)?-1:1);
+    const ex=p=>`<span class="pg-k mono">${OLC.short(p.key)}</span>`+(S.myMapOnly&&p.user.me?privBadges(p):'');
+    h+=`<h3 class="sh-h3">${t('sub_covers')} · ${covers.length}</h3><div class="pgrid">${covers.slice(0,300).map(p=>pgItem(p,ex(p))).join('')}</div>`;
+    if(rest.length)h+=`<h3 class="sh-h3">${t('all_in_area')} · ${rest.length}</h3><div class="pgrid">${rest.slice(0,300).map(p=>pgItem(p,ex(p))).join('')}</div>`}
   else h+=`<div class="empty-cell"><div class="big">${t('empty_zone',{name})}</div><p>${t('empty_zone_p',{n:fmtInt(Math.pow(400,5-b.p))})}</p></div>`;
   return h}
 function photoSheetHTML(ph){const b=OLC.bounds(ph.key),dist=distM(S.me.lat,S.me.lng,b.lat,b.lng),cell=S.world.get(ph.key),isCover=cell&&coverOf(cell)===ph;
