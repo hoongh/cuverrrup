@@ -231,6 +231,10 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .zoom-lens-toggle{margin-top:4px;border-top:1px solid rgba(255,255,255,.15);padding-top:8px!important;font-size:11px!important;color:#B7ADA2!important}
 .zoom-info{font-size:10px;color:#7E756D;text-align:center;padding:6px 8px 2px;white-space:nowrap;border-top:1px solid rgba(255,255,255,.1);margin-top:4px}
 .zoom-info:empty{display:none}
+.zoom-nowide{font-size:11px;color:#E0876F;text-align:center;padding:6px 10px 2px;white-space:normal;max-width:220px;line-height:1.4;border-top:1px solid rgba(255,255,255,.1);margin-top:4px}
+.zoom-cal{display:flex;align-items:center;justify-content:center;gap:6px;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:6px;font-size:11px;color:#B7ADA2}
+.zoom-cal button{width:26px;height:26px;padding:0!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.3)!important;font-size:14px!important;line-height:1}
+.zoom-cal b{color:#fff;font-weight:600;min-width:34px;text-align:center}
 .filter-pop button{display:flex;align-items:center;gap:8px;border:0;background:none;color:#fff;font-size:13px;padding:5px 12px 5px 5px;white-space:nowrap;border-radius:8px}
 .filter-pop button .sw{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none}
 .filter-pop button .sw img{width:100%;height:100%;object-fit:cover;display:block}
@@ -548,7 +552,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
       <div class="cam-actions" id="cam-actions">
         <div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div>
         <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button></div>
-        <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden><div id="zoom-steps"></div><button class="zoom-lens-toggle" id="zoom-lens-toggle" hidden data-i18n="zoom_wrong_lens"></button><div class="zoom-info mono" id="zoom-info"></div></div></div>
+        <div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden><div id="zoom-steps"></div><button class="zoom-lens-toggle" id="zoom-lens-toggle" hidden data-i18n="zoom_wrong_lens"></button><div class="zoom-nowide" id="zoom-nowide" hidden data-i18n="zoom_no_wide"></div><div class="zoom-cal" id="zoom-cal"><span data-i18n="lens_cal"></span><button type="button" data-cal="-0.05">−</button><b class="mono" id="zoom-cal-v">1.00</b><button type="button" data-cal="0.05">+</button></div><div class="zoom-info mono" id="zoom-info"></div></div></div>
       </div>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
     </div>
@@ -760,7 +764,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  h_lang:'언어',h_account:'계정',signout:'로그아웃',acct_hint:'사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.',
  login_h:"Let's coverrrup<br>the world!!",login_p:'지금 있는 곳을 사진 한 장으로 덮어요. 14m 칸마다 좋아요가 가장 많은 사진이 그 칸의 커버가 됩니다.',login_google:'구글로 시작하기',login_or:'또는 이메일로',login_email_ph:'이메일 주소',login_link:'링크 받기',login_browse:'둘러보기만 할게요',
  login_going:'구글로 이동하고 있어요',login_gerr:'구글 로그인 오류: {e}',login_sending:'메일을 보내고 있어요',login_sent:'{e}로 로그인 링크를 보냈어요. 메일을 열어 링크를 누르면 들어와요.',login_merr:'메일 오류: {e}',login_err:'로그인 오류: {e}',check_email:'이메일을 확인해 주세요',signed_out:'로그아웃했어요',
- cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',zoom_wrong_lens:'광각이 이상하게 나오나요? 다른 렌즈로 시도',lens_n_of:'렌즈 {i}/{n} 시도 중',lens_switch_fail:'이 렌즈를 열 수 없어요. 다른 렌즈로 시도해 보세요',
+ cam_place_noloc:'위치를 먼저 받아야 해요',cam_place_empty:'빈 칸이에요. 첫 사진이 돼요',cam_place_n:'{n}장 있어요. 커버에 도전해요',cam_prep:'카메라를 준비하고 있어요',cam_review:'방금 찍은 사진, 위치 확인됨',cam_fb:'이 환경에서는 카메라를 바로 열 수 없어요. 기기 카메라 앱으로 찍어 보세요.',cam_fb_btn:'기기 카메라로 찍기',retake:'다시 찍기',upload:'올리기',uploading:'올리는 중',cam_note:'지금 찍은 사진만 올릴 수 있어요. 갤러리 업로드는 없어요.',cam_noframe:'카메라 화면을 아직 받지 못했어요',img_fail:'이미지를 읽을 수 없어요',zoom_wrong_lens:'광각이 이상하게 나오나요? 다른 렌즈로 시도',lens_n_of:'렌즈 {i}/{n} 시도 중',lens_switch_fail:'이 렌즈를 열 수 없어요. 다른 렌즈로 시도해 보세요',zoom_no_wide:'이 브라우저에선 광각 렌즈를 쓸 수 없어요. 광각은 폰 카메라 모드로 찍어 주세요',
  need_loc:'위치를 먼저 받아야 올릴 수 있어요',up_first:'첫 사진이에요. 이 칸은 이제 내가 덮었어요',up_ok:'올렸어요 ({n}장째)',up_hidden:'올렸어요. 나에게만 보여요',up_fail:'올리지 못했어요: {e}',
  loading_fail:'데이터를 불러오지 못했어요: {e}',like_fail:'좋아요를 저장하지 못했어요',name_saved:'이름을 저장했어요',name_fail:'이름을 저장하지 못했어요',no_geo:'이 브라우저는 위치 기능이 없어요',locating:'위치를 확인하고 있어요',geo_denied:'위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요',server_fail:'서버 설정을 불러오지 못했어요',
  orig_saved_dl:'원본을 다운로드 폴더에 저장했어요. 갤러리의 다운로드 앨범에서 보여요',avatar_change:'프로필 사진 바꾸기',avatar_saved:'프로필 사진을 바꿨어요',avatar_fail:'프로필 사진을 저장하지 못했어요',likes_sum:'좋아요',people:'참여',all_photos:'모든 사진',covers_only:'커버만',sub_covers:'이 안의 커버들',edit:'수정',tab_follow:'팔로우',follow:'팔로우',following:'팔로우 중',follow_empty:'팔로우한 지역이 없어요',follow_empty_p:'커버맵에서 구역을 열고 팔로우를 누르면<br>그 지역의 새 사진이 여기에 모여요.',followed_regions:'팔로우한 지역',follow_fail:'팔로우를 저장하지 못했어요',follow_has_detail:'이미 더 상세한 지역을 팔로우하고 있어서 전체는 팔로우할 수 없어요',user_photos:'사진',user_cells:'칸',back:'뒤로',geo_loading:'지역명 찾는 중',viewer_of:'{name}의 사진',tool_text:'글씨',tool_emoji:'이모지',tool_filter:'필터',tool_trim:'트리밍',trim_hint:'끌어서 이동. 크기·기울기는 슬라이더로',reset_trim:'원래대로',caption_ph:'문구를 남겨요. #해시태그도 함께 (선택)',my_covermap:'내 커버맵',journeys_tab:'여정카드',journey_save_mine:'나에게만 저장',journey_saved_mine:'내 여정카드에 저장했어요',journey_empty:'아직 만든 여정카드가 없어요',journey_new:'여정카드 만들기',journey_view_reels:'릴스로 보기',journey_copy_link:'링크 복사',journey_link_copied:'링크를 복사했어요',journey_link_none:'저장한 여정카드가 있어야 링크를 만들 수 있어요',journey_reels_empty:'볼 수 있는 여정이 없어요',journey_reels_close:'닫기',add_text_ph:'글씨를 입력',done:'완료',size:'크기',color:'색',remove:'삭제',tap_to_edit:'스티커를 끌어 옮기고, 두 손가락으로 돌리거나 키울 수 있어요',tilt:'기울기',caption_edit:'문구',save_changes:'저장',saved:'저장했어요',fixing:'현재 위치를 다시 잡고 있어요',fix_ok:'방금 찍은 사진, 위치 확인됨 (±{m}m)',fix_old:'위치를 새로 받지 못해 마지막 위치를 써요',shoot_more:'추가로 커버럽',shoot_first:'첫 커버럽',rec_hint:'빨간 버튼은 동영상 (최대 15초)',recording:'녹화 중',video:'동영상',all_regions:'전체',novideo:'이 브라우저는 동영상 녹화를 지원하지 않아요',mute:'소리',lens:'렌즈',lens_wide:'광각',lens_main:'기본',lens_next:'다음 렌즈',lens_cal:'1x 보정',cam_place_mine:'{n}장 있고, 지금 커버는 내 사진이에요',ring_label:'Coverrrup에서 내 몫',ring_sub:'덮인 {all}칸 중 {n}칸',prog_earth_line:'지구 전체 약 4조 1,472억 칸 중 {n}칸, {p}%',earth_all:'커버럽이 다같이 덮은 지구',earth_me:'내가 덮은 지구',cells_n:'{n}칸',all_in_area:'이 지역의 모든 사진',nearby_in_area:'같은 구역의 사진 (가까운 순)',share:'공유',share_title:'커버 카드 공유',fmt_story:'스토리 9:16',fmt_feed:'피드 4:5',share_btn:'공유하기',save_card:'이미지 저장',first_cover:'이 칸의 첫 커버럽',is_cover:'커버 1위',nth_photo:'이 칸 {n}번째 사진',try_it:'아직 {n}장. 당신 사진으로 덮어보세요',my_earth:'내가 덮은 지구 {p}',share_fail:'공유를 열 수 없어요',making:'카드를 만들고 있어요',mode_app:'앱 카메라',mode_phone:'폰 카메라',take_photo:'사진 찍기',take_video:'동영상 찍기',phone_hint:'폰의 카메라 앱이 열려요. 렌즈·줌·화질은 카메라 앱 그대로. 찍고 돌아오면 여기서 꾸미고 올려요.',back_to_app_cam:'앱카메라로 돌아가기',video_too_long:'동영상은 앞 15초만 올라가요',video_convert:'동영상을 줄이고 있어요 ({p}%)',video_fail:'동영상을 처리하지 못했어요',follow_none_sel:'선택한 지역엔 아직 사진이 없어요',manage:'관리',view_map:'지도로 보기',unfollow:'팔로우 취소',followed_title:'팔로우한 지역',fmap_exit:'팔로우 지역 표시 끄기',report:'신고',report_title:'이 사진을 신고할까요?',r_inappropriate:'부적절한 내용',r_spam:'스팸·광고',r_notplace:'이 장소의 사진이 아님',r_privacy:'타인 초상권·개인정보',r_other:'기타',reported:'신고했어요. 검토 후 조치돼요',report_fail:'신고를 보내지 못했어요',admin:'관리자',adm_users:'사용자',adm_photos:'사진',adm_cells:'덮인 칸',adm_reports:'미처리 신고',adm_reported:'신고된 사진',adm_none:'미처리 신고가 없어요',adm_delete:'사진 삭제',adm_dismiss:'신고 무시',adm_deleted:'삭제했어요',adm_load:'불러오는 중',tab_myfollow:'내 팔로우 지역',tab_global:'글로벌 순위',global_title:'가장 많이 팔로우한 지역 TOP 50',followers_n:'{n}명 팔로우',tab_hashtag:'#해시태그',hashtag_title:'가장 많이 쓴 해시태그 TOP 50',hashtag_empty:'아직 해시태그가 없어요',hide_toggle:'이 사진 숨기기 (나만 보여요)',hidden_badge:'숨김',anon_toggle:'익명으로 올리기',anon_warn_title:'익명으로 올리기 전에',anon_warn_body:'다른 사람에게는 이름이 보이지 않아요. 다만 문제가 되는 사진은 운영자가 검토 후 삭제할 수 있어요.',anon_warn_ok:'확인하고 계속',fm_title:'이 지역을',fm_follow:'팔로우하기',fm_unfollow:'팔로우 취소',fm_show:'보기 켜기',fm_hide:'보기 끄기',fm_photos:'사진 보기',global_empty:'아직 팔로우 데이터가 없어요',save_orig:'원본을 내 폰에 저장',orig_saved:'원본을 저장했어요',orig_skip:'원본 저장은 건너뛰었어요',orig_hint:'서버엔 720px 축소본만 올라가요. 원본은 내 폰에만 남아요.',f_none:'원본',f_film:'필름',f_warm:'따뜻',f_cool:'차가움',f_mono:'흑백',f_vivid:'선명',more:'더 보기',
@@ -786,7 +790,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  h_lang:'Language',h_account:'Account',signout:'Sign out',acct_hint:'Photos are stored at 720 px. Deleted photos are removed immediately.',
  login_h:"Let's coverrrup<br>the world!!",login_p:'Cover the spot you are standing on with one photo. In every 14 m cell, the most-liked photo becomes the cover.',login_google:'Continue with Google',login_or:'or with email',login_email_ph:'Email address',login_link:'Send link',login_browse:'Just browse',
  login_going:'Opening Google',login_gerr:'Google sign-in error: {e}',login_sending:'Sending email',login_sent:'Sign-in link sent to {e}. Open the email and tap the link.',login_merr:'Email error: {e}',login_err:'Sign-in error: {e}',check_email:'Please check the email address',signed_out:'Signed out',
- cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',zoom_wrong_lens:'Wide angle looks off? Try another lens',lens_n_of:'Trying lens {i}/{n}',lens_switch_fail:'Could not open this lens. Try another one',
+ cam_place_noloc:'Waiting for your location',cam_place_empty:'Empty cell. Yours will be the first',cam_place_n:'{n} photos here. Compete for the cover',cam_prep:'Starting camera',cam_review:'Just taken, location confirmed',cam_fb:'The camera cannot open here. Use your device camera instead.',cam_fb_btn:'Use device camera',retake:'Retake',upload:'Upload',uploading:'Uploading',cam_note:'Only photos taken right now can be uploaded. No gallery.',cam_noframe:'No camera frame yet',img_fail:'Could not read the image',zoom_wrong_lens:'Wide angle looks off? Try another lens',lens_n_of:'Trying lens {i}/{n}',lens_switch_fail:'Could not open this lens. Try another one',zoom_no_wide:'The wide lens is not available in the browser. Use phone camera mode for wide shots',
  need_loc:'Location is required to upload',up_first:'First photo! This cell is now yours',up_ok:'Uploaded (photo #{n})',up_hidden:'Uploaded. Only visible to you',up_fail:'Upload failed: {e}',
  loading_fail:'Could not load data: {e}',like_fail:'Could not save the like',name_saved:'Name saved',name_fail:'Could not save the name',no_geo:'This browser has no location support',locating:'Finding your location',geo_denied:'Location permission is needed. Allow it in browser settings.',server_fail:'Could not load server settings',
  orig_saved_dl:'Original saved to Downloads. Find it in your gallery under Downloads.',avatar_change:'Change photo',avatar_saved:'Profile photo updated',avatar_fail:'Could not save the profile photo',likes_sum:'Likes',people:'People',all_photos:'All photos',covers_only:'Covers only',sub_covers:'Covers inside',edit:'Edit',tab_follow:'Follow',follow:'Follow',following:'Following',follow_empty:'No followed areas yet',follow_empty_p:'Open a block on the map and tap Follow.<br>New photos from those areas gather here.',followed_regions:'Followed areas',follow_fail:'Could not save the follow',follow_has_detail:'A more detailed area inside this is already followed, so the whole area cannot be followed too',user_photos:'Photos',user_cells:'Cells',back:'Back',geo_loading:'Finding place name',viewer_of:'Photos by {name}',tool_text:'Text',tool_emoji:'Emoji',tool_filter:'Filter',tool_trim:'Trim',trim_hint:'Drag to move. Use the sliders for size and tilt',reset_trim:'Reset',caption_ph:'Write a caption, #hashtags welcome (optional)',my_covermap:'My cover map',journeys_tab:'Journeys',journey_save_mine:'Save to me only',journey_saved_mine:'Saved to your journeys',journey_empty:'No journey cards yet',journey_new:'Make a journey card',journey_view_reels:'View as reels',journey_copy_link:'Copy link',journey_link_copied:'Link copied',journey_link_none:'Save a journey card first to get a link',journey_reels_empty:'No journeys to show',journey_reels_close:'Close',add_text_ph:'Type your text',done:'Done',size:'Size',color:'Color',remove:'Remove',tap_to_edit:'Drag to move; use two fingers to rotate and resize',tilt:'Tilt',caption_edit:'Caption',save_changes:'Save',saved:'Saved',fixing:'Getting a fresh GPS fix',fix_ok:'Just taken, location confirmed (±{m} m)',fix_old:'No fresh fix; using the last known location',shoot_more:'Add a coverrrup',shoot_first:'First coverrrup',rec_hint:'Red button records video (max 15 s)',recording:'Recording',video:'Video',all_regions:'All',novideo:'This browser cannot record video',mute:'Sound',lens:'Lens',lens_wide:'Wide',lens_main:'Main',lens_next:'Next lens',lens_cal:'1x calib',cam_place_mine:'{n} photos here, and the cover is yours',ring_label:'My share of Coverrrup',ring_sub:'{n} of {all} covered cells',prog_earth_line:'{n} of ~4.15 trillion cells on Earth, {p}%',earth_all:'Earth covered by everyone',earth_me:'Earth covered by me',cells_n:'{n} cells',all_in_area:'All photos in this area',nearby_in_area:'Photos in the same block (nearest first)',share:'Share',share_title:'Share cover card',fmt_story:'Story 9:16',fmt_feed:'Feed 4:5',share_btn:'Share',save_card:'Save image',first_cover:'First coverrrup of this cell',is_cover:'Cover #1',nth_photo:'Photo #{n} in this cell',try_it:'Only {n} photos here. Cover it with yours',my_earth:'My Earth: {p}',share_fail:'Could not open share',making:'Making the card',mode_app:'In-app camera',mode_phone:'Phone camera',take_photo:'Take photo',take_video:'Record video',phone_hint:'Opens your phone camera app with all its lenses and zoom. Come back to decorate and upload.',back_to_app_cam:'Back to in-app camera',video_too_long:'Only the first 15 s of the video is uploaded',video_convert:'Compressing video ({p}%)',video_fail:'Could not process the video',follow_none_sel:'No photos in the selected areas yet',manage:'Manage',view_map:'View on map',unfollow:'Unfollow',followed_title:'Followed areas',fmap_exit:'Hide followed areas',report:'Report',report_title:'Report this photo?',r_inappropriate:'Inappropriate content',r_spam:'Spam or ads',r_notplace:'Not taken at this place',r_privacy:'Privacy / someone else in it',r_other:'Other',reported:'Reported. We will review it.',report_fail:'Could not send the report',admin:'Admin',adm_users:'Users',adm_photos:'Photos',adm_cells:'Covered cells',adm_reports:'Open reports',adm_reported:'Reported photos',adm_none:'No open reports',adm_delete:'Delete photo',adm_dismiss:'Dismiss',adm_deleted:'Deleted',adm_load:'Loading',tab_myfollow:'My areas',tab_global:'Global ranking',global_title:'Most followed areas · TOP 50',followers_n:'{n} followers',tab_hashtag:'Hashtags',hashtag_title:'Top 50 hashtags',hashtag_empty:'No hashtags yet',hide_toggle:'Hide this photo (only visible to me)',hidden_badge:'Hidden',anon_toggle:'Post anonymously',anon_warn_title:'Before you post anonymously',anon_warn_body:'Your name will be hidden from other people. Moderators can still review and remove the photo if it breaks the rules.',anon_warn_ok:'Got it, continue',fm_title:'This area',fm_follow:'Follow',fm_unfollow:'Unfollow',fm_show:'Show',fm_hide:'Hide',fm_photos:'View photos',global_empty:'No follow data yet',save_orig:'Save original to my phone',orig_saved:'Original saved',orig_skip:'Skipped saving the original',orig_hint:'Only a 720 px copy goes to the server. The original stays on your phone.',f_none:'Original',f_film:'Film',f_warm:'Warm',f_cool:'Cool',f_mono:'Mono',f_vivid:'Vivid',more:'More',
@@ -812,7 +816,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  h_lang:'语言',h_account:'账号',signout:'退出登录',acct_hint:'照片以长边720px存储。删除的照片会立即移除。',
  login_h:"Let's coverrrup<br>the world!!",login_p:'用一张照片覆盖你脚下的位置。每个14米格子里，点赞最多的照片就是封面。',login_google:'使用 Google 登录',login_or:'或使用邮箱',login_email_ph:'邮箱地址',login_link:'发送链接',login_browse:'先看看',
  login_going:'正在跳转到 Google',login_gerr:'Google 登录错误：{e}',login_sending:'正在发送邮件',login_sent:'登录链接已发送到 {e}，打开邮件点击链接即可。',login_merr:'邮件错误：{e}',login_err:'登录错误：{e}',check_email:'请检查邮箱地址',signed_out:'已退出登录',
- cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',zoom_wrong_lens:'广角看起来不对？试试其他镜头',lens_n_of:'正在尝试镜头 {i}/{n}',lens_switch_fail:'无法打开此镜头，试试其他镜头',
+ cam_place_noloc:'正在等待定位',cam_place_empty:'空格子，你会是第一张',cam_place_n:'这里有 {n} 张，来争夺封面',cam_prep:'正在启动相机',cam_review:'刚刚拍摄，位置已确认',cam_fb:'这里无法直接打开相机，请使用设备相机。',cam_fb_btn:'使用设备相机',retake:'重拍',upload:'上传',uploading:'上传中',cam_note:'只能上传刚拍的照片，不支持相册。',cam_noframe:'还没有相机画面',img_fail:'无法读取图片',zoom_wrong_lens:'广角看起来不对？试试其他镜头',lens_n_of:'正在尝试镜头 {i}/{n}',lens_switch_fail:'无法打开此镜头，试试其他镜头',zoom_no_wide:'浏览器无法使用广角镜头，广角请用手机相机模式',
  need_loc:'需要先获取位置才能上传',up_first:'第一张！这个格子现在是你的了',up_ok:'已上传（第{n}张）',up_hidden:'已上传。仅自己可见',up_fail:'上传失败：{e}',
  loading_fail:'数据加载失败：{e}',like_fail:'点赞保存失败',name_saved:'名字已保存',name_fail:'名字保存失败',no_geo:'此浏览器不支持定位',locating:'正在定位',geo_denied:'需要位置权限，请在浏览器设置中允许',server_fail:'无法加载服务器设置',
  orig_saved_dl:'原图已保存到下载文件夹，可在相册的“下载”中查看。',avatar_change:'更换头像',avatar_saved:'头像已更新',avatar_fail:'头像保存失败',likes_sum:'点赞',people:'参与者',all_photos:'全部照片',covers_only:'仅封面',sub_covers:'内部封面',edit:'编辑',tab_follow:'关注',follow:'关注',following:'已关注',follow_empty:'还没有关注的地区',follow_empty_p:'在地图上打开街区并点击关注，<br>这些地区的新照片会汇集在这里。',followed_regions:'关注的地区',follow_fail:'关注保存失败',follow_has_detail:'内部已关注更详细的地区，无法关注整个区域',user_photos:'照片',user_cells:'格子',back:'返回',geo_loading:'正在查找地名',viewer_of:'{name}的照片',tool_text:'文字',tool_emoji:'表情',tool_filter:'滤镜',tool_trim:'裁剪',trim_hint:'拖动移动。用滑块调整大小和倾斜',reset_trim:'恢复原样',caption_ph:'写点什么，也可以加 #话题标签（可选）',my_covermap:'我的覆盖地图',journeys_tab:'旅程卡片',journey_save_mine:'只保存给自己',journey_saved_mine:'已保存到我的旅程',journey_empty:'还没有制作过旅程卡片',journey_new:'制作旅程卡片',journey_view_reels:'以竖滑方式查看',journey_copy_link:'复制链接',journey_link_copied:'链接已复制',journey_link_none:'先保存一张旅程卡片才能生成链接',journey_reels_empty:'还没有可看的旅程',journey_reels_close:'关闭',add_text_ph:'输入文字',done:'完成',size:'大小',color:'颜色',remove:'删除',tap_to_edit:'拖动移动，双指旋转和缩放',tilt:'倾斜',caption_edit:'文字',save_changes:'保存',saved:'已保存',fixing:'正在重新获取位置',fix_ok:'刚刚拍摄，位置已确认（±{m}米）',fix_old:'未获取到新位置，使用上次位置',shoot_more:'再覆盖一张',shoot_first:'第一张覆盖',rec_hint:'红色按钮录制视频（最长15秒）',recording:'录制中',video:'视频',all_regions:'全部',novideo:'此浏览器不支持录像',mute:'声音',lens:'镜头',lens_wide:'广角',lens_main:'主镜头',lens_next:'下一镜头',lens_cal:'1x校准',cam_place_mine:'这里有 {n} 张，封面是你的',ring_label:'我在 Coverrrup 的份额',ring_sub:'已覆盖 {all} 格中的 {n} 格',prog_earth_line:'地球约4.15万亿格中的 {n} 格，{p}%',earth_all:'大家一起覆盖的地球',earth_me:'我覆盖的地球',cells_n:'{n} 格',all_in_area:'该地区全部照片',nearby_in_area:'同一街区的照片（按距离）',share:'分享',share_title:'分享封面卡',fmt_story:'故事 9:16',fmt_feed:'动态 4:5',share_btn:'分享',save_card:'保存图片',first_cover:'这个格子的第一张',is_cover:'封面第一',nth_photo:'这个格子第 {n} 张',try_it:'这里只有 {n} 张，用你的照片覆盖吧',my_earth:'我覆盖的地球 {p}',share_fail:'无法打开分享',making:'正在生成卡片',mode_app:'应用相机',mode_phone:'手机相机',take_photo:'拍照',take_video:'录像',phone_hint:'打开手机相机应用，镜头、变焦、画质都和相机一样。拍完回来编辑上传。',back_to_app_cam:'返回应用相机',video_too_long:'视频只上传前15秒',video_convert:'正在压缩视频（{p}%）',video_fail:'无法处理视频',follow_none_sel:'所选地区还没有照片',manage:'管理',view_map:'在地图上查看',unfollow:'取消关注',followed_title:'关注的地区',fmap_exit:'关闭关注地区显示',report:'举报',report_title:'举报这张照片？',r_inappropriate:'不当内容',r_spam:'垃圾/广告',r_notplace:'并非此地拍摄',r_privacy:'侵犯他人隐私',r_other:'其他',reported:'已举报，我们会审核',report_fail:'举报发送失败',admin:'管理员',adm_users:'用户',adm_photos:'照片',adm_cells:'已覆盖格子',adm_reports:'待处理举报',adm_reported:'被举报的照片',adm_none:'没有待处理举报',adm_delete:'删除照片',adm_dismiss:'忽略举报',adm_deleted:'已删除',adm_load:'加载中',tab_myfollow:'我的关注',tab_global:'全球排行',global_title:'关注最多的地区 TOP 50',followers_n:'{n} 人关注',tab_hashtag:'话题标签',hashtag_title:'热门话题标签 TOP 50',hashtag_empty:'还没有话题标签',hide_toggle:'隐藏这张照片（仅自己可见）',hidden_badge:'隐藏',anon_toggle:'匿名发布',anon_warn_title:'匿名发布前请注意',anon_warn_body:'其他人将看不到你的名字。但如果照片违反规则，管理员审核后仍可删除。',anon_warn_ok:'知道了，继续',fm_title:'这个地区',fm_follow:'关注',fm_unfollow:'取消关注',fm_show:'显示',fm_hide:'隐藏',fm_photos:'查看照片',global_empty:'还没有关注数据',save_orig:'原图保存到手机',orig_saved:'原图已保存',orig_skip:'已跳过保存原图',orig_hint:'服务器只保存720px缩小版，原图只留在你的手机上。',f_none:'原图',f_film:'胶片',f_warm:'暖色',f_cool:'冷色',f_mono:'黑白',f_vivid:'鲜艳',more:'更多',
@@ -1534,7 +1538,7 @@ function cropToSquare(src,sw,sh,size){size=size||1080;const s=Math.min(sw,sh),cx
   const c=document.createElement('canvas');c.width=size;c.height=size;c.getContext('2d').drawImage(src,cx,cy,s,s,0,0,size,size);return c}
 // --- 렌즈 선택 (후면 카메라가 여러 개인 폰: 광각/기본)
 const CAM={dev:null,list:[],defaultDev:null,otherDev:null};
-(()=>{const stored=localStorage.getItem('ctw-wide-cam');CAM.wideDev=stored===null?undefined:(stored||null)})();
+(()=>{const stored=localStorage.getItem('ctw-wide-cam');CAM.wideDev=stored===null?undefined:(stored||null);CAM.wideEvidence=localStorage.getItem('ctw-wide-ok')==='1'})();
 const isWideLabel=label=>/ultra.?wide|wide angle|초광각|광각/i.test(label||'');
 const isTeleLabel=label=>/tele|망원/i.test(label||'');
 async function listLenses(){try{const devs=await navigator.mediaDevices.enumerateDevices();const cur=S.cam.stream.getVideoTracks()[0].getSettings().deviceId;
@@ -1544,7 +1548,7 @@ async function listLenses(){try{const devs=await navigator.mediaDevices.enumerat
     CAM.otherDev=others[0]?others[0].deviceId:null;
     if(others.length>1&&CAM.wideDev===undefined){
       const wideLabeled=others.find(d=>isWideLabel(d.label));
-      let found=wideLabeled?wideLabeled.deviceId:null;
+      let found=wideLabeled?wideLabeled.deviceId:null,evidence=!!found;
       if(!found){
         const nonTele=others.filter(d=>!isTeleLabel(d.label));
         let smallestMax=null,smallestMaxDev=null;
@@ -1552,13 +1556,14 @@ async function listLenses(){try{const devs=await navigator.mediaDevices.enumerat
           const st=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:d.deviceId}},audio:false});
           const tr=st.getVideoTracks()[0],caps=tr.getCapabilities?tr.getCapabilities():null;
           st.getTracks().forEach(tk=>tk.stop());
-          if(caps&&caps.zoom&&caps.zoom.min<1){found=d.deviceId;break}
+          if(caps&&caps.zoom&&caps.zoom.min<1){found=d.deviceId;evidence=true;break}
           if(caps&&caps.zoom&&(smallestMax===null||caps.zoom.max<smallestMax)){smallestMax=caps.zoom.max;smallestMaxDev=d.deviceId}
         }catch(e){}}
         // 어떤 렌즈도 1 미만 줌을 지원하지 않으면, 광학 줌 범위가 가장 좁은(=가장 넓게 보는 편일 가능성이 높은) 렌즈로 추정
         if(!found)found=smallestMaxDev
       }
-      CAM.wideDev=found;localStorage.setItem('ctw-wide-cam',found||'');if(found)CAM.otherDev=found
+      CAM.wideDev=found;localStorage.setItem('ctw-wide-cam',found||'');if(found)CAM.otherDev=found;
+      if(evidence){CAM.wideEvidence=true;localStorage.setItem('ctw-wide-ok','1')}
     }else if(CAM.wideDev){CAM.otherDev=CAM.wideDev}
     buildZoomChips()}catch(e){console.warn(e)}}
 let lensSwitchFailed=null;
@@ -1569,27 +1574,40 @@ async function cycleWideLens(){const others=CAM.list.filter(d=>d.deviceId!==CAM.
   const idx=others.findIndex(d=>d.deviceId===CAM.wideDev);
   const next=others[(idx+1)%others.length],nextIdx=others.indexOf(next);
   CAM.wideDev=next.deviceId;localStorage.setItem('ctw-wide-cam',CAM.wideDev);CAM.otherDev=CAM.wideDev;lensSwitchFailed=null;
+  CAM.wideEvidence=true;localStorage.setItem('ctw-wide-ok','1');
   await switchLens(CAM.wideDev);
   toast(t('lens_n_of',{i:nextIdx+1,n:others.length}))}
 // --- 줌: 배율 목록(0.6~5x) 하나뿐. 지금 켜진 렌즈가 그 배율까지 원래 지원하면(요즘 폰의
 // "매끄러운 줌") 렌즈를 바꾸지 않고 그대로 적용한다. 지원하지 않을 때만 1 미만이면 "다른
 // 카메라", 1 이상이면 원래 기본 카메라로 전환한다. 어느 렌즈가 광각인지는 라벨(초광각 등) →
 // zoom<1 지원 여부 순으로 추정하고, 틀렸으면 줌 팝업의 "다른 렌즈로 시도" 버튼으로 직접 고를 수 있다.
+// 0.6/0.8은 그런 근거(wideEvidence)가 있을 때만 노출한다 - 브라우저에 초광각이 아예 안 잡히는 폰이 있다.
+// 1x 보정(zoomCal): 폰의 네이티브 "1x"는 보통 풀센서를 살짝 자른 값이고 그 비율은 기기마다 달라
+// 브라우저에서 알 수 없으므로, 사용자가 폰카와 비교해 한 번 맞추고 저장한다. 기본 렌즈 배율에 곱한다.
 const ZOOM_STEPS=[0.6,0.8,1,1.2,1.5,2,3,5];
-let zoomValue=1,zoomDivisor=1;
+let zoomValue=1,zoomDivisor=1,zoomCal=clamp(+(localStorage.getItem('ctw-zoomcal')||1)||1,0.8,1.6);
+function setZoomCal(d){zoomCal=clamp(Math.round((zoomCal+d)*100)/100,0.8,1.6);localStorage.setItem('ctw-zoomcal',String(zoomCal));applyZoomValue();buildZoomChips()}
 function fmtZoom(v){return(Math.round(v*10)/10).toString()+'x'}
 function buildZoomChips(){
   $('#zoom-btn').textContent=fmtZoom(zoomValue);
-  const steps=$('#zoom-steps'),wantSteps=ZOOM_STEPS.filter(v=>v>=1||CAM.otherDev),curSteps=[...steps.children].map(b=>+b.dataset.zoom);
+  const tr=S.cam.stream&&S.cam.stream.getVideoTracks()[0];let caps=null,st=null;
+  if(tr){st=tr.getSettings();try{caps=tr.getCapabilities?tr.getCapabilities():null}catch(e){}}
+  // 0.6/0.8은 "실제로 더 넓게 볼 수 있다"는 근거가 있을 때만: 지금 렌즈가 1 미만 줌을 지원하거나,
+  // 광각 라벨/1 미만 줌으로 확인된 다른 렌즈가 있거나, 사용자가 직접 골랐을 때. "다른 렌즈가
+  // 하나 더 있다"만으로는 안 됨 - 그게 망원인 폰에서는 0.6이 오히려 더 확대돼 보인다.
+  const seamless=!!(caps&&caps.zoom&&caps.zoom.min<1),hasWide=seamless||!!(CAM.wideEvidence&&CAM.otherDev);
+  if(!hasWide&&zoomValue<1){zoomValue=1;applyZoomValue()}
+  const steps=$('#zoom-steps'),wantSteps=ZOOM_STEPS.filter(v=>v>=1||hasWide),curSteps=[...steps.children].map(b=>+b.dataset.zoom);
   const sameSet=curSteps.length===wantSteps.length&&curSteps.every((v,i)=>v===wantSteps[i]);
   if(sameSet)[...steps.children].forEach(b=>b.classList.toggle('on',+b.dataset.zoom===zoomValue));
   else steps.innerHTML=wantSteps.map(v=>`<button class="${v===zoomValue?'on':''}" data-zoom="${v}">${fmtZoom(v)}</button>`).join('');
   const others=CAM.list.filter(d=>d.deviceId!==CAM.defaultDev);
   $('#zoom-lens-toggle').hidden=others.length<2;
+  $('#zoom-nowide').hidden=hasWide||!CAM.list.length;
+  $('#zoom-cal-v').textContent=zoomCal.toFixed(2);
   // 실기기 진단용 한 줄: 지금 스트림 해상도 · 이 렌즈의 줌 범위 · 후면 렌즈 몇 개 중 몇 번째인지
-  const tr=S.cam.stream&&S.cam.stream.getVideoTracks()[0];let info='';
-  if(tr){const st=tr.getSettings();let caps=null;try{caps=tr.getCapabilities?tr.getCapabilities():null}catch(e){}
-    const parts=[`${st.width||'?'}×${st.height||'?'}`,caps&&caps.zoom?`zoom ${caps.zoom.min}–${caps.zoom.max}`:'zoom ✕'];
+  let info='';
+  if(st){const parts=[`${st.width||'?'}×${st.height||'?'}`,caps&&caps.zoom?`zoom ${caps.zoom.min}–${caps.zoom.max}`:'zoom ✕'];
     if(CAM.list.length){const i=CAM.list.findIndex(d=>d.deviceId===CAM.cur);parts.push(`lens ${i>=0?i+1:'?'}/${CAM.list.length}`)}
     info=parts.join(' · ')}
   $('#zoom-info').textContent=info}
@@ -1602,19 +1620,21 @@ async function applyZoomValue(){const v=$('#video'),track=S.cam.stream&&S.cam.st
   // 렌즈로 계속 밀려서, 이후 모든 배율이 틀어지는 문제가 생긴다)
   if(zoomValue>=1&&onOther&&CAM.defaultDev){await switchLens(CAM.defaultDev);return}
   let caps=null;try{caps=track.getCapabilities?track.getCapabilities():null}catch(e){}
+  // 기본 렌즈에서는 사용자가 맞춘 1x 보정값을 곱한 배율을 적용한다 (광각 렌즈 쪽은 별개)
+  const eff=onOther?zoomValue:zoomValue*zoomCal;
   // 지금 켜진 렌즈(기본이든, 이미 옮긴 광각이든)가 이 배율을 원래 지원하면, 렌즈를 더 바꾸지 않고 그대로 적용
-  if(caps&&caps.zoom&&zoomValue>=caps.zoom.min&&zoomValue<=caps.zoom.max){
-    try{await track.applyConstraints({advanced:[{zoom:zoomValue}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
-  if(zoomValue<1&&!onOther&&CAM.otherDev&&lensSwitchFailed!==CAM.otherDev){await switchLens(CAM.otherDev);return}
+  if(caps&&caps.zoom&&eff>=caps.zoom.min&&eff<=caps.zoom.max){
+    try{await track.applyConstraints({advanced:[{zoom:eff}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
+  if(zoomValue<1&&!onOther&&CAM.otherDev&&CAM.wideEvidence&&lensSwitchFailed!==CAM.otherDev){await switchLens(CAM.otherDev);return}
   if(onOther){const base=ZOOM_STEPS[0];zoomDivisor=zoomValue/base;v.style.transform=`scale(${zoomDivisor})`;return}
-  if(zoomValue===1){if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:caps.zoom.min}]})}catch(e){}}zoomDivisor=1;v.style.transform='scale(1)';return}
-  if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:clamp(zoomValue,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
-  zoomDivisor=Math.max(zoomValue,1);v.style.transform=zoomValue>1?`scale(${zoomValue})`:'scale(1)'}
+  if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:clamp(eff,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
+  zoomDivisor=Math.max(eff,1);v.style.transform=eff>1?`scale(${eff})`:'scale(1)'}
 function digitalZ(){return zoomDivisor}
 function closeCamPops(){$('#zoom-pop').hidden=true;$('#filter-pop').hidden=true}
 function bindZoom(){$('#zoom-btn').addEventListener('click',e=>{e.stopPropagation();const wasHidden=$('#zoom-pop').hidden;closeCamPops();$('#zoom-pop').hidden=!wasHidden;if(wasHidden)buildZoomChips()});
   $('#zoom-pop').addEventListener('click',e=>{const b=e.target.closest('[data-zoom]');if(b)setZoomValue(+b.dataset.zoom)});
   $('#zoom-lens-toggle').addEventListener('click',e=>{e.stopPropagation();cycleWideLens()});
+  $('#zoom-cal').addEventListener('click',e=>{const b=e.target.closest('[data-cal]');if(!b)return;e.stopPropagation();setZoomCal(+b.dataset.cal)});
   $('#filter-btn').addEventListener('click',e=>{e.stopPropagation();const wasHidden=$('#filter-pop').hidden;closeCamPops();$('#filter-pop').hidden=!wasHidden});
   $('#filter-pop').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;S.filter=FILTERS.find(x=>x.id===b.dataset.f)||FILTERS[0];applyPreviewFilter()});
   document.addEventListener('click',e=>{if(!e.target.closest('#zoom-wrap')&&!e.target.closest('#filter-wrap'))closeCamPops()})}
