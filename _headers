@@ -1,3 +1,12 @@
 /*
   Permissions-Policy: camera=(self), geolocation=(self)
   X-Content-Type-Options: nosniff
+
+# The app is a single HTML file; make browsers and installed PWAs revalidate it on every launch
+# so layout fixes reach phones without a manual cache clear.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/manifest.json
+  Cache-Control: no-cache

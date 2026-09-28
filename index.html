@@ -487,7 +487,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .ov-body{overflow-y:auto;flex:1}
 .vreels,.freels{position:relative;flex:1;inset:auto}
 #screen-follow{display:none;flex-direction:column}#screen-follow.active{display:flex}
-.follow-chips{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;flex:none;align-items:center;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.follow-chips{display:flex;gap:6px;overflow-x:auto;padding:calc(10px + var(--safe-top)) 14px 10px;flex:none;align-items:center;scrollbar-width:none;border-bottom:1px solid var(--line)}
 .follow-chips::-webkit-scrollbar{display:none}.follow-chips .chip-btn{white-space:nowrap;flex:none}.follow-chips .hint{white-space:nowrap}
 #freels-dist{top:60px}
 #vreels-dist{top:58px}
@@ -1979,10 +1979,13 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
 // 홈 화면에 설치한(standalone) iOS 웹앱은 시작 직후 innerHeight·visualViewport·100dvh 모두를 사파리
 // 툴바가 있는 것처럼 짧게 보고하는 버그가 있어 탭바 아래가 비었다. 설치형은 status bar가
 // black-translucent라 웹뷰가 화면 전체를 덮으므로, 화면 자체 크기(screen.height, CSS px)를 하한으로 쓴다.
+// 이 하한은 iOS에만 적용한다: Android 설치형은 웹뷰가 상태바·내비바를 덮지 않아 screen.height가 실제
+// 보이는 높이보다 크고, 그대로 쓰면 탭바가 화면 아래로 밀려 나간다 (갤럭시 폴드에서 확인).
 const IS_STANDALONE=()=>navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
 function screenHeightCss(){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height);const portrait=window.matchMedia?window.matchMedia('(orientation: portrait)').matches:innerHeight>=innerWidth;return portrait?a:b}
 function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0;let h=vv||window.innerHeight;
-  if(IS_STANDALONE())h=Math.max(window.innerHeight,vv,screenHeightCss());
+  if(IS_STANDALONE()&&IS_IOS)h=Math.max(window.innerHeight,vv,screenHeightCss());
+  else if(IS_STANDALONE())h=Math.max(window.innerHeight,vv);
   document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 if(window.matchMedia)window.matchMedia('(display-mode: standalone)').addEventListener('change',fitViewport);
