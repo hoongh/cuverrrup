@@ -1650,7 +1650,35 @@ let hideUpload=false,anonUpload=false;
 function confirmAnon(cb){if(localStorage.getItem('ctw-anonseen')){cb();return}
   if(confirm(t('anon_warn_title')+'\n\n'+t('anon_warn_body')+'\n\n('+t('anon_warn_ok')+')')){localStorage.setItem('ctw-anonseen','1');cb()}}
 const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-async function saveOriginal(){if(!saveOrig)return;let blob,name;const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);if(S.cam.video){const useHi=S.cam.video.hi.size>1000;blob=useHi?S.cam.video.hi:S.cam.video.lo;name='coverrrup-'+stamp+'.'+(useHi?S.cam.video.ext:(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'))}else{if(!S.cam.orig)return;blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);name='coverrrup-'+stamp+'.jpg'}
+// --- 원본 저장 시 위치(GPS) EXIF 심기 - 캔버스로 다시 인코딩한 JPEG는 EXIF가 전부 사라지므로,
+// 갤러리 앱에서 위치가 보이려면 직접 최소한의 Exif GPS 세그먼트를 만들어 파일 앞부분에 끼워 넣어야 한다.
+function gpsToDMS(v){const abs=Math.abs(v),deg=Math.floor(abs),minF=(abs-deg)*60,min=Math.floor(minF),sec=Math.round((minF-min)*60*1000);
+  return[deg,min,sec]}
+async function addGpsExif(blob,lat,lng){try{
+    const buf=new Uint8Array(await blob.arrayBuffer());
+    if(buf[0]!==0xFF||buf[1]!==0xD8)return blob;
+    const[ld,lm,ls]=gpsToDMS(lat),[gd,gm,gs]=gpsToDMS(lng);
+    const latRef=lat>=0?0x4E:0x53,lngRef=lng>=0?0x45:0x57; // 'N'/'S', 'E'/'W'
+    const b=[];const u16=v=>b.push(v&0xFF,(v>>8)&0xFF);const u32=v=>b.push(v&0xFF,(v>>8)&0xFF,(v>>16)&0xFF,(v>>24)&0xFF);
+    b.push(0x49,0x49);u16(0x2A);u32(8); // TIFF header (little-endian), IFD0 at offset 8
+    u16(1);u16(0x8825);u16(4);u32(1);u32(26);u32(0); // IFD0: 1 entry -> GPSInfoIFDPointer at offset 26
+    u16(5); // GPS IFD: 5 entries
+    u16(0x0000);u16(1);u32(4);b.push(2,3,0,0); // GPSVersionID
+    u16(0x0001);u16(2);u32(2);b.push(latRef,0,0,0); // GPSLatitudeRef
+    u16(0x0002);u16(5);u32(3);u32(92); // GPSLatitude -> rationals at offset 92
+    u16(0x0003);u16(2);u32(2);b.push(lngRef,0,0,0); // GPSLongitudeRef
+    u16(0x0004);u16(5);u32(3);u32(116); // GPSLongitude -> rationals at offset 116
+    u32(0); // GPS IFD next = none
+    u32(ld);u32(1);u32(lm);u32(1);u32(ls);u32(1000); // lat deg/min/sec rationals
+    u32(gd);u32(1);u32(gm);u32(1);u32(gs);u32(1000); // lng deg/min/sec rationals
+    const exif=[0x45,0x78,0x69,0x66,0x00,0x00,...b]; // "Exif\0\0" + TIFF
+    const len=exif.length+2;
+    const app1=[0xFF,0xE1,(len>>8)&0xFF,len&0xFF,...exif];
+    const out=new Uint8Array(buf.length+app1.length);
+    out.set(buf.subarray(0,2),0);out.set(app1,2);out.set(buf.subarray(2),2+app1.length);
+    return new Blob([out],{type:'image/jpeg'})
+  }catch(e){console.warn('exif gps write failed',e);return blob}}
+async function saveOriginal(lat,lng){if(!saveOrig)return;let blob,name;const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);if(S.cam.video){const useHi=S.cam.video.hi.size>1000;blob=useHi?S.cam.video.hi:S.cam.video.lo;name='coverrrup-'+stamp+'.'+(useHi?S.cam.video.ext:(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'))}else{if(!S.cam.orig)return;blob=S.cam.origBlob||await canvasBlob(S.cam.orig,0.92);if(typeof lat==='number'&&typeof lng==='number')blob=await addGpsExif(blob,lat,lng);name='coverrrup-'+stamp+'.jpg'}
   if(IS_IOS){try{const file=new File([blob],name,{type:blob.type||'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
 function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');setCamState('review')}
@@ -1722,7 +1750,7 @@ function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps';$('#vidbtn').disabled=S.me.src!=='gps'}
 async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();if(S.me.src!=='gps'){toast(t('need_loc'));locate();return}
   const fx=(S.cam.fix&&Date.now()-S.cam.fix.ts<120000)?S.cam.fix:null;const lat=fx?fx.lat:S.me.lat,lng=fx?fx.lng:S.me.lng;const key=OLC.key(lat,lng),cell=ensureCell(key);
-  const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal();
+  const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal(lat,lng);
   try{const id=crypto.randomUUID(),isV=!!S.cam.video,path=`${S.user.id}/${id}.${isV?(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'):'jpg'}`;
     const caption=$('#caption').value.trim().slice(0,200);let fb,tb;if(isV){fb=S.cam.video.lo;tb=await canvasBlob(makeThumbCanvas(S.cam.video.poster,S.filter),0.78)}else{const src=bakeStickers(bakeTrim(S.cam.shot,S.cam.trim));[fb,tb]=await Promise.all([canvasBlob(src,0.92),canvasBlob(makeThumbCanvas(src,S.filter),0.78)])}
     const u1=await sb.storage.from('photos').upload(path,fb,{contentType:isV?fb.type:'image/jpeg'});if(u1.error)throw u1.error;
