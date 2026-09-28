@@ -87,7 +87,12 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 .sheet .handle{width:36px;height:3px;border-radius:2px;background:var(--line-2);margin:10px auto 6px;flex:none}
 .sheet .body{overflow-y:auto;padding:8px 18px calc(18px + var(--safe))}
 .sh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
-.jpick-head{position:sticky;top:0;z-index:3;background:var(--card);padding-top:2px;padding-bottom:10px;align-items:center}
+/* The sheet body scrolls with 8px top padding; pull the sticky header up over it (margin + top:-8px)
+   so scrolled photos can't peek through the strip above the header. */
+.jpick-head{position:sticky;top:-8px;z-index:3;background:var(--card);margin:-8px -18px 0;padding:10px 18px 10px;align-items:center;border-bottom:1px solid var(--line)}
+.pgrid.jpick{margin-top:10px}
+.jtile{background-size:cover;background-position:center}.pg-k.jt{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acts span.like{display:inline-flex;align-items:center}
 .jpick-head #journey-next{width:auto;margin:0;padding:9px 16px;flex:none}
 .sh-title{font-size:18px;font-weight:400;letter-spacing:-.01em;line-height:1.25}
 .sh-sub{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);margin-top:6px}
@@ -758,7 +763,7 @@ ko:{tab_map:'커버맵',tab_feed:'주변',tab_cam:'커버럽',tab_mine:'내 커�
  me_title:'나',me_sub:'이름을 바꾸면 내가 올린 사진에도 바로 반영돼요.',save:'저장',need_login:'로그인이 필요해요',google_acct:'구글 계정',
  st_cells:'덮은 칸',st_photos:'올린 사진',st_covers:'커버 보유',st_likes:'받은 좋아요',
  h_my_photos:'내 사진',my_photos_hint:'사진을 누르면 크게 보고, 거기서 필터를 바꾸거나 지울 수 있어요.',my_photos_none:'아직 올린 사진이 없어요. 커버럽 탭에서 첫 사진을 찍어 보세요.',
- h_journey:'커버럽 여정 공유',journey_hint:'내 사진 중 몇 장을 골라서, 다녀온 여정을 지도와 함께 이미지로 만들어요.',journey_start:'사진 선택해서 만들기',journey_pick_title:'여정에 넣을 사진 선택',journey_pick_hint:'{n}장 선택됨 (최대 {max}장)',journey_next:'다음',journey_create:'만들기',journey_max:'최대 {max}장까지 선택할 수 있어요',journey_none_sel:'사진을 1장 이상 선택해 주세요',journey_share_title:'여정 카드',journey_points_n:'{n}개 지점',journey_title_tpl:'{d} 커버럽 여정',journey_route_dist:'이동 거리',journey_route_stops:'지점 수',journey_stat_visited:'방문한 지역',journey_stat_first:'첫 커버 지역',journey_card_cta:'커버럽에 와서 보기',journey_title_ph:'여정 제목',
+ h_journey:'커버럽 여정 공유',journey_hint:'내 사진 중 몇 장을 골라서, 다녀온 여정을 지도와 함께 이미지로 만들어요.',journey_start:'사진 선택해서 만들기',journey_pick_title:'여정에 넣을 사진 선택',journey_pick_hint:'{n}장 선택됨 (최대 {max}장)',journey_next:'다음',journey_create:'만들기',journey_max:'최대 {max}장까지 선택할 수 있어요',journey_none_sel:'사진을 1장 이상 선택해 주세요',journey_share_title:'여정 카드',journey_points_n:'{n}개 지점',journey_title_tpl:'{d} 커버럽 여정',journey_route_dist:'이동 거리',journey_route_stops:'지점 수',journey_stat_visited:'지역',journey_stat_places:'장소',journey_link_copied_share:'링크도 복사했어요. 채팅창에 붙여넣기 하면 카드와 함께 보낼 수 있어요',journey_title_ph:'여정 제목',
  h_progress:'얼마나 덮었나',ring_label:'구역 커버',ring_sub:'▲ {n} 이 구역',ring_zero:'아직 0칸',ring_cap:'{z} 구역 400칸 중 내가 덮은 비율',prog_block:'지금 있는 {z} 구역 (400칸)',prog_earth:'지구 전체',prog_earth_val:'{n}칸, {p}%',prog_hint:'14m 칸 기준으로 지구 표면은 약 4조 1,472억 칸이에요. Coverrrup 전체에서 덮인 칸은 지금 {n}개.',
  h_loc:'내 위치',loc_now:'지금 위치',loc_gps:'GPS 위치',loc_acc:' (오차 약 {m}m)',loc_none:'위치를 아직 못 받았어요 (기본 위치)',relocate:'위치 다시 받기',
  h_lang:'언어',h_account:'계정',signout:'로그아웃',acct_hint:'사진은 긴 변 720px로 줄여서 저장돼요. 지운 사진은 바로 삭제됩니다.',
@@ -784,7 +789,7 @@ en:{tab_map:'Map',tab_feed:'Nearby',tab_cam:'Coverrrup',tab_mine:'My covers',tab
  me_title:'Me',me_sub:'Changing your name updates all your photos.',save:'Save',need_login:'Sign in required',google_acct:'Google account',
  st_cells:'Cells',st_photos:'Photos',st_covers:'Covers held',st_likes:'Likes',
  h_my_photos:'My photos',my_photos_hint:'Tap a photo to view it; edit the filter or delete it from there.',my_photos_none:'No photos yet. Take your first one in the Coverrrup tab.',
- h_journey:'Share a journey',journey_hint:'Pick a few of your photos and turn the trip into a shareable image with a map.',journey_start:'Pick photos to build it',journey_pick_title:'Choose photos for the journey',journey_pick_hint:'{n} selected (max {max})',journey_next:'Next',journey_create:'Create',journey_max:'You can select up to {max} photos',journey_none_sel:'Select at least 1 photo',journey_share_title:'Journey card',journey_points_n:'{n} points',journey_title_tpl:'{d} coverrrup journey',journey_route_dist:'Distance',journey_route_stops:'Stops',journey_stat_visited:'Areas visited',journey_stat_first:'First covers',journey_card_cta:'See it on Coverrrup',journey_title_ph:'Journey title',
+ h_journey:'Share a journey',journey_hint:'Pick a few of your photos and turn the trip into a shareable image with a map.',journey_start:'Pick photos to build it',journey_pick_title:'Choose photos for the journey',journey_pick_hint:'{n} selected (max {max})',journey_next:'Next',journey_create:'Create',journey_max:'You can select up to {max} photos',journey_none_sel:'Select at least 1 photo',journey_share_title:'Journey card',journey_points_n:'{n} points',journey_title_tpl:'{d} coverrrup journey',journey_route_dist:'Distance',journey_route_stops:'Stops',journey_stat_visited:'Areas',journey_stat_places:'Places',journey_link_copied_share:'Link copied too. Paste it in the chat to send it with the card',journey_title_ph:'Journey title',
  h_progress:'Coverage',ring_label:'Block coverage',ring_sub:'▲ {n} in this block',ring_zero:'0 cells yet',ring_cap:'My share of the 400 cells in block {z}',prog_block:'Current block {z} (400 cells)',prog_earth:'Whole Earth',prog_earth_val:'{n} cells, {p}%',prog_hint:'Earth has about 4.1 trillion 14 m cells. Coverrrup has {n} covered so far.',
  h_loc:'My location',loc_now:'Current location',loc_gps:'GPS location',loc_acc:' (±{m} m)',loc_none:'No location yet (default position)',relocate:'Refresh location',
  h_lang:'Language',h_account:'Account',signout:'Sign out',acct_hint:'Photos are stored at 720 px. Deleted photos are removed immediately.',
@@ -810,7 +815,7 @@ zh:{tab_map:'地图',tab_feed:'附近',tab_cam:'覆盖',tab_mine:'我的覆盖',
  me_title:'我',me_sub:'修改名字会同步到你上传的所有照片。',save:'保存',need_login:'需要登录',google_acct:'Google 账号',
  st_cells:'格子',st_photos:'照片',st_covers:'封面数',st_likes:'获赞',
  h_my_photos:'我的照片',my_photos_hint:'点击照片查看，可在其中更换滤镜或删除。',my_photos_none:'还没有照片。去“覆盖”标签拍第一张吧。',
- h_journey:'分享旅程',journey_hint:'挑选几张我的照片，把这次旅程做成带地图的分享图片。',journey_start:'选择照片开始制作',journey_pick_title:'选择要放进旅程的照片',journey_pick_hint:'已选 {n} 张（最多 {max} 张）',journey_next:'下一步',journey_create:'制作',journey_max:'最多可以选择 {max} 张照片',journey_none_sel:'请至少选择1张照片',journey_share_title:'旅程卡片',journey_points_n:'{n} 个地点',journey_title_tpl:'{d} 覆盖旅程',journey_route_dist:'总距离',journey_route_stops:'地点数',journey_stat_visited:'到访地区',journey_stat_first:'首次覆盖',journey_card_cta:'在 Coverrrup 上查看',journey_title_ph:'旅程标题',
+ h_journey:'分享旅程',journey_hint:'挑选几张我的照片，把这次旅程做成带地图的分享图片。',journey_start:'选择照片开始制作',journey_pick_title:'选择要放进旅程的照片',journey_pick_hint:'已选 {n} 张（最多 {max} 张）',journey_next:'下一步',journey_create:'制作',journey_max:'最多可以选择 {max} 张照片',journey_none_sel:'请至少选择1张照片',journey_share_title:'旅程卡片',journey_points_n:'{n} 个地点',journey_title_tpl:'{d} 覆盖旅程',journey_route_dist:'总距离',journey_route_stops:'地点数',journey_stat_visited:'地区',journey_stat_places:'地点',journey_link_copied_share:'链接也已复制，粘贴到聊天中即可与卡片一起发送',journey_title_ph:'旅程标题',
  h_progress:'覆盖进度',ring_label:'街区覆盖',ring_sub:'▲ {n} 本街区',ring_zero:'还是0格',ring_cap:'{z} 街区400格中我覆盖的比例',prog_block:'当前 {z} 街区（400格）',prog_earth:'全球',prog_earth_val:'{n}格，{p}%',prog_hint:'按14米格子计算，地球表面约有4.1万亿格。Coverrrup 目前已覆盖 {n} 格。',
  h_loc:'我的位置',loc_now:'当前位置',loc_gps:'GPS位置',loc_acc:'（误差约{m}米）',loc_none:'尚未获取位置（默认位置）',relocate:'重新定位',
  h_lang:'语言',h_account:'账号',signout:'退出登录',acct_hint:'照片以长边720px存储。删除的照片会立即移除。',
@@ -1262,10 +1267,10 @@ function openJourneyPreview(){const order=journeyOrder();if(!order.length){toast
   <div class="jcard-wrap"><canvas id="journey-canvas"></canvas></div>
   <p class="hint" id="journey-msg">${t('making')}</p>
   <input id="journey-title" class="email-in" maxlength="60" placeholder="${t('journey_title_ph')}" value="${esc(JOURNEY_TITLE)}">
-  <input id="journey-cap" class="email-in" maxlength="80" placeholder="${t('caption_ph')}" value="${esc(JOURNEY_CAP)}">
+  <input id="journey-cap" class="email-in" maxlength="120" placeholder="${t('caption_ph')}" value="${esc(JOURNEY_CAP)}">
   <div class="row2"><button class="btn" data-act="journey-mine">${t('journey_save_mine')}</button></div>
   <div class="row2" style="margin-top:8px"><button class="btn" id="journey-save" data-act="journey-save">${t('save_card')}</button><button class="btn primary" id="journey-share" data-act="journey-share">${t('share_btn')}</button></div>`);
-  let capT;$('#journey-cap').addEventListener('input',e=>{JOURNEY_CAP=e.target.value.slice(0,80);clearTimeout(capT);capT=setTimeout(()=>renderJourneyCanvas(order),250)});
+  let capT;$('#journey-cap').addEventListener('input',e=>{JOURNEY_CAP=e.target.value.slice(0,120);clearTimeout(capT);capT=setTimeout(()=>renderJourneyCanvas(order),250)});
   let titleT;$('#journey-title').addEventListener('input',e=>{JOURNEY_TITLE=e.target.value.slice(0,60)||autoJourneyTitle(order);clearTimeout(titleT);titleT=setTimeout(()=>renderJourneyCanvas(order),250)});
   renderJourneyCanvas(order)}
 function journeyLocale(){return LANG==='zh'?'zh-CN':LANG==='en'?'en-US':'ko-KR'}
@@ -1283,9 +1288,13 @@ function wrapCaption(ctx,text,maxW,maxLines){const lines=[];let remaining=text.t
   return lines}
 function journeyRowSizes(n){const R=Math.max(1,Math.min(n,Math.round(n/4)));const base=Math.floor(n/R),extra=n%R,sizes=[];
   for(let i=0;i<R;i++)sizes.push(base+(i>=R-extra?1:0));return sizes}
-function journeyStats(order){const areas275=new Set(order.map(p=>p.key.slice(0,8)));
-  let firstN=0;for(const p of order){const cell=S.world.get(p.key);if(cell&&cell.photos.length===1)firstN++}
-  return{visitedN:areas275.size,firstN}}
+// 지역 = distinct 275m areas, 장소 = distinct 14m cells
+function journeyStats(order){const areas275=new Set(order.map(p=>p.key.slice(0,8))),places14=new Set(order.map(p=>p.key));return{visitedN:areas275.size,placesN:places14.size}}
+let JOURNEY_LOGO=null;
+// The header logo SVG from the app chrome, rasterised once for the card canvas.
+function journeyLogoImg(){if(JOURNEY_LOGO)return Promise.resolve(JOURNEY_LOGO);const el=document.querySelector('.brand .logo');if(!el)return Promise.resolve(null);
+  const svg=el.outerHTML.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" ');
+  return new Promise(res=>{const im=new Image();im.onload=()=>{JOURNEY_LOGO=im;res(im)};im.onerror=()=>res(null);im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
 function drawJourneySignatureSmall(ctx,x0,y0,W,H,order){
   const pts=order.map(p=>{const b=OLC.bounds(p.key);return{lat:b.lat,lng:b.lng}});
   let latLo=Math.min(...pts.map(p=>p.lat)),latHi=Math.max(...pts.map(p=>p.lat));
@@ -1320,15 +1329,19 @@ async function renderJourneyCanvas(order,capOverride,canvasEl,titleOverride){
   const rowThumbW=rowSizes.map(cols=>(W-2*pad-gap*(cols-1))/cols);
   const rowThumbH=rowThumbW.map(w=>Math.round(w*1.15));
   const gridY=204,gridH=rowThumbH.reduce((s,h)=>s+h,0)+(rowSizes.length-1)*gap;
-  const capFs=32,mctx=document.createElement('canvas').getContext('2d');mctx.font='400 '+capFs+'px '+SANS;
-  const capLines=cap?wrapCaption(mctx,cap,W-2*pad,3):[];
-  const capH=capLines.length?capLines.length*(capFs+14)+26:0;
-  const link=journeyShareLinkFor({ids:order.map(p=>p.id)});
-  const ctaFs=30,ctaH=link?116:0;
-  const statsH=68,capY=gridY+gridH+40,statsY=capY+capH+(capLines.length?24:0)+40,H=statsY+statsH+ctaH+40;
+  // Caption text and #hashtags are drawn separately: text in ink, tags on their own line in sky.
+  const capFs=32,tagFs=28,mctx=document.createElement('canvas').getContext('2d');
+  const tags=(cap.match(/#[^\s#]+/g)||[]),capText=cap.replace(/#[^\s#]+/g,' ').replace(/\s+/g,' ').trim();
+  mctx.font='400 '+capFs+'px '+SANS;const capLines=capText?wrapCaption(mctx,capText,W-2*pad,3):[];
+  mctx.font='500 '+tagFs+'px '+SANS;const tagLines=tags.length?wrapCaption(mctx,tags.join(' '),W-2*pad,2):[];
+  const capH=(capLines.length?capLines.length*(capFs+14):0)+(tagLines.length?tagLines.length*(tagFs+12)+(capLines.length?8:0):0);
+  const hasCap=capLines.length||tagLines.length;
+  const statsH=68,capY=gridY+gridH+40,statsY=capY+capH+(hasCap?50:40),H=statsY+statsH+56;
   cv.width=W;cv.height=H;
   const x=cv.getContext('2d');x.fillStyle='#1B1714';x.fillRect(0,0,W,H);
-  x.fillStyle='#8FB6E8';x.font='700 26px '+MONO;x.textAlign='left';x.textBaseline='alphabetic';x.fillText('COVERRRUP',56,66);
+  const logo=await journeyLogoImg(),lg=44,lgY=34;if(logo)x.drawImage(logo,pad,lgY,lg,lg);
+  x.fillStyle='#8FB6E8';x.font='500 30px '+SANS;x.textAlign='left';x.textBaseline='middle';try{x.letterSpacing='0.06em'}catch(e){}
+  x.fillText('Coverrrup',pad+(logo?lg+14:0),lgY+lg/2+1);try{x.letterSpacing='0px'}catch(e){}x.textBaseline='alphabetic';
   x.fillStyle='#F1EAE2';let titleFs=42;x.font='400 '+titleFs+'px '+SANS;
   while(titleFs>24&&x.measureText(title).width>W-112){titleFs--;x.font='400 '+titleFs+'px '+SANS}
   x.fillText(title,56,124);
@@ -1346,25 +1359,26 @@ async function renderJourneyCanvas(order,capOverride,canvasEl,titleOverride){
       x.fillStyle='#fff';x.font='700 '+Math.round(bs*0.9)+'px '+MONO;x.textAlign='center';x.textBaseline='middle';x.fillText(idx+1,tx+bs+5,ty2+bs+6);
       idx++}
     gy2+=thumbH+gap}
-  if(capLines.length){x.fillStyle='#F1EAE2';x.font='400 '+capFs+'px '+SANS;x.textAlign='left';x.textBaseline='alphabetic';
-    capLines.forEach((ln,i)=>x.fillText(ln,pad,capY+i*(capFs+14)+capFs))}
-  const {visitedN,firstN}=journeyStats(order);
+  let cy=capY;x.textAlign='left';x.textBaseline='alphabetic';
+  if(capLines.length){x.fillStyle='#F1EAE2';x.font='400 '+capFs+'px '+SANS;capLines.forEach(ln=>{x.fillText(ln,pad,cy+capFs);cy+=capFs+14});if(tagLines.length)cy+=8}
+  if(tagLines.length){x.fillStyle='#8FB6E8';x.font='500 '+tagFs+'px '+SANS;tagLines.forEach(ln=>{x.fillText(ln,pad,cy+tagFs);cy+=tagFs+12})}
+  const {visitedN,placesN}=journeyStats(order);
   drawJourneyStatsRow(x,pad,statsY,W-2*pad,[
     {v:fmtDist(totalDist),l:t('journey_route_dist')},
     {v:String(visitedN),l:t('journey_stat_visited')},
-    {v:String(firstN),l:t('journey_stat_first')}],order);
-  if(link){const ctaY=statsY+statsH+40;
-    x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=1;x.beginPath();x.moveTo(pad,ctaY-24);x.lineTo(W-pad,ctaY-24);x.stroke();
-    x.textAlign='center';x.fillStyle='#8FB6E8';x.font='700 '+ctaFs+'px '+SANS;x.fillText(t('journey_card_cta'),W/2,ctaY+ctaFs-6);
-    let linkFs=26;x.font='400 '+linkFs+'px '+MONO;while(linkFs>14&&x.measureText(link).width>W-2*pad){linkFs--;x.font='400 '+linkFs+'px '+MONO}
-    x.fillStyle='#B7ADA2';x.fillText(link,W/2,ctaY+ctaFs+linkFs+8);x.textAlign='left'}
+    {v:String(placesN),l:t('journey_stat_places')}],order);
   if(!canvasEl){const msg=document.getElementById('journey-msg');if(msg)msg.textContent='';JOURNEY_BLOB=await canvasBlob(cv,0.92)}}
+// Share the card image with the link as text. Many Android targets drop the text when a file
+// is attached, so the link is also copied to the clipboard and the user is told to paste it.
+async function shareJourneyBlob(blob,name,link){const shareText=link?t('journey_share_title')+'\n'+link:t('journey_share_title');
+  if(link){try{await navigator.clipboard.writeText(link)}catch(e){}}
+  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:shareText,url:link||undefined});closeSheet();if(link)toast(t('journey_link_copied_share'));return true}}catch(e){if(e&&e.name==='AbortError')return true}
+  return false}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
 async function shareJourneyCard(save){if(!JOURNEY_BLOB)return;const name=`coverrrup-journey-${Date.now()}.jpg`;
   const rec=await addMyJourney(JOURNEY_BLOB,journeyOrder(),JOURNEY_CAP,JOURNEY_TITLE);
-  const link=journeyShareLinkFor(rec);
-  const shareText=link?t('journey_share_title')+'\n'+link:t('journey_share_title');
-  if(!save){try{const file=new File([JOURNEY_BLOB],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:shareText,url:link||undefined});closeSheet();return}}catch(e){if(e&&e.name==='AbortError')return}}
-  const url=URL.createObjectURL(JOURNEY_BLOB);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
+  if(!save&&await shareJourneyBlob(JOURNEY_BLOB,name,journeyShareLinkFor(rec)))return;
+  downloadBlob(JOURNEY_BLOB,name)}
 async function saveJourneyMineOnly(){if(!JOURNEY_BLOB)return;await addMyJourney(JOURNEY_BLOB,journeyOrder(),JOURNEY_CAP,JOURNEY_TITLE);toast(t('journey_saved_mine'));closeSheet()}
 function journeysToReelItems(payload){const items=[];
   for(const j of payload){const order=j.ids.map(id=>S.photos.get(id)).filter(Boolean);
@@ -1477,14 +1491,15 @@ async function deletePhoto(id){const ph=S.photos.get(id);if(!ph)return;
   S.photos.delete(id);IMG_CACHE.delete(id);rebuildAgg();closeSheet();renderMyPhotos();updateCamPlace();requestRender();refreshViews();toast(cell&&cell.photos.length?t('deleted'):t('deleted_empty'))}
 
 // ---------- 나
+// Journeys live only on this device, so a card's ♥ is the sum of likes on the photos in it.
+function journeyLikes(j){return(j.ids||[]).reduce((s,id)=>{const p=S.photos.get(id);return s+(p?p.likes:0)},0)}
 function journeyGridHTML(){const list=loadMyJourneys();if(!list.length)return`<p class="hint">${t('journey_empty')}</p>`;
-  return`<div class="pgrid">${list.map(j=>`<div class="ph pg" data-jview="${j.id}" style="background-image:url('${esc(j.img)}');background-size:cover;background-position:center"><button class="like" data-del-journey="${j.id}" style="position:absolute;top:6px;right:6px;z-index:1">🗑</button></div>`).join('')}</div>`}
+  return`<div class="pgrid">${list.map(j=>`<div class="ph pg jtile" data-jview="${j.id}" style="background-image:url('${esc(j.img)}')"><span class="pg-l">♥ ${journeyLikes(j)}</span>${j.title?`<span class="pg-k jt">${esc(j.title)}</span>`:''}</div>`).join('')}</div>`}
 function openJourneyView(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;pushSheet();S.sheet={type:'journeyView'};
-  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('journeys_tab')}</div></div></div>
-  <div class="jcard-wrap"><img src="${j.img}" style="width:100%;border-radius:14px;display:block" alt=""></div>
-  <div class="row2"><button class="btn" data-jview-reels="${j.id}">${t('journey_view_reels')}</button><button class="btn" data-jview-link="${j.id}">${t('journey_copy_link')}</button></div>
-  <div class="row2" style="margin-top:8px"><button class="btn" data-jview-edit="${j.id}">${t('edit')}</button><button class="btn primary" data-jview-share="${j.id}">${t('share_btn')}</button></div>
-  <div class="row2" style="margin-top:10px"><button class="btn danger" data-del-journey="${j.id}">${t('delete')}</button></div>`)}
+  const n=(j.ids||[]).length,when=j.ts?timeAgo(j.ts):'';
+  openSheet(`<div class="sh-head"><div><div class="sh-title">${esc(j.title||t('journeys_tab'))}</div><div class="sh-sub"><span>${t('journey_points_n',{n})}</span>${when?`<span>${when}</span>`:''}</div></div></div>
+  <div class="jcard-wrap"><img src="${j.img}" style="width:100%;border-radius:14px;display:block" alt=""></div>${j.cap?`<p class="cap big">${esc(j.cap)}</p>`:''}
+  <div class="row2 acts"><span class="like" title="${t('likes_sum')}">♥ ${journeyLikes(j)}</span><button class="like" data-jview-reels="${j.id}">▶ ${t('journey_view_reels')}</button><button class="like" data-jview-link="${j.id}">⛓ ${t('journey_copy_link')}</button><button class="like" data-jview-share="${j.id}">↗ ${t('share')}</button><button class="like" data-jview-edit="${j.id}">✎ ${t('edit')}</button><button class="like rep" data-del-journey="${j.id}">🗑 ${t('delete')}</button></div>`)}
 function viewJourneyReels(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;
   openJourneysReels([{ids:j.ids||[],cap:j.cap||''}])}
 async function copyJourneyLink(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;
@@ -1492,10 +1507,8 @@ async function copyJourneyLink(id){const j=loadMyJourneys().find(x=>x.id===id);i
   try{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}catch(e){toast(link)}}
 async function shareExistingJourney(id){const j=loadMyJourneys().find(x=>x.id===id);if(!j)return;const name=`coverrrup-journey-${id}.jpg`;
   let blob;try{blob=await(await fetch(j.img)).blob()}catch(e){toast(t('share_fail'));return}
-  const link=journeyShareLinkFor(j);
-  const shareText=link?t('journey_share_title')+'\n'+link:t('journey_share_title');
-  try{const file=new File([blob],name,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:shareText,url:link||undefined});closeSheet();return}}catch(e){if(e&&e.name==='AbortError')return}
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500)}
+  if(await shareJourneyBlob(blob,name,journeyShareLinkFor(j)))return;
+  downloadBlob(blob,name)}
 function renderProfile(){renderMyPhotos();$('#admin-box').hidden=!S.profile.is_admin;if(S.profile.is_admin&&S.tab==='profile')loadAdmin();if(S.user){$('#pf-grid').innerHTML=mineFilter==='journeys'?journeyGridHTML():userGridHTML(S.user.id,mineFilter);mountPhotos($('#pf-grid'))}else $('#pf-grid').innerHTML='';$$('[data-mf]').forEach(b=>b.classList.toggle('on',b.dataset.mf===mineFilter));const cells=myCells(),myPhotos=[...S.photos.values()].filter(p=>p.user.me),covers=cells.filter(c=>coverOf(c).user.me).length,likes=myPhotos.reduce((s,p)=>s+p.likes,0);
   $('#pf-name').value=S.profile.name;$('#pf-avatar').innerHTML=S.profile.avatar?`<img src="${S.profile.avatar}" alt="">`:esc((S.profile.name||'?')[0]);$('#pf-since').textContent=S.user?(S.user.email||t('google_acct')):t('need_login');
   $('#st-cells').textContent=cells.length;$('#st-photos').textContent=myPhotos.length;$('#st-covers').textContent=covers;$('#st-likes').textContent=likes;
@@ -1818,7 +1831,7 @@ function closeMapOverlay(){S.mapOverlay=false;S.myMapOnly=false;S.followMap=fals
 function openMyCoverMap(){S.myMapOnly=true;S.followMap=false;openMapOverlay()}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
-  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}
+  const go=e.target.closest('[data-goto]');if(go){switchTab(go.dataset.goto);return true}const shb=e.target.closest('[data-share]');if(shb){openShare(shb.dataset.share);return true}const rp=e.target.closest('[data-report]');if(rp){openReport(rp.dataset.report);return true}const rr=e.target.closest('[data-rreason]');if(rr){sendReport(rr.dataset.key,rr.dataset.rreason);return true}const ad=e.target.closest('[data-adm-del]');if(ad){adminDelete(ad.dataset.admDel);return true}const adm=e.target.closest('[data-adm-dismiss]');if(adm){adminDismiss(adm.dataset.admDismiss);return true}const fm=e.target.closest('[data-fmt]');if(fm){SHARE.fmt=fm.dataset.fmt;$$('[data-fmt]').forEach(b=>b.classList.toggle('on',b.dataset.fmt===SHARE.fmt));const pv=$('.card-prev');if(pv){pv.style.aspectRatio=ratioCss(SHARE.fmt);$('#card-msg').hidden=false}renderCard();return true}const mu=e.target.closest('[data-mute]');if(mu){const vd=mu.parentElement.querySelector('video');if(vd){vd.muted=!vd.muted;mu.textContent=vd.muted?'🔇':'🔊';if(!vd.muted)vd.play().catch(()=>{})}return true}const op=e.target.closest('[data-open-photo]');if(op){openPhotoSheet(op.dataset.openPhoto);return true}const ok=e.target.closest('[data-open-key]');if(ok){const k=ok.dataset.openKey;S.selected=k;if(k.length>=10)openCellSheet(k);else openBlockSheet(k);return true}const ot=e.target.closest('[data-open-tag]');if(ot){openHashtagSheet(ot.dataset.openTag);return true}const js=e.target.closest('[data-jsel]');if(js){toggleJourneySel(js.dataset.jsel);return true}const ed=e.target.closest('[data-edit]');if(ed){openEditSheet(ed.dataset.edit);return true}const mf=e.target.closest('[data-mf]');if(mf){mineFilter=mf.dataset.mf;renderProfile();return true}const fo=e.target.closest('[data-follow]');if(fo){toggleFollow(fo.dataset.follow);return true}const fv=e.target.closest('[data-fview]');if(fv){followView=fv.dataset.fview;renderFollow(true);return true}const fa=e.target.closest('[data-fa]');if(fa){const k=fa.dataset.key,act=fa.dataset.fa;if(act==='follow'||act==='unfollow'){toggleFollow(k);closeSheet();S.followMap=true;requestRender()}else if(act==='toggle'){if(!S.followSel.size)for(const f of S.follows)S.followSel.add(f);if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.followSel.size===S.follows.size)S.followSel.clear();closeSheet();S.followMap=true;requestRender()}else if(act==='photos'){const fm=S.followMap;closeSheet();S.followMap=fm;S.selected=k;openBlockSheet(k)}return true}const a2=e.target.closest('[data-act2]');if(a2){if(a2.dataset.act2==='manage')openFollowManage();else if(a2.dataset.act2==='viewmap')viewFollowsOnMap();else if(a2.dataset.act2==='admusers')openAdminUsers();else if(a2.dataset.act2==='admreports')$('#adm-list').scrollIntoView({behavior:'smooth',block:'start'});return true}const fs=e.target.closest('[data-fsel]');if(fs){const k=fs.dataset.fsel;if(k==='*')S.followSel.clear();else if(S.followSel.has(k))S.followSel.delete(k);else S.followSel.add(k);if(S.sheet&&S.sheet.type==='fmanage')openFollowManage();renderFollow(true);return true}const vu=e.target.closest('[data-view-user]');if(vu){openViewer(vu.dataset.viewUser,vu.dataset.viewId);return true}const us=e.target.closest('[data-user]');if(us&&us.dataset.user){openUserPage(us.dataset.user);return true}const oc=e.target.closest('[data-open-cell]');if(oc){S.selected=oc.dataset.openCell;openCellSheet(oc.dataset.openCell);return true}const dj=e.target.closest('[data-del-journey]');if(dj){if(!dj.dataset.armed){dj.dataset.armed='1';dj.textContent=t('del_confirm');setTimeout(()=>{if(document.body.contains(dj)){delete dj.dataset.armed;dj.textContent='🗑 '+t('delete')}},4000);return true}deleteMyJourney(dj.dataset.delJourney);if(S.sheet&&S.sheet.type==='journeyView')backSheet();return true}const jv=e.target.closest('[data-jview]');if(jv){openJourneyView(jv.dataset.jview);return true}
   const jvr=e.target.closest('[data-jview-reels]');if(jvr){viewJourneyReels(jvr.dataset.jviewReels);return true}const jvl=e.target.closest('[data-jview-link]');if(jvl){copyJourneyLink(jvl.dataset.jviewLink);return true}const jve=e.target.closest('[data-jview-edit]');if(jve){editJourney(jve.dataset.jviewEdit);return true}const jvs=e.target.closest('[data-jview-share]');if(jvs){shareExistingJourney(jvs.dataset.jviewShare);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
   $('#backdrop').addEventListener('click',closeSheet);
