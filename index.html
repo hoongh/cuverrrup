@@ -1584,13 +1584,16 @@ function buildZoomChips(){
 async function setZoomValue(v){if(REC.on||v===zoomValue)return;
   zoomValue=v;await applyZoomValue();buildZoomChips()}
 async function applyZoomValue(){const v=$('#video'),track=S.cam.stream&&S.cam.stream.getVideoTracks()[0];if(!track)return;
+  const onOther=!!(CAM.otherDev&&CAM.cur===CAM.otherDev);
+  // 1 이상인데 지금 "다른(광각)" 렌즈에 있으면, 그 렌즈가 이 배율도 어중간하게 지원한다고 해서
+  // 거기 머물면 안 됨 - 무조건 기본 렌즈로 돌아가는 게 먼저다 (안 그러면 1x 기준 자체가 광각
+  // 렌즈로 계속 밀려서, 이후 모든 배율이 틀어지는 문제가 생긴다)
+  if(zoomValue>=1&&onOther&&CAM.defaultDev){await switchLens(CAM.defaultDev);return}
   let caps=null;try{caps=track.getCapabilities?track.getCapabilities():null}catch(e){}
-  // 어떤 렌즈든 이미 그 렌즈 자체가 원하는 배율까지 커버하면(요즘 폰의 "매끄러운 줌"), 렌즈를 바꿀 필요 없이 그대로 적용
+  // 지금 켜진 렌즈(기본이든, 이미 옮긴 광각이든)가 이 배율을 원래 지원하면, 렌즈를 더 바꾸지 않고 그대로 적용
   if(caps&&caps.zoom&&zoomValue>=caps.zoom.min&&zoomValue<=caps.zoom.max){
     try{await track.applyConstraints({advanced:[{zoom:zoomValue}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
-  const onOther=!!(CAM.otherDev&&CAM.cur===CAM.otherDev);
   if(zoomValue<1&&!onOther&&CAM.otherDev){await switchLens(CAM.otherDev);return}
-  if(zoomValue>=1&&onOther&&CAM.defaultDev){await switchLens(CAM.defaultDev);return}
   if(onOther){const base=ZOOM_STEPS[0];zoomDivisor=zoomValue/base;v.style.transform=`scale(${zoomDivisor})`;return}
   if(zoomValue===1){if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:caps.zoom.min}]})}catch(e){}}zoomDivisor=1;v.style.transform='scale(1)';return}
   if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:clamp(zoomValue,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
