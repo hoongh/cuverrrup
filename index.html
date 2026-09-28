@@ -1976,13 +1976,18 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
 
 // ---------- 시작
 // 브라우저 탭에서는 주소창/툴바가 접히고 펴지는 만큼 visualViewport 높이를 --app-h로 따라간다.
-// 홈 화면에 설치한(standalone) 앱은 툴바가 없고, iOS가 시작 직후 visualViewport.height를 실제보다
-// 작게 보고하는 경우가 있어 아래가 비어 보였다 → 그때는 --app-h를 두지 않고 CSS 100dvh를 그대로 쓴다.
+// 홈 화면에 설치한(standalone) iOS 웹앱은 시작 직후 innerHeight·visualViewport·100dvh 모두를 사파리
+// 툴바가 있는 것처럼 짧게 보고하는 버그가 있어 탭바 아래가 비었다. 설치형은 status bar가
+// black-translucent라 웹뷰가 화면 전체를 덮으므로, 화면 자체 크기(screen.height, CSS px)를 하한으로 쓴다.
 const IS_STANDALONE=()=>navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
-function fitViewport(){if(IS_STANDALONE()){document.documentElement.style.removeProperty('--app-h');return}
-  const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
+function screenHeightCss(){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height);const portrait=window.matchMedia?window.matchMedia('(orientation: portrait)').matches:innerHeight>=innerWidth;return portrait?a:b}
+function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0;let h=vv||window.innerHeight;
+  if(IS_STANDALONE())h=Math.max(window.innerHeight,vv,screenHeightCss());
+  document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 if(window.matchMedia)window.matchMedia('(display-mode: standalone)').addEventListener('change',fitViewport);
+// iOS는 시작 후 뒤늦게 치수를 고치기도 하므로 몇 번 다시 맞춘다
+[300,1000,2500].forEach(ms=>setTimeout(fitViewport,ms));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fitViewport()});
 async function init(){applyLang();initMap();bindUI();centerOn(S.me.lat,S.me.lng,180);
   const m=location.pathname.match(/\/c\/([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i)||location.hash.match(/c=([23456789CFGHJMPQRVWX]{8}\+[23456789CFGHJMPQRVWX]{2,3})/i);if(m){S.deepKey=m[1].toUpperCase().replace('+','');history.replaceState(null,'',location.origin+'/')}
   const mj=/^\/j\//.test(location.pathname);if(mj){const hd=location.search.match(/d=([A-Za-z0-9\-_]+)/)||location.hash.match(/d=([A-Za-z0-9\-_]+)/);if(hd)S.deepJData=hd[1];history.replaceState(null,'',location.origin+'/')}
