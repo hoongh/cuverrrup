@@ -1610,8 +1610,14 @@ async function cycleWideLens(){const others=CAM.list.filter(d=>d.deviceId!==CAM.
 // 1x 보정(zoomCal): 폰의 네이티브 "1x"는 보통 풀센서를 살짝 자른 값이고 그 비율은 기기마다 달라
 // 브라우저에서 알 수 없으므로, 사용자가 폰카와 비교해 한 번 맞추고 저장한다. 기본 렌즈 배율에 곱한다.
 const ZOOM_STEPS=[0.6,0.8,1,1.2,1.5,2,3,5];
-let zoomValue=1,zoomDivisor=1,zoomCal=clamp(+(localStorage.getItem('ctw-zoomcal')||1)||1,0.8,1.6);
-function setZoomCal(d){zoomCal=clamp(Math.round((zoomCal+d)*100)/100,0.8,1.6);localStorage.setItem('ctw-zoomcal',String(zoomCal));applyZoomValue();buildZoomChips()}
+// zoomCal range goes to 2.5: on some Samsung logical cameras the stream's zoom 1 is the ultrawide
+// field of view, so the phone's own 1x sits near zoom 1.6–1.7.
+const ZOOM_CAL_MIN=0.8,ZOOM_CAL_MAX=2.5;
+let zoomValue=1,zoomDivisor=1,zoomCal=clamp(+(localStorage.getItem('ctw-zoomcal')||1)||1,ZOOM_CAL_MIN,ZOOM_CAL_MAX);
+function setZoomCal(d){zoomCal=clamp(Math.round((zoomCal+d)*100)/100,ZOOM_CAL_MIN,ZOOM_CAL_MAX);localStorage.setItem('ctw-zoomcal',String(zoomCal));applyZoomValue();buildZoomChips()}
+// With a calibration above 1 the sub-1 steps map to native zoom values at or above the lens minimum
+// (0.6 × 1.6 ≈ 0.96 → clamps to 1, 0.8 × 1.6 = 1.28), so they can be offered without a second lens.
+function calWideCaps(caps){return!!(caps&&caps.zoom&&ZOOM_STEPS[0]*zoomCal>=caps.zoom.min*0.9)}
 function fmtZoom(v){return(Math.round(v*10)/10).toString()+'x'}
 function buildZoomChips(){
   $('#zoom-btn').textContent=fmtZoom(zoomValue);
@@ -1620,7 +1626,7 @@ function buildZoomChips(){
   // 0.6/0.8은 "실제로 더 넓게 볼 수 있다"는 근거가 있을 때만: 지금 렌즈가 1 미만 줌을 지원하거나,
   // 광각 라벨/1 미만 줌으로 확인된 다른 렌즈가 있거나, 사용자가 직접 골랐을 때. "다른 렌즈가
   // 하나 더 있다"만으로는 안 됨 - 그게 망원인 폰에서는 0.6이 오히려 더 확대돼 보인다.
-  const seamless=!!(caps&&caps.zoom&&caps.zoom.min<1),hasWide=seamless||!!(CAM.wideEvidence&&CAM.otherDev);
+  const seamless=!!(caps&&caps.zoom&&caps.zoom.min<1),calWide=calWideCaps(caps),hasWide=seamless||calWide||!!(CAM.wideEvidence&&CAM.otherDev);
   if(!hasWide&&zoomValue<1){zoomValue=1;applyZoomValue()}
   const steps=$('#zoom-steps'),wantSteps=ZOOM_STEPS.filter(v=>v>=1||hasWide),curSteps=[...steps.children].map(b=>+b.dataset.zoom);
   const sameSet=curSteps.length===wantSteps.length&&curSteps.every((v,i)=>v===wantSteps[i]);
@@ -1650,7 +1656,8 @@ async function applyZoomValue(){const v=$('#video'),track=S.cam.stream&&S.cam.st
   // 지금 켜진 렌즈(기본이든, 이미 옮긴 광각이든)가 이 배율을 원래 지원하면, 렌즈를 더 바꾸지 않고 그대로 적용
   if(caps&&caps.zoom&&eff>=caps.zoom.min&&eff<=caps.zoom.max){
     try{await track.applyConstraints({advanced:[{zoom:eff}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
-  if(zoomValue<1&&!onOther&&CAM.otherDev&&CAM.wideEvidence&&lensSwitchFailed!==CAM.otherDev){await switchLens(CAM.otherDev);return}
+  // 보정값 덕분에 기본 렌즈에서 0.6/0.8이 네이티브로 닿으면 다른 렌즈로 옮기지 않는다 (아래에서 min으로 클램프)
+  if(zoomValue<1&&!onOther&&CAM.otherDev&&CAM.wideEvidence&&!calWideCaps(caps)&&lensSwitchFailed!==CAM.otherDev){await switchLens(CAM.otherDev);return}
   if(onOther){const base=ZOOM_STEPS[0];zoomDivisor=zoomValue/base;v.style.transform=`scale(${zoomDivisor})`;return}
   if(caps&&caps.zoom){try{await track.applyConstraints({advanced:[{zoom:clamp(eff,caps.zoom.min,caps.zoom.max)}]});zoomDivisor=1;v.style.transform='scale(1)';return}catch(e){}}
   zoomDivisor=Math.max(eff,1);v.style.transform=eff>1?`scale(${eff})`:'scale(1)'}
