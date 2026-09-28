@@ -1443,7 +1443,7 @@ async function savePhotoFilter(id){const ph=S.photos.get(id);if(!ph){closeSheet(
   if(!fchg&&!hchg&&!achg&&!tchg&&!stchg&&cap===(ph.caption||'')){closeSheet();return}toast(t('changing'));
   try{if(fchg||tchg||stchg){const useFilter=fchg?editFilter:(FILTERS.find(f=>f.id===ph.filter)||FILTERS[0]);const base=await loadImg(ph.media==='video'?ph.thumb.split('?')[0]:ph.full);let composed=tchg?bakeTrim(base,editTrim):base;if(stchg)composed=bakeEditStickers(composed);const pixelchg=tchg||stchg;
       const tb=await canvasBlob(makeThumbCanvas(composed,useFilter),0.75);const upT=await sb.storage.from('photos').upload(thumbPath(ph.path),tb,{contentType:'image/jpeg',upsert:true});if(upT.error)throw upT.error;
-      if(pixelchg){const fb=await canvasBlob(composed,0.9);const upF=await sb.storage.from('photos').upload(ph.path,fb,{contentType:'image/jpeg',upsert:true});if(upF.error)throw upF.error}}
+      if(pixelchg){const fb=await canvasBlob(composed,0.92);const upF=await sb.storage.from('photos').upload(ph.path,fb,{contentType:'image/jpeg',upsert:true});if(upF.error)throw upF.error}}
     const {error}=await sb.from('photos').update({filter:fchg?editFilter.id:ph.filter,caption:cap||null,hidden:editHidden,anonymous:editAnon}).eq('id',id);if(error)throw error;
     if(fchg)ph.filter=editFilter.id;if(fchg||tchg||stchg){ph.thumb=pubUrl(thumbPath(ph.path))+'?v='+Date.now();IMG_CACHE.delete(id)}if(tchg||stchg)ph.full=pubUrl(ph.path)+'?v='+Date.now();ph.caption=cap;ph.anonymous=editAnon;
     if(hchg){ph.hidden=editHidden;const cell=ensureCell(ph.key);if(editHidden)cell.photos=cell.photos.filter(p=>p.id!==id);else if(!cell.photos.includes(ph))cell.photos.push(ph);rebuildAgg()}
@@ -1724,7 +1724,7 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
   const fx=(S.cam.fix&&Date.now()-S.cam.fix.ts<120000)?S.cam.fix:null;const lat=fx?fx.lat:S.me.lat,lng=fx?fx.lng:S.me.lng;const key=OLC.key(lat,lng),cell=ensureCell(key);
   const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal();
   try{const id=crypto.randomUUID(),isV=!!S.cam.video,path=`${S.user.id}/${id}.${isV?(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'):'jpg'}`;
-    const caption=$('#caption').value.trim().slice(0,200);let fb,tb;if(isV){fb=S.cam.video.lo;tb=await canvasBlob(makeThumbCanvas(S.cam.video.poster,S.filter),0.78)}else{const src=bakeStickers(bakeTrim(S.cam.shot,S.cam.trim));[fb,tb]=await Promise.all([canvasBlob(src,0.85),canvasBlob(makeThumbCanvas(src,S.filter),0.78)])}
+    const caption=$('#caption').value.trim().slice(0,200);let fb,tb;if(isV){fb=S.cam.video.lo;tb=await canvasBlob(makeThumbCanvas(S.cam.video.poster,S.filter),0.78)}else{const src=bakeStickers(bakeTrim(S.cam.shot,S.cam.trim));[fb,tb]=await Promise.all([canvasBlob(src,0.92),canvasBlob(makeThumbCanvas(src,S.filter),0.78)])}
     const u1=await sb.storage.from('photos').upload(path,fb,{contentType:isV?fb.type:'image/jpeg'});if(u1.error)throw u1.error;
     const u2=await sb.storage.from('photos').upload(thumbPath(path),tb,{contentType:'image/jpeg'});if(u2.error)throw u2.error;
     const {error}=await sb.from('photos').insert({id,cell:key,user_id:S.user.id,filter:S.filter.id,path,caption:caption||null,media:isV?'video':'photo',hidden:hideUpload,anonymous:anonUpload});
