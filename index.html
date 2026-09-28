@@ -22,7 +22,7 @@
   --flag:#E0876F;--flag-ink:#F3B6A4;--flag-dim:rgba(224,135,111,.16);--mint:#9FD8B3;--sky:#8FB6E8;--gold:#E2B54A;--gold-ink:#1B1714;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard Variable",Pretendard,"Noto Sans KR","Malgun Gothic","Segoe UI",Roboto,sans-serif;
-  --tab-h:66px;--safe:env(safe-area-inset-bottom,0px);
+  --tab-h:66px;--safe:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
@@ -58,14 +58,14 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 #me::after{content:"";position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;background:rgba(224,135,111,.22);animation:pulse 2.6s ease-out infinite}
 @keyframes pulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.4);opacity:0}}
 @media (prefers-reduced-motion:reduce){#me::after{animation:none;opacity:.35;transform:none}.sheet{transition:none}}
-.map-hdr{position:absolute;top:0;left:0;right:0;padding:16px 18px 30px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:linear-gradient(rgba(31,27,23,.97),rgba(31,27,23,.85) 55%,rgba(31,27,23,0));pointer-events:none;z-index:6}
+.map-hdr{position:absolute;top:0;left:0;right:0;padding:calc(16px + var(--safe-top)) 18px 30px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:linear-gradient(rgba(31,27,23,.97),rgba(31,27,23,.85) 55%,rgba(31,27,23,0));pointer-events:none;z-index:6}
 .brand{font-size:13px;font-weight:500;letter-spacing:.22em;color:var(--sky);margin-bottom:10px;line-height:1;display:flex;align-items:center;gap:8px}
 .brand .logo{width:20px;height:20px;flex:none}
 .place b{display:block;font-size:22px;font-weight:400;letter-spacing:-.01em;line-height:1.15}
 .place span{display:block;margin-top:5px;font-size:12px;color:var(--ink-2)}
 .lvl{font-size:11px;font-weight:400;border:1px solid var(--line-2);color:var(--ink-2);padding:6px 10px;border-radius:999px;white-space:nowrap;margin-top:32px}
 .map-ctl{position:absolute;right:12px;bottom:60px;display:flex;flex-direction:column;gap:8px;z-index:6}
-.mymap-back{position:absolute;top:calc(54px + var(--safe));left:14px;z-index:7;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;color:#fff;font-size:13px}
+.mymap-back{position:absolute;top:calc(54px + var(--safe-top));left:14px;z-index:7;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;color:#fff;font-size:13px}
 .screen.mymap-overlay{z-index:10}
 .map-ctl button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:rgba(27,23,20,.85);font-size:20px;font-weight:300;color:var(--ink)}
 .map-ctl button.loc{font-size:16px;color:var(--flag);border-color:var(--flag)}
@@ -135,7 +135,7 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 .stats2 span{font-size:11px;color:var(--muted)}
 
 /* pages */
-.page{padding:18px 16px calc(28px + var(--safe))}
+.page{padding:calc(18px + var(--safe-top)) 16px calc(28px + var(--safe))}
 h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .sub{color:var(--muted);font-size:13px;margin:0 0 18px;min-height:1em}
 .tagline{font-size:12px;color:var(--sky);letter-spacing:.06em;margin:0 0 6px}
@@ -189,14 +189,18 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 /* camera */
 .cam{background:#000;color:#fff}
 .screen.cam{overflow:hidden}
-.cam-top{flex:none;padding:4px 10px;display:flex;align-items:center;gap:6px}
+.cam-top{flex:none;padding:calc(4px + var(--safe-top)) 10px 4px;display:flex;align-items:center;gap:6px}
 .cam-top .chip{flex:1;min-width:0;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;justify-content:flex-start;padding:4px 9px;font-size:11px}
 .cam-top .chip .st{overflow:hidden;text-overflow:ellipsis}
 .cam-mode{flex:none}
 .cam-mode .chip-btn{background:rgba(0,0,0,.45);color:#B7ADA2;border-color:rgba(255,255,255,.3);padding:4px 10px;font-size:11px}.cam-mode .chip-btn.on{background:#fff;color:#000;border-color:#fff}
-.phone-mode{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000);z-index:6}
+.phone-mode{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(30px + var(--safe-top)) 30px 30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2A241F,#000);z-index:6}
 .phone-mode .btn.big{width:min(100%,320px);padding:18px;font-size:16px;margin:0}
 .phone-mode .hint{color:#B7ADA2;max-width:30ch;line-height:1.55;margin-top:6px}
+/* 긴 화면: 큰 버튼 두 개는 가운데, 안내와 "앱 카메라로" 버튼은 아래쪽에 붙여 화면을 나눠 쓴다 */
+.phone-mode .btn.big:first-of-type{margin-top:auto}
+.phone-mode .hint{margin-top:auto}
+.phone-mode .btn:not(.big){margin-bottom:auto}
 .chip{background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-size:12px;color:#fff;max-width:100%;text-align:center;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
 .chip .mono{color:#B7ADA2}
 .chip .st{color:var(--mint)}
@@ -217,7 +221,7 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .btn.light{background:var(--ink);color:var(--bg);border-color:var(--ink);width:auto;padding:12px 20px;margin-top:6px;display:inline-block}
 .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);width:auto;padding:12px 18px;margin:0}
 .cam-status{flex:none;text-align:center;font-size:10px;color:rgba(255,255,255,.75);padding:1px 0 0;min-height:12px}
-.cam-ui{flex:none;display:flex;flex-direction:column;padding:2px 10px calc(4px + var(--safe));background:#000}
+.cam-ui{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:2px 10px calc(4px + var(--safe));background:#000}
 .cam-review{position:absolute;left:0;right:0;bottom:0;z-index:4;max-height:82%;overflow-y:auto;display:flex;flex-direction:column;padding:10px 12px calc(8px + var(--safe));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.55) 22%,rgba(0,0,0,.85))}
 .cam-review #upload{position:sticky;bottom:0;z-index:1}
 .zoom-wrap,.filter-wrap{position:relative}
@@ -357,7 +361,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 #basemap .maplibregl-ctrl-attrib{background:rgba(27,23,20,.7);color:var(--muted);font-size:9px}
 #basemap .maplibregl-ctrl-attrib a{color:var(--ink-2)}
 #basemap .maplibregl-ctrl-bottom-right{bottom:2px;right:2px}
-#login{position:absolute;inset:0;background:var(--bg);z-index:100;display:none;align-items:flex-end;padding:24px 20px calc(30px + var(--safe))}
+#login{position:absolute;inset:0;background:var(--bg);z-index:100;display:none;align-items:flex-end;padding:calc(24px + var(--safe-top)) 20px calc(30px + var(--safe))}
 #login.show{display:flex}
 .login-card{width:100%}
 .login-card h1{font-size:32px;font-weight:300;line-height:1.2;margin:18px 0 12px;letter-spacing:-.02em}
@@ -378,10 +382,10 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .reel-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .reel-actions .like{background:rgba(0,0,0,.45);color:#fff;border-color:rgba(255,255,255,.35);backdrop-filter:blur(6px)}
 .reel-actions .like.on{background:var(--flag);border-color:var(--flag)}
-.reel-dist{position:absolute;top:14px;right:14px;z-index:5;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:8px 12px;text-align:right;pointer-events:none}
+.reel-dist{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:5;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:8px 12px;text-align:right;pointer-events:none}
 #reels-dist{pointer-events:auto;cursor:pointer}
 /* 거리 선택: 배지를 누르면 아래로 거리 단계가 펼쳐지고, 줌처럼 위아래로 끌어 그 거리부터 릴스를 본다 */
-.dist-pop{position:absolute;top:72px;right:14px;z-index:6;display:flex;flex-direction:column;background:rgba(20,18,16,.94);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:4px;backdrop-filter:blur(8px);touch-action:none;user-select:none;-webkit-user-select:none}
+.dist-pop{position:absolute;top:calc(72px + var(--safe-top));right:14px;z-index:6;display:flex;flex-direction:column;background:rgba(20,18,16,.94);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:4px;backdrop-filter:blur(8px);touch-action:none;user-select:none;-webkit-user-select:none}
 .dist-pop button{border:0;background:none;color:#fff;font-size:12px;padding:5px 14px;white-space:nowrap;border-radius:8px;text-align:right;font-variant-numeric:tabular-nums;cursor:ns-resize}
 .dist-pop button.on{color:#8FB6E8;font-weight:600}
 .act-chips{margin-top:12px}
@@ -425,7 +429,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 #journey-canvas{width:100%;height:auto;display:block}
 .jreels{position:fixed;inset:0;background:#000;z-index:90}
 .jreels[hidden]{display:none}
-.jreels-close{position:absolute;top:calc(10px + var(--safe));right:14px;z-index:7;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.55);color:#fff;font-size:15px;padding:0}
+.jreels-close{position:absolute;top:calc(10px + var(--safe-top));right:14px;z-index:7;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.55);color:#fff;font-size:15px;padding:0}
 #edit-cap{margin-top:12px;width:100%}
 .sh-h3{font-size:13px;color:var(--muted);font-weight:400;margin:18px 0 0}
 .sh-back{display:inline-block;margin:0 0 10px;font-size:14px;color:var(--sky)}
@@ -461,12 +465,15 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .acts{margin-top:12px;flex-wrap:wrap}.acts .like{flex:none}
 .seg{margin-bottom:4px}
 .reels{background:var(--bg)}
-.reel{display:flex;align-items:center;justify-content:center;padding:14px 14px 18px;background:var(--bg)}
-.reel-wrap{width:100%;height:100%;display:flex;flex-direction:column;gap:10px;justify-content:center}
-.reel-card{position:relative;flex:0 1 auto;min-height:0;aspect-ratio:1/1;border-radius:14px;overflow:hidden;border:1px solid var(--line-2);background:#2A241F;align-self:center;width:100%;max-height:calc(100% - 120px)}
+/* 릴스 한 장은 화면을 꽉 채운다: 1:1 사진은 양옆 끝까지, 위아래 남는 자리는 같은 사진을 흐리게 깔아 채우고
+   배지는 맨 위, 글·버튼은 맨 아래에 붙인다 (길쭉한 폰에서도 비어 보이지 않게) */
+.reel{display:flex;align-items:stretch;justify-content:center;padding:0;background:#000}
+.reel-bg{position:absolute;left:-6%;top:-6%;width:112%;height:112%;object-fit:cover;filter:blur(28px) brightness(.42) saturate(1.15);z-index:0;pointer-events:none}
+.reel-wrap{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;gap:10px;justify-content:space-between}
+.reel-card{position:relative;flex:0 1 auto;min-height:0;aspect-ratio:1/1;border-radius:0;overflow:hidden;border:0;background:#2A241F;align-self:center;width:100%;max-height:calc(100% - 120px)}
 .reel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.reel-top{position:static;max-width:100%;padding-right:110px}
-.reel-bottom{position:static;padding:0;background:none}
+.reel-top{position:static;max-width:100%;padding:calc(14px + var(--safe-top)) 124px 0 14px}
+.reel-bottom{position:static;padding:0 14px 16px;background:none}
 .reel-info b{color:var(--ink);font-weight:400}
 .reel-info span{color:var(--muted)}
 .reel-actions{flex-direction:row}
@@ -475,7 +482,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .reel-dist b{color:var(--ink)}.reel-dist small{color:var(--muted)}
 .overlay{position:absolute;inset:0;background:var(--bg);z-index:80;display:none;flex-direction:column}
 .overlay.show{display:flex}
-.ov-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex:none}
+.ov-bar{display:flex;align-items:center;gap:12px;padding:calc(12px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line);flex:none}
 .ov-bar .link{font-size:14px}
 .ov-body{overflow-y:auto;flex:1}
 .vreels,.freels{position:relative;flex:1;inset:auto}
@@ -1176,7 +1183,7 @@ function renderReels(id,items,reset,emptyHTML,startAt,noCta){const st=reelState(
   if(end>=st.items.length)el.insertAdjacentHTML('beforeend',`<div class="reel reel-end"><div class="fend">${t('feed_end')}</div>${noCta?'':`<button class="btn primary" data-goto="camera">${t('do_cover')}</button>`}</div>`);
   st.shown=end;if(startAt){el.scrollTop=startAt*el.clientHeight}updateReelDist(id)}
 function reelHTML(it,i){const p=it.p,f=FILTERS.find(x=>x.id===p.filter)||FILTERS[0];
-  return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}" data-open-key="${it.g}">${it.mine?t('my_zone')+' · ':''}${geoHTML(it.g)}</span><span class="badge dark mono" data-open-key="${it.c.key}">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?coverMark('lg'):''}${p.hidden?`<span class="badge warn">${t('hidden_badge')}</span>`:''}</div>
+  return`<article class="reel" data-i="${i}" data-key="${it.c.key}"><img class="reel-bg" src="${p.thumb}" alt="" aria-hidden="true"><div class="reel-wrap"><div class="reel-top"><span class="badge ${it.mine?'gold':''}" data-open-key="${it.g}">${it.mine?t('my_zone')+' · ':''}${geoHTML(it.g)}</span><span class="badge dark mono" data-open-key="${it.c.key}">${OLC.short(it.c.key)}</span><span class="badge dark">${it.idx+1}/${it.n}</span>${it.isCover?coverMark('lg'):''}${p.hidden?`<span class="badge warn">${t('hidden_badge')}</span>`:''}</div>
   <div class="reel-card" data-open-photo="${p.id}">${p.media==='video'?`<video data-src="${p.full}" poster="${p.thumb}" muted loop playsinline preload="none" style="filter:${cssFilter(f)}"></video><button class="vmute" data-mute="1">🔇</button>`:`<img data-src="${p.full}" src="${p.thumb}" alt="" style="filter:${cssFilter(f)}">`}</div>
   <div class="reel-bottom"><div class="reel-info"><b>${userLink(p)}</b>${p.caption?`<p class="cap">${esc(p.caption)}</p>`:''}<span>${timeAgo(p.ts)}, ${filterName(p.filter)}</span></div>
   <div class="reel-actions">${likeBtn(p)}${cmtBtn(p)}<button class="like" data-share="${p.id}">↗</button>${p.user.me?`<button class="like" data-edit="${p.id}">✎</button>`:''}${reportBtn(p)}</div></div></div></article>`}
