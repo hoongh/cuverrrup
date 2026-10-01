@@ -83,7 +83,7 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 /* bottom sheet */
 #backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:86}
 #backdrop.open{opacity:1;pointer-events:auto}
-.sheet{position:absolute;left:0;right:0;bottom:0;max-height:94%;background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-2);transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:88;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:86%;background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-2);transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:88;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
 .sheet.open{transform:none}
 .sheet .handle{width:36px;height:3px;border-radius:2px;background:var(--line-2);margin:10px auto 6px;flex:none}
 .sheet .body{overflow-y:auto;padding:8px 18px calc(18px + var(--safe))}
@@ -629,6 +629,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
         <h1 data-i18n="me_title" style="margin:0"></h1>
         <button class="chip-btn" id="pf-mymap" data-i18n="my_covermap"></button>
       </div>
+      <div class="hint mono" id="vp-diag-top" style="font-size:11px;margin:8px 0 2px;word-break:break-all;line-height:1.5"></div>
       <p class="tagline">Let's coverrrup the world!!</p>
       <p class="sub" data-i18n="me_sub"></p>
       <div class="pf-card">
@@ -1622,7 +1623,7 @@ function renderProfile(){renderMyPhotos();$('#admin-box').hidden=!S.profile.is_a
   $('#earth-all-val').textContent=pct(all);$('#earth-all-sub').textContent=t('cells_n',{n:fmtInt(all)});$('#earth-me-val').textContent=pct(cells.length);$('#earth-me-sub').textContent=t('cells_n',{n:fmtInt(cells.length)});$('#ring-all').setAttribute('stroke-dasharray',`${all?Math.max(6,all/EARTH*424):0} 565`);$('#ring-me').setAttribute('stroke-dasharray',`${cells.length?Math.max(6,cells.length/EARTH*424):0} 565`);
   $('#loc-label').textContent=S.me.src==='gps'?t('loc_gps')+(S.me.acc?t('loc_acc',{m:Math.round(S.me.acc)}):''):t('loc_none');$('#loc-code').textContent=OLC.format(OLC.key(S.me.lat,S.me.lng));updateVpDiag()}
 // 화면 맞춤 진단 한 줄 (나 탭 맨 아래): 폰마다 다른 뷰포트 보고값을 실기기에서 바로 읽기 위한 것
-function updateVpDiag(){const el=$('#vp-diag');if(!el)return;try{
+function updateVpDiag(){const el={set textContent(v){const a=$('#vp-diag'),b=$('#vp-diag-top');if(a)a.textContent=v;if(b)b.textContent=v}};try{
   let probe=document.getElementById('dvh-probe');if(!probe){probe=document.createElement('div');probe.id='dvh-probe';probe.style.cssText='position:fixed;top:0;left:0;width:0;height:100dvh;visibility:hidden;pointer-events:none';document.body.appendChild(probe)}
   const ph=$('.phone').getBoundingClientRect(),tb=$('.tabbar').getBoundingClientRect(),lb=document.querySelector('.tab span'),lr=lb?lb.getBoundingClientRect():{width:0,height:0},tcs=getComputedStyle($('.tabbar')),hcs=getComputedStyle($('.map-hdr'));
   el.textContent=`vp: inner ${innerHeight} · vv ${window.visualViewport?Math.round(window.visualViewport.height):'-'} · dvh ${Math.round(probe.getBoundingClientRect().height)} · scr ${screen.width}×${screen.height} · app ${Math.round(ph.top)}+${Math.round(ph.height)} · tab ${Math.round(tb.top)}–${Math.round(tb.bottom)} h${Math.round(tb.height)} pad ${tcs.paddingBottom} · hdr ${hcs.paddingTop} · lbl ${Math.round(lr.width)}×${Math.round(lr.height)} · ${IS_STANDALONE()?'standalone':'browser'}/${IS_IOS?'ios':'other'} · ${location.hostname}`}catch(e){el.textContent='vp: '+e.message}}
@@ -2077,10 +2078,10 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
 // 이 하한은 iOS에만 적용한다: Android 설치형은 웹뷰가 상태바·내비바를 덮지 않아 screen.height가 실제
 // 보이는 높이보다 크고, 그대로 쓰면 탭바가 화면 아래로 밀려 나간다 (갤럭시 폴드에서 확인).
 const IS_STANDALONE=()=>navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
-function screenHeightCss(){const a=Math.max(screen.width,screen.height),b=Math.min(screen.width,screen.height);const portrait=window.matchMedia?window.matchMedia('(orientation: portrait)').matches:innerHeight>=innerWidth;return portrait?a:b}
+// 설치형에서는 innerHeight(웹뷰 높이)와 visualViewport 중 큰 값을 쓴다. screen.height를 하한으로 쓰면
+// 아이폰에서 웹뷰보다 큰 레이아웃이 되어 탭바 글자와 시트 아래가 화면 밖으로 잘렸다 (실기기 확인).
 function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0;let h=vv||window.innerHeight;
-  if(IS_STANDALONE()&&IS_IOS)h=Math.max(window.innerHeight,vv,screenHeightCss());
-  else if(IS_STANDALONE())h=Math.max(window.innerHeight,vv);
+  if(IS_STANDALONE())h=Math.max(window.innerHeight,vv);
   document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 if(window.matchMedia)window.matchMedia('(display-mode: standalone)').addEventListener('change',fitViewport);
