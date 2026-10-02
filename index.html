@@ -1347,7 +1347,7 @@ function renderRank(){$$('[data-rview]').forEach(b=>b.classList.toggle('on',b.da
 async function renderLiveTrips(seq){const el=$('#rank-body');if(!TRIPS.all.length)el.innerHTML=`<div class="page"><h1>${t('live_trips_title')}</h1><p class="hint">${t('adm_load')}</p></div>`;
   await pollTrips(true);if(seq!==undefined&&seq!==rankSeq)return;const me=S.user&&S.user.id;
   // 진행 중: 누구나 팔로우 가능으로 공개된 것만. 마무리됨: 모든 여정(여정카드 데이터는 다 공개)
-  const live=TRIPS.all.filter(x=>!x.ended_at&&x.visibility==='open').sort((a,b)=>tripMs(b.started_at)-tripMs(a.started_at)),ended=TRIPS.all.filter(x=>x.ended_at).sort((a,b)=>tripMs(b.ended_at)-tripMs(a.ended_at)).slice(0,60);
+  const live=TRIPS.all.filter(x=>!x.ended_at&&x.visibility==='open').sort((a,b)=>tripMs(b.started_at)-tripMs(a.started_at)),ended=TRIPS.all.filter(x=>x.ended_at&&x.card).sort((a,b)=>tripMs(b.ended_at)-tripMs(a.ended_at)).slice(0,60);
   // 마무리된 공개 여정의 사진·참여자는 여기서만 필요하니 그때그때 받아 캐시에 합친다
   const need=ended.filter(x=>!TRIPS.photos.has(x.id)&&!TRIPS.members.has(x.id)).map(x=>x.id);
   if(need.length&&sb){try{const [p1,m1]=await Promise.all([sb.from('trip_photos').select('trip_id,photo_id,user_id').in('trip_id',need),sb.from('trip_members').select('trip_id,user_id,state,role').in('trip_id',need)]);
@@ -1430,7 +1430,12 @@ function decodeJourneyIds(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while
 function journeyShareLinkFor(j){if(!S.user||!j.ids||!j.ids.length)return null;
   const enc=encodeJourneyIds(j.ids);if(!enc)return null;
   return SITE_ORIGIN+'/j/s?d='+enc}
-function deleteMyJourney(id){saveMyJourneysList(loadMyJourneys().filter(j=>j.id!==id));renderProfile()}
+function deleteMyJourney(id){const j=loadMyJourneys().find(x=>x.id===id);saveMyJourneysList(loadMyJourneys().filter(x=>x.id!==id));renderProfile();
+  if(j&&j.tripId&&sb&&S.user&&(!j.owner||j.owner===S.user.id))unpublishJourney(j.tripId)}
+// 카드를 지우면 서버의 여정도 지워서 랭킹 › 마무리된 여정에서 사라지게 한다 (지울 수 없으면 카드만 비운다)
+async function unpublishJourney(tid){try{const r=await sb.from('trips').delete().eq('id',tid);if(r.error)throw r.error}catch(e){console.warn('unpublish',e);try{await sb.from('trips').update({card:null}).eq('id',tid)}catch(e2){}}
+  try{await sb.storage.from('photos').remove([`${S.user.id}/trip-${tid}.jpg`])}catch(e){}
+  TRIPS.all=TRIPS.all.filter(x=>x.id!==tid);recomputeTripFeed();pollTrips(true)}
 function saveMyJourneysList(list){localStorage.setItem('ctw-journeys',JSON.stringify(list))}
 function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
 function journeyOrder(){return[...journeySel].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts)}
