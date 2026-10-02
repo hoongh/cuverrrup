@@ -93,7 +93,7 @@ declare
   n_active int;
 begin
   -- (assignments instead of SELECT ... INTO: the Supabase editor mistakes SELECT INTO for table creation
-  --  and injects its own ALTER TABLE lines into the function body)
+  --  and splices its own ALTER TABLE lines in the middle of the function body)
   is_owner := (select t.owner = auth.uid() from public.trips t where t.id = new.trip_id);
   if is_owner is null then raise exception 'no such trip'; end if;
 
