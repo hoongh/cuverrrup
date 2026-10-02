@@ -58,8 +58,8 @@ create policy trips_read   on public.trips for select to authenticated using (tr
 create policy trips_insert on public.trips for insert to authenticated with check (owner = auth.uid());
 create policy trips_update on public.trips for update to authenticated using (owner = auth.uid()) with check (owner = auth.uid());
 
--- trip_members: readable by everyone signed in; the owner adds invites (and their own 'owner' row),
--- anyone may add themselves as 'requested'; updates go through the guard trigger below
+-- trip_members: readable by everyone signed in; the owner adds invites (and their own owner row),
+-- anyone may add themselves as requested; updates go through the guard trigger below
 drop policy if exists tm_read   on public.trip_members;
 drop policy if exists tm_insert on public.trip_members;
 drop policy if exists tm_update on public.trip_members;
@@ -146,4 +146,4 @@ create trigger trip_members_guard before insert or update on public.trip_members
   for each row execute function public.trip_members_guard();
 
 -- Owner must be able to see profiles to search friends by name: profiles already readable (used by the app).
--- Card images are uploaded to the existing public 'photos' bucket at {owner}/trip-{trip_id}.jpg.
+-- Card images are uploaded to the existing public photos bucket at {owner}/trip-{trip_id}.jpg.
