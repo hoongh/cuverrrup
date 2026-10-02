@@ -140,6 +140,7 @@ begin
       if not ((old.state = ''invited'' and new.state in (''joined'',''declined'',''follower''))
            or (old.state in (''joined'',''requested'',''follower'') and new.state = ''left'')
            or (old.state = ''follower'' and new.state = ''requested'')
+           or (old.state = ''requested'' and new.state = ''follower'')
            or (old.state in (''declined'',''rejected'',''left'') and new.state in (''requested'',''follower''))) then
         raise exception ''not allowed'';
       end if;
