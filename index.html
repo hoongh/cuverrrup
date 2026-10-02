@@ -284,7 +284,9 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .tripbtn.on{background:#8FB6E8;color:#141A24}
 .phone-mode .trip-big{border-color:#8FB6E8;color:#8FB6E8}
 .trip-timer{position:absolute;top:calc(10px + var(--safe-top));right:14px;z-index:60;display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid rgba(143,182,232,.6);background:rgba(20,18,16,.9);color:#fff;font-size:13px;backdrop-filter:blur(8px);cursor:pointer}
+.trip-timer{touch-action:none;user-select:none;-webkit-user-select:none}
 .trip-timer .trip-lbl{font-size:11px;color:#8FB6E8;font-weight:600;letter-spacing:.02em}
+body.trip-on .rank-seg{padding-top:calc(12px + var(--safe-top) + 42px)}
 body.trip-on .follow-set,body.trip-on .feed-seg{top:calc(14px + var(--safe-top) + 42px)}
 body.trip-on .feedlike .reel-dist{top:calc(14px + var(--safe-top) + 88px)}
 body.trip-on .feedlike .dist-pop{top:calc(72px + var(--safe-top) + 88px)}
@@ -1832,6 +1834,20 @@ async function drawJourneyMap(ctx,x0,y0,W,H,track,order,dur){const cells=tripCel
     ctx.fillStyle='rgba(20,17,15,.85)';ctx.beginPath();ctx.arc(cx+r*.7,cy-r*.7,13,0,7);ctx.fill();ctx.fillStyle='#8FB6E8';ctx.font='700 15px '+MONO;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,cx+r*.7,cy-r*.7+1)}
   ctx.fillStyle='rgba(40,30,20,.55)';ctx.font='400 15px '+SANS;ctx.textAlign='right';ctx.textBaseline='alphabetic';ctx.fillText('© OpenMapTiles © OpenStreetMap',x0+W-12,y0+H-10);
   ctx.restore()}
+// 여정중 버튼: 탭하면 참여자/여정맵 패널, 손가락으로 끌면 화면 안 어디로든 옮길 수 있다 (위치는 폰에 기억)
+const TIMER_POS_KEY='ctw-timer-pos';
+function tripTimerTap(){if(S.tripMap==='live'){closeMapOverlay();return}const x=TRIP.id&&TRIPS.all.find(z=>z.id===TRIP.id);if(x)openTripMembers(TRIP.id);else{openTripMap();if(TRIP.id)pollTrips(true)}}
+function timerBounds(el){const pr=(el.offsetParent||document.body).getBoundingClientRect(),r=el.getBoundingClientRect();const cs=getComputedStyle(document.documentElement);const safeTop=parseFloat(cs.getPropertyValue('--safe-top'))||0,tabH=(parseFloat(cs.getPropertyValue('--tab-h'))||66)+(parseFloat(cs.getPropertyValue('--safe'))||0);
+  const W=pr.width||innerWidth,H=pr.height||innerHeight;return{minX:4,maxX:Math.max(4,W-r.width-4),minY:safeTop+4,maxY:Math.max(safeTop+4,H-tabH-r.height-8),pr}}
+function placeTimer(el,x,y){const b=timerBounds(el);x=clamp(x,b.minX,b.maxX);y=clamp(y,b.minY,b.maxY);el.style.right='auto';el.style.left=Math.round(x)+'px';el.style.top=Math.round(y)+'px';return{x,y}}
+function applyTimerPos(){const el=$('#trip-timer');if(!el)return;let p=null;try{p=JSON.parse(localStorage.getItem(TIMER_POS_KEY)||'null')}catch(e){}if(p&&isFinite(p.x)&&isFinite(p.y))placeTimer(el,p.x,p.y)}
+function bindTripTimer(){const el=$('#trip-timer');if(!el)return;let pid=null,sx=0,sy=0,ox=0,oy=0,moved=false,suppress=false;
+  el.addEventListener('pointerdown',e=>{pid=e.pointerId;sx=e.clientX;sy=e.clientY;const b=timerBounds(el),r=el.getBoundingClientRect();ox=r.left-b.pr.left;oy=r.top-b.pr.top;moved=false;try{el.setPointerCapture(pid)}catch(err){}});
+  el.addEventListener('pointermove',e=>{if(e.pointerId!==pid)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!moved){if(Math.hypot(dx,dy)<8)return;moved=true}placeTimer(el,ox+dx,oy+dy)});
+  const end=e=>{if(e.pointerId!==pid)return;pid=null;if(moved){moved=false;suppress=true;const r=el.getBoundingClientRect(),pr=(el.offsetParent||document.body).getBoundingClientRect();try{localStorage.setItem(TIMER_POS_KEY,JSON.stringify({x:r.left-pr.left,y:r.top-pr.top}))}catch(err){}}};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  el.addEventListener('click',()=>{if(suppress){suppress=false;return}tripTimerTap()});
+  window.addEventListener('resize',()=>{if(!el.hidden&&el.style.left)applyTimerPos()});applyTimerPos()}
 function openTripFinish(){S.sheet={type:'tripFinish'};openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_finish_title')}</div><div class="sh-sub"><span>${fmtDist(tripDist(TRIP.pts))}</span><span>${fmtDur(Date.now()-TRIP.start)}</span><span>${t('photos_n',{n:TRIP.photos.length})}</span></div></div></div><p class="cap big">${TRIP.photos.length?t('trip_finish_body'):t('trip_finish_nophoto')}</p><div class="row2" style="margin-top:14px"><button class="btn" data-act="back">${t('cancel')}</button><button class="btn primary" data-act="trip-done">${t('trip_stop')}</button></div>`)}
 // 마치기(오너): 참여자 전원의 사진·경로를 합쳐 카드를 만들고, 서버에 카드(이미지는 스토리지)를 올리면 참여자들이 다음 폴링 때 받아간다
 async function finishTrip(){const tid=TRIP.id,shared=!!(tid&&sb&&S.user);
@@ -1853,7 +1869,7 @@ async function finishTrip(){const tid=TRIP.id,shared=!!(tid&&sb&&S.user);
     toast(t('trip_saved'));switchTab('profile');mineFilter='journeys';renderProfile();showJourneyAfterEdit(rec.id)}
   catch(e){console.warn('trip',e);toast(t('share_fail'))}finally{JOURNEY_TRACK=null;JOURNEY_DUR=0}}
 function bindTrip(){$('#trip-btn').addEventListener('click',openTripConfirm);const pb=$('#trip-btn-phone');if(pb)pb.addEventListener('click',openTripConfirm);
-  $('#trip-timer').addEventListener('click',()=>{if(S.tripMap==='live')closeMapOverlay();else openTripMap()});
+  bindTripTimer();
   $('#trip-bar').addEventListener('click',e=>{const b=e.target.closest('[data-trip]');if(!b)return;const a=b.dataset.trip;if(a==='finish')openTripFinish();else if(a==='members'&&TRIP.id)openTripMembers(TRIP.id);else if(a==='leave'&&TRIP.id)tripAction('leave',TRIP.id)});
   updateTripUI()}
 // ---------- 함께하는 여정 (서버): trips / trip_members / trip_photos — 스키마는 supabase/trips.sql
@@ -1928,7 +1944,8 @@ function openTripMembers(tid,refresh){const x=TRIPS.all.find(z=>z.id===tid);if(!
   <div class="flist mlist">${ms.map(m=>{const nm=esc(userName(m.user_id));let act='';
     if(isOwner&&m.user_id!==me){act=m.state==='requested'?`<button class="like" data-tripact="reject" data-trip="${tid}" data-user="${m.user_id}">${t('trip_deny')}</button><button class="like on" data-tripact="approve" data-trip="${tid}" data-user="${m.user_id}">${t('trip_allow')}</button>`:`<button class="like" data-tripact="remove" data-trip="${tid}" data-user="${m.user_id}">${t('trip_remove')}</button>`}
     return`<div class="frow">${avatarHTML({id:m.user_id,name:nm,me:m.user_id===me})}<div class="finfo"><b>${nm}</b><span class="state">${t('st_'+m.state)}</span></div>${act}</div>`}).join('')}</div>
-  <div class="row2" style="margin-top:14px">${isOwner?`<button class="btn" data-tripact="invite-more" data-trip="${tid}">${t('trip_invite_more')}</button>`:`<button class="btn" data-tripact="leave" data-trip="${tid}">${t('trip_leave')}</button>`}<button class="btn primary" data-act="back">${t('back')}</button></div>`)}
+  <div class="row2" style="margin-top:14px">${isOwner?`<button class="btn" data-tripact="invite-more" data-trip="${tid}">${t('trip_invite_more')}</button>`:`<button class="btn" data-tripact="leave" data-trip="${tid}">${t('trip_leave')}</button>`}<button class="btn primary" data-tripact="map" data-trip="${tid}">${t('trip_map')}</button></div>
+  ${isOwner&&!x.ended_at&&TRIP.on&&TRIP.id===tid?`<div class="row2" style="margin-top:10px"><button class="btn" data-act="back">${t('back')}</button><button class="btn" data-tripact="finish" data-trip="${tid}">${t('trip_stop')}</button></div>`:`<div class="row2" style="margin-top:10px"><button class="btn" data-act="back">${t('back')}</button></div>`}`)}
 // 초대/요청 팝업: 시트가 닫혀 있을 때 하나씩. 한 번 본 건 다시 안 뜨고, 시작 시트(받은 초대)·참여자 시트(요청)에서 처리할 수 있다
 function tripPopups(){if(!S.user||S.sheet||$('#sheet').classList.contains('open'))return;const me=S.user.id;
   for(const x of TRIPS.all){if(x.ended_at)continue;if(TRIPS.myState.get(x.id)==='invited'&&!TRIP_SEEN.has('inv:'+x.id)){openTripInvite(x);return}}
@@ -1939,7 +1956,7 @@ function openTripRequest(x,m){tripSeen('req:'+x.id+':'+m.user_id);S.sheet={type:
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_req_title')}</div></div></div><p class="cap big">${t('trip_req_body',{name:esc(userName(m.user_id)),trip:esc(tripName(x))})}</p>${tripMembersLine(x.id)}<div class="row2" style="margin-top:14px"><button class="btn" data-tripact="reject" data-trip="${x.id}" data-user="${m.user_id}">${t('trip_deny')}</button><button class="btn primary" data-tripact="approve" data-trip="${x.id}" data-user="${m.user_id}">${t('trip_allow')}</button></div>`)}
 function pendingInvitesHTML(){const list=TRIPS.all.filter(x=>!x.ended_at&&TRIPS.myState.get(x.id)==='invited');if(!list.length)return'';
   return`<h3 class="sh-h3">${t('trip_invite_title')}</h3><div class="flist mlist">${list.map(x=>`<div class="frow"><div class="finfo"><b>${esc(tripName(x))}</b><span class="state">${esc(userName(x.owner))}</span></div><button class="like" data-tripact="decline" data-trip="${x.id}">${t('trip_nojoin')}</button><button class="like on" data-tripact="accept" data-trip="${x.id}">${t('trip_join')}</button></div>`).join('')}</div>`}
-async function tripAction(act,tid,uid){if(!sb||!S.user)return;const me=S.user.id,x=TRIPS.all.find(z=>z.id===tid);
+async function tripAction(act,tid,uid){if(act==='map'){closeSheet();openTripMap();return}if(act==='finish'){openTripFinish();return}if(!sb||!S.user)return;const me=S.user.id,x=TRIPS.all.find(z=>z.id===tid);
   try{if(act==='accept'){if(TRIP.on){toast(t('trip_busy'));return}const r=await sb.from('trip_members').update({state:'joined'}).match({trip_id:tid,user_id:me});if(r.error)throw r.error;closeSheet();if(x){attachLocalTrip(x);rememberMates([{id:x.owner,name:userName(x.owner)}])}}
     else if(act==='decline'){const r=await sb.from('trip_members').update({state:'declined'}).match({trip_id:tid,user_id:me});if(r.error)throw r.error;if(S.sheet&&S.sheet.type==='tripStart')refreshTripStart();else closeSheet()}
     else if(act==='approve'||act==='reject'){const r=await sb.from('trip_members').update({state:act==='approve'?'joined':'rejected'}).match({trip_id:tid,user_id:uid});if(r.error)throw r.error;if(act==='approve'&&uid)rememberMates([{id:uid,name:userName(uid)}]);if(!(S.sheet&&S.sheet.type==='tripMembers'))closeSheet()}
