@@ -80,11 +80,11 @@ create policy tm_read   on public.trip_members for select to authenticated using
 create policy tm_insert on public.trip_members for insert to authenticated with check (
   (user_id = auth.uid() and state = 'requested')
   or (user_id = auth.uid() and state = 'follower'
-      and exists (select 1 from public.trips t where t.id = trip_id and (t.visibility = 'open' or t.ended_at is not null)))
-  or exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid() and state in ('owner','invited'))
+      and exists (select 1 from public.trips t where t.id = trip_members.trip_id and (t.visibility = 'open' or t.ended_at is not null)))
+  or exists (select 1 from public.trips t where t.id = trip_members.trip_id and t.owner = auth.uid() and state in ('owner','invited'))
 );
 create policy tm_update on public.trip_members for update to authenticated using (
-  user_id = auth.uid() or exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid())
+  user_id = auth.uid() or exists (select 1 from public.trips t where t.id = trip_members.trip_id and t.owner = auth.uid())
 );
 
 -- trip_photos: readable by everyone; a joined member links their own photo while the trip is live; the owner may link at any time (journey cards)
@@ -92,14 +92,14 @@ drop policy if exists tp_read   on public.trip_photos;
 drop policy if exists tp_insert on public.trip_photos;
 create policy tp_read   on public.trip_photos for select to authenticated using (true);
 create policy tp_insert on public.trip_photos for insert to authenticated with check (
-  exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid())
+  exists (select 1 from public.trips t where t.id = trip_photos.trip_id and t.owner = auth.uid())
   or (user_id = auth.uid()
       and exists (select 1 from public.trip_members m join public.trips t on t.id = m.trip_id
-                  where m.trip_id = trip_id and m.user_id = auth.uid() and m.state in ('owner','joined') and m.role = 'post' and t.ended_at is null))
+                  where m.trip_id = trip_photos.trip_id and m.user_id = auth.uid() and m.state in ('owner','joined') and m.role = 'post' and t.ended_at is null))
 );
 drop policy if exists tp_update on public.trip_photos;
 create policy tp_update on public.trip_photos for update to authenticated using (
-  exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid())
+  exists (select 1 from public.trips t where t.id = trip_photos.trip_id and t.owner = auth.uid())
 );
 
 -- Guard: only the transitions listed above are allowed, members can only touch their own track,
