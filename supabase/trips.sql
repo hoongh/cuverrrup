@@ -92,13 +92,15 @@ declare
   is_owner boolean;
   n_active int;
 begin
-  select (t.owner = auth.uid()) into is_owner from public.trips t where t.id = new.trip_id;
+  -- (plain assignments here: the Supabase editor misreads the alternative syntax as table creation
+  --  and splices its own ALTER TABLE lines in the middle of the function body)
+  is_owner := (select t.owner = auth.uid() from public.trips t where t.id = new.trip_id);
   if is_owner is null then raise exception 'no such trip'; end if;
 
   if tg_op = 'INSERT' then
     if new.state in ('invited','requested') then
-      select count(*) into n_active from public.trip_members m
-        where m.trip_id = new.trip_id and m.state in ('invited','requested','joined');
+      n_active := (select count(*) from public.trip_members m
+        where m.trip_id = new.trip_id and m.state in ('invited','requested','joined'));
       if n_active >= 10 then raise exception 'trip is full (10)'; end if;
     end if;
     new.updated_at := now();
@@ -127,8 +129,8 @@ begin
         raise exception 'not allowed';
       end if;
       if new.state = 'invited' then
-        select count(*) into n_active from public.trip_members m
-          where m.trip_id = new.trip_id and m.user_id <> new.user_id and m.state in ('invited','requested','joined');
+        n_active := (select count(*) from public.trip_members m
+          where m.trip_id = new.trip_id and m.user_id <> new.user_id and m.state in ('invited','requested','joined'));
         if n_active >= 10 then raise exception 'trip is full (10)'; end if;
       end if;
     end if;
