@@ -1,5 +1,6 @@
 -- 함께하는 커버럽 여정 (shared trips)
--- Run this in the Supabase SQL editor. The client works without it (solo trips stay local),
+-- Run this in the Supabase SQL editor (paste the whole file at once; the function body uses $guard$ quotes so the
+-- editor's statement splitter leaves it alone). The client works without it (solo trips stay local),
 -- and switches the shared features on as soon as these tables exist.
 --
 --   trips          one row per journey: owner, name, start/end, final card (jsonb)
@@ -85,7 +86,8 @@ create policy tp_insert on public.trip_photos for insert to authenticated with c
 -- Guard: only the transitions listed above are allowed, members can only touch their own track,
 -- and a trip holds at most 10 people besides the owner.
 create or replace function public.trip_members_guard() returns trigger
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public
+as $guard$
 declare
   is_owner boolean;
   n_active int;
@@ -135,7 +137,8 @@ begin
   end if;
   new.updated_at := now();
   return new;
-end $$;
+end
+$guard$;
 
 drop trigger if exists trip_members_guard on public.trip_members;
 create trigger trip_members_guard before insert or update on public.trip_members
