@@ -11,7 +11,8 @@
 --   invited    owner invited them, waiting for their answer      → joined / declined
 --   requested  they asked to join, waiting for the owner         → joined / rejected
 --   joined     taking part
---   declined / rejected / left   out (may be invited or request again)
+--   follower   following an open trip: sees its photos in the feed, does not post, not counted as a participant
+--   declined / rejected / left   out (may be invited, follow or request again)
 
 create extension if not exists pgcrypto;
 
@@ -45,6 +46,16 @@ create table if not exists public.trip_photos (
   primary key (trip_id, photo_id)
 );
 
+-- Later additions (safe to re-run): who may see a trip, and what an invited friend may do
+alter table public.trips add column if not exists visibility text not null default 'invite';
+alter table public.trips drop constraint if exists trips_visibility_check;
+alter table public.trips add constraint trips_visibility_check check (visibility in ('invite','open'));
+alter table public.trip_members add column if not exists role text not null default 'post';
+alter table public.trip_members drop constraint if exists trip_members_role_check;
+alter table public.trip_members add constraint trip_members_role_check check (role in ('post','view'));
+alter table public.trip_members drop constraint if exists trip_members_state_check;
+alter table public.trip_members add constraint trip_members_state_check check (state in ('owner','invited','requested','joined','declined','rejected','left','follower'));
+
 alter table public.trips        enable row level security;
 alter table public.trip_members enable row level security;
 alter table public.trip_photos  enable row level security;
@@ -66,6 +77,8 @@ drop policy if exists tm_update on public.trip_members;
 create policy tm_read   on public.trip_members for select to authenticated using (true);
 create policy tm_insert on public.trip_members for insert to authenticated with check (
   (user_id = auth.uid() and state = 'requested')
+  or (user_id = auth.uid() and state = 'follower'
+      and exists (select 1 from public.trips t where t.id = trip_id and t.visibility = 'open' and t.ended_at is null))
   or exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid() and state in ('owner','invited'))
 );
 create policy tm_update on public.trip_members for update to authenticated using (
@@ -79,7 +92,7 @@ create policy tp_read   on public.trip_photos for select to authenticated using 
 create policy tp_insert on public.trip_photos for insert to authenticated with check (
   user_id = auth.uid()
   and exists (select 1 from public.trip_members m join public.trips t on t.id = m.trip_id
-              where m.trip_id = trip_id and m.user_id = auth.uid() and m.state in ('owner','joined') and t.ended_at is null)
+              where m.trip_id = trip_id and m.user_id = auth.uid() and m.state in ('owner','joined') and m.role = 'post' and t.ended_at is null)
 );
 
 -- Guard: only the transitions listed above are allowed, members can only touch their own track,
@@ -100,6 +113,9 @@ begin
   if is_owner is null then raise exception ''no such trip''; end if;
 
   if tg_op = ''INSERT'' then
+    if new.state = ''follower'' and not exists (select 1 from public.trips t where t.id = new.trip_id and t.visibility = ''open'' and t.ended_at is null) then
+      raise exception ''trip is not open'';
+    end if;
     if new.state in (''invited'',''requested'') then
       n_active := (select count(*) from public.trip_members m
         where m.trip_id = new.trip_id and m.state in (''invited'',''requested'',''joined''));
@@ -111,11 +127,13 @@ begin
 
   if new.trip_id <> old.trip_id or new.user_id <> old.user_id then raise exception ''not allowed''; end if;
   if new.user_id = auth.uid() then
+    if new.role <> old.role and not is_owner then raise exception ''not allowed''; end if;
     if new.state <> old.state then
       if old.state = ''owner'' then raise exception ''not allowed''; end if;
       if not ((old.state = ''invited'' and new.state in (''joined'',''declined''))
-           or (old.state in (''joined'',''requested'') and new.state = ''left'')
-           or (old.state in (''declined'',''rejected'',''left'') and new.state = ''requested'')) then
+           or (old.state in (''joined'',''requested'',''follower'') and new.state = ''left'')
+           or (old.state = ''follower'' and new.state = ''requested'')
+           or (old.state in (''declined'',''rejected'',''left'') and new.state in (''requested'',''follower''))) then
         raise exception ''not allowed'';
       end if;
     end if;
@@ -123,7 +141,7 @@ begin
     if new.track is distinct from old.track then raise exception ''not allowed''; end if;
     if new.state <> old.state then
       if not ((old.state = ''requested'' and new.state in (''joined'',''rejected''))
-           or (old.state in (''joined'',''invited'',''requested'') and new.state = ''left'')
+           or (old.state in (''joined'',''invited'',''requested'',''follower'') and new.state = ''left'')
            or (old.state in (''declined'',''rejected'',''left'') and new.state = ''invited'')) then
         raise exception ''not allowed'';
       end if;
