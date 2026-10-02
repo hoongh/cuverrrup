@@ -642,7 +642,7 @@ body.trip-on .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 88px)
       <div class="cam-actions" id="cam-actions">
         <div class="filter-wrap" id="filter-wrap"><button class="filter-btn" id="filter-btn"><span class="sw" id="filter-btn-sw"></span></button><div class="filter-pop" id="filter-pop" hidden></div></div>
         <div class="shoot-group" id="shoot-group"><button class="shutter" id="shutter" aria-label="사진"></button><button class="vidbtn" id="vidbtn" aria-label="동영상"><i></i></button><button class="rec-ext" id="rec-ext" type="button" hidden>+15s</button></div>
-        <div class="cam-right" id="cam-right"><button class="tripbtn" id="trip-btn" aria-label="journey"><svg viewBox="0 0 24 24"><path d="M5 19c4-1 3-6 7-7s4 5 7-2"/><circle cx="5" cy="19" r="1.6"/><circle cx="19" cy="10" r="1.6"/></svg></button><div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden><div id="zoom-steps"></div><button class="zoom-lens-toggle" id="zoom-lens-toggle" hidden data-i18n="zoom_wrong_lens"></button><div class="zoom-nowide" id="zoom-nowide" hidden data-i18n="zoom_no_wide"></div></div></div></div>
+        <div class="cam-right" id="cam-right"><button class="tripbtn" id="trip-btn" aria-label="journey"><svg viewBox="0 0 24 24"><path id="trip-route" d="M5 19C9 18 8 13 12 12S16 17 19 10"/><circle id="trip-dot0" cx="5" cy="19" r="1.6"/><circle id="trip-dot1" cx="19" cy="10" r="1.6"/></svg></button><div class="zoom-wrap" id="zoom-wrap"><button class="zoom-btn" id="zoom-btn">1x</button><div class="zoom-pop" id="zoom-pop" hidden><div id="zoom-steps"></div><button class="zoom-lens-toggle" id="zoom-lens-toggle" hidden data-i18n="zoom_wrong_lens"></button><div class="zoom-nowide" id="zoom-nowide" hidden data-i18n="zoom_no_wide"></div></div></div></div>
       </div>
       <div class="cam-note" id="cam-note"><span data-i18n="cam_note"></span> <span data-i18n="rec_hint"></span></div>
     </div>
@@ -822,7 +822,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-02f'; // shown in the Me-tab diag line and in trip error sheets
+const APP_BUILD='2026-10-02g'; // shown in the Me-tab diag line and in trip error sheets
 const TRIPS_SQL_EXPECT=8; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2099,6 +2099,13 @@ function tripFail(act,tid,e){const m=String((e&&(e.message||e.details))||e||'');
   const txt=[`${act} · ${TRIP_ERR.tid}`,m,TRIP_ERR.details,TRIP_ERR.hint,TRIP_ERR.code?'code '+TRIP_ERR.code:'',`build ${APP_BUILD} · sql ${tripsSqlState()} · ${S.user?S.user.id:'-'}`].filter(Boolean).join('\n');
   pushSheet();S.sheet={type:'tripErr'};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_act_fail')}</div></div></div>${oldSql?`<p class="hint">${t('trip_sql_old',{have:TRIPS.sqlv?'v'+TRIPS.sqlv:t('sql_none'),need:TRIPS_SQL_EXPECT})}</p>`:old?`<p class="hint">${t('trip_sql_hint')}</p>`:''}<pre class="mono" style="white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.5;background:rgba(127,127,127,.12);padding:10px 12px;border-radius:12px;margin:10px 0 0">${esc(txt)}</pre><div class="row2" style="margin-top:12px"><button class="btn" data-act="back">${t('back')}</button><button class="btn primary" data-copy="${esc(txt)}">${t('copy_err')}</button></div>`);updateVpDiag()}
+// 카메라의 여정 버튼: 안의 길 모양이 계속 다른 길로 바뀐다 (여정은 늘 다른 길이니까). 카메라 탭에서만 돌고, 모션 줄이기 설정이면 멈춘다
+const TRIP_ROUTES=[[5,19,9,18,8,13,12,12,16,17,19,10],[5,16,7,7,12,17,13,11,16,6,19,14],[5,11,9,4,11,19,14,13,17,10,19,18],[6,18,7,11,13,14,14,8,15,18,18,6],[5,7,10,12,8,19,13,16,19,15,19,7],[5,14,9,20,10,9,13,9,15,19,19,12]];
+let tripAnimRaf=0;
+function tripBtnAnim(on){cancelAnimationFrame(tripAnimRaf);tripAnimRaf=0;if(!on||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;
+  const path=$('#trip-route'),d0=$('#trip-dot0'),d1=$('#trip-dot1');if(!path||!d0||!d1)return;const HOLD=1000,MOVE=1500,n=TRIP_ROUTES.length,t0=performance.now();
+  const draw=p=>{path.setAttribute('d',`M${p[0]} ${p[1]}C${p[2]} ${p[3]} ${p[4]} ${p[5]} ${p[6]} ${p[7]}S${p[8]} ${p[9]} ${p[10]} ${p[11]}`);d0.setAttribute('cx',p[0]);d0.setAttribute('cy',p[1]);d1.setAttribute('cx',p[10]);d1.setAttribute('cy',p[11])};
+  const step=now=>{const el=Math.max(0,now-t0),per=HOLD+MOVE,i=Math.floor(el/per)%n,ph=el%per,a=TRIP_ROUTES[i],b=TRIP_ROUTES[(i+1)%n];let k=ph<HOLD?0:(ph-HOLD)/MOVE;k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;draw(a.map((v,j)=>+(v+(b[j]-v)*k).toFixed(2)));tripAnimRaf=requestAnimationFrame(step)};tripAnimRaf=requestAnimationFrame(step)}
 // 시작 시트: 이름 · 혼자/친구와 · 친구 찾기(이름 또는 ID) · 최근 함께한 친구 · 받은 초대
 let TSTART={mode:'solo',mates:[],q:'',results:[],name:'',inviteFor:null},tripQT=0;
 function autoTripName(){const d=new Date();return t('trip_auto_name',{m:d.getMonth()+1,d:d.getDate()})}
@@ -2467,6 +2474,7 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
 
 // ---------- 탭 / 이벤트
 function switchTab(name){if(S.mapOverlay)closeMapOverlay();const prev=S.tab;S.tab=name;if(S.sheet)closeSheet();$('#userpage').classList.remove('show');$('#viewer').classList.remove('show');$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));$$('.tab').forEach(tb=>tb.classList.toggle('active',tb.dataset.tab===name||(tb.dataset.tab==='feed'&&(name==='follow'||name==='trips'))));
+  tripBtnAnim(name==='camera');
   if(prev==='camera'&&name!=='camera'){stopCamera();resetShot()}
   if(name==='camera'){if(!S.user){needLogin();switchTab(prev==='camera'?'map':prev);return}updateCamPlace();startCamera();locate(true)}
   if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}if(name==='follow'){maybeReload();renderFollow(true)}if(name==='trips'){maybeReload();pollTrips(true);renderTrips(true);if(TRIPS.sel){jumpToTrip(TRIPS.sel);TRIPS.sel=null}}if(name==='rank'){maybeReload();renderRank()}
