@@ -78,7 +78,7 @@ create policy tm_read   on public.trip_members for select to authenticated using
 create policy tm_insert on public.trip_members for insert to authenticated with check (
   (user_id = auth.uid() and state = 'requested')
   or (user_id = auth.uid() and state = 'follower'
-      and exists (select 1 from public.trips t where t.id = trip_id and t.visibility = 'open' and t.ended_at is null))
+      and exists (select 1 from public.trips t where t.id = trip_id and t.visibility = 'open'))
   or exists (select 1 from public.trips t where t.id = trip_id and t.owner = auth.uid() and state in ('owner','invited'))
 );
 create policy tm_update on public.trip_members for update to authenticated using (
@@ -113,7 +113,7 @@ begin
   if is_owner is null then raise exception ''no such trip''; end if;
 
   if tg_op = ''INSERT'' then
-    if new.state = ''follower'' and not exists (select 1 from public.trips t where t.id = new.trip_id and t.visibility = ''open'' and t.ended_at is null) then
+    if new.state = ''follower'' and not exists (select 1 from public.trips t where t.id = new.trip_id and t.visibility = ''open'') then
       raise exception ''trip is not open'';
     end if;
     if new.state in (''invited'',''requested'') then
@@ -130,7 +130,7 @@ begin
     if new.role <> old.role and not is_owner then raise exception ''not allowed''; end if;
     if new.state <> old.state then
       if old.state = ''owner'' then raise exception ''not allowed''; end if;
-      if not ((old.state = ''invited'' and new.state in (''joined'',''declined''))
+      if not ((old.state = ''invited'' and new.state in (''joined'',''declined'',''follower''))
            or (old.state in (''joined'',''requested'',''follower'') and new.state = ''left'')
            or (old.state = ''follower'' and new.state = ''requested'')
            or (old.state in (''declined'',''rejected'',''left'') and new.state in (''requested'',''follower''))) then
