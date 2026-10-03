@@ -25,7 +25,7 @@
   --tab-h:66px;--safe:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--reel-top-h:calc(94px + var(--safe-top));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
+html,body{margin:0;height:100%;overscroll-behavior:none}
 body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100dvh;height:var(--app-h,100dvh);overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;inset:0}
 button,input{font-family:inherit;color:inherit}
 button{cursor:pointer}
@@ -39,7 +39,7 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 }
 .screen{position:absolute;inset:0;bottom:calc(var(--tab-h) + var(--safe));display:none;flex-direction:column}
 .screen.active{display:flex}
-.screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}.reels,.rank-body,.screen.scroll,.ov-body,.sheet .body{overscroll-behavior:contain}
 
 /* tab bar */
 .tabbar{position:absolute;left:0;right:0;bottom:0;height:calc(var(--tab-h) + var(--safe));padding-bottom:var(--safe);display:flex;background:rgba(27,23,20,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:40}
@@ -313,7 +313,7 @@ body.trip-on .page{padding-top:calc(18px + var(--safe-top) + 40px)}
 .tstrip .th{position:relative;display:block;width:92px;height:92px;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.07);border:2px solid transparent}.tstrip.on .th{border-color:var(--ink)}.tstrip .th img{width:100%;height:100%;object-fit:cover;display:block}
 .tstrip b{display:block;font-size:12px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .livestk{position:absolute;right:6px;top:6px;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:999px;background:#8FB6E8;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
-.tstrip .th.round{border-radius:50%;background:var(--sky)}.tstrip .th .av-big{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:var(--bg)}
+.tstrip .th.round{border-radius:50%;background:#3A332D}.tstrip .th .av-big{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:600;color:#fff}
 .feedlike.has-strip .reels{bottom:22px}.feedlike.has-strip.strip-open .reels{bottom:166px}
 .tcard .who,.tstrip .who{display:flex;align-items:center;font-size:11px;color:var(--ink-2);margin-top:3px;min-width:0}.tcard .who .av,.tstrip .who .av{width:16px;height:16px;font-size:8px;margin-right:4px;vertical-align:middle}.tcard .who span,.tstrip .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 랭킹 › 여정: 한 줄에 3개, 대표 사진 + 순위 + 여정중 스티커 + 이름 + 만든 사람 + 팔로워 */
@@ -328,7 +328,7 @@ body.trip-on .page{padding-top:calc(18px + var(--safe-top) + 40px)}
 .ta{border-radius:16px;min-height:76px;resize:none;width:100%;display:block;line-height:1.45}
 .ti-tags{color:var(--sky);font-size:13px;margin:6px 0 2px}
 .ti-row{display:flex;align-items:center;gap:8px;margin:12px 0 6px;font-size:13px;color:var(--ink-2)}.ti-row .like{margin-left:auto}.ti-flist{margin:0 0 6px;padding:0 4px;border:1px solid var(--line);border-radius:14px}.ti-flist .frow:first-child{border-top:0}.ti-flist .frow{padding:9px 8px}
-.pgrid.jnum .pg-n{position:absolute;left:6px;top:6px;min-width:20px;height:20px;padding:0 6px;border-radius:7px;background:rgba(27,23,20,.85);color:var(--sky);font:700 12px/20px var(--mono,monospace);text-align:center}.jstats{display:grid;grid-template-columns:1fr 1fr 1fr 1.25fr;gap:6px;align-items:center;margin-top:14px;padding:12px 8px;border:1px solid var(--line);border-radius:14px}.jstats div{text-align:center;min-width:0}.jstats b{display:block;font-size:17px;font-weight:700;color:var(--sky);font-variant-numeric:tabular-nums}.jstats span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ti-sig{width:100%;height:56px;display:block}.ti-map{width:100%;height:220px;border-radius:14px;display:block;background:#1B1714;margin-top:8px;cursor:pointer}.ti-cover{margin-top:14px}.ti-cover img{width:100%;height:100%;object-fit:cover;display:block}.ti-cover-btn{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;border-color:transparent}.ti-body{white-space:pre-wrap;margin:12px 0 0}.pg.sel{outline:3px solid var(--sky);outline-offset:-3px}#ti-body.ta{width:100%;min-height:92px;border-radius:14px;resize:vertical;margin-top:14px}#ti-tags{width:100%;margin-top:0}
+.pgrid.jnum .pg-n{position:absolute;left:6px;top:6px;min-width:20px;height:20px;padding:0 6px;border-radius:7px;background:rgba(27,23,20,.85);color:var(--sky);font:700 12px/20px var(--mono,monospace);text-align:center}.jstats{display:grid;grid-template-columns:1fr 1fr 1fr 1.25fr;gap:6px;align-items:center;margin-top:14px;padding:12px 8px;border:1px solid var(--line);border-radius:14px}.jstats div{text-align:center;min-width:0}.jstats b{display:block;font-size:17px;font-weight:700;color:var(--sky);font-variant-numeric:tabular-nums}.jstats span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ti-sig{width:100%;height:56px;display:block}#ptr{position:fixed;left:50%;top:calc(var(--safe-top) + 10px);z-index:95;width:38px;height:38px;margin-left:-19px;border-radius:50%;background:var(--card);border:1px solid var(--line-2);box-shadow:0 4px 14px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-70px);transition:transform .32s cubic-bezier(.34,1.56,.64,1),opacity .2s;pointer-events:none}#ptr.show{opacity:1;transform:translateY(calc(var(--pull,0px) - 60px))}#ptr.drag{transition:none}#ptr i{width:16px;height:16px;border-radius:50%;border:2px solid var(--sky);border-top-color:transparent;transform:rotate(calc(var(--pull,0px) * 4deg))}#ptr.spin i{animation:ptrspin .7s linear infinite}@keyframes ptrspin{to{transform:rotate(360deg)}}.ti-map{width:100%;height:220px;border-radius:14px;display:block;background:#1B1714;margin-top:8px;cursor:pointer}.ti-cover{margin-top:14px}.ti-cover img{width:100%;height:100%;object-fit:cover;display:block}.ti-cover-btn{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;border-color:transparent}.ti-body{white-space:pre-wrap;margin:12px 0 0}.pg.sel{outline:3px solid var(--sky);outline-offset:-3px}#ti-body.ta{width:100%;min-height:92px;border-radius:14px;resize:vertical;margin-top:14px}#ti-tags{width:100%;margin-top:0}
 .cover-badges .badge.sky{cursor:pointer}
 .sh-sub .mono[data-goto-key]{text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .tcard .rkn{display:inline-block;min-width:14px;margin-right:4px;font-size:11px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
@@ -363,7 +363,7 @@ body.trip-on .page{padding-top:calc(18px + var(--safe-top) + 40px)}
 
 /* profile */
 .pf-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:14px}
-.avatar{width:52px;height:52px;border-radius:50%;border:1px solid var(--line-2);background:var(--sky);color:var(--bg);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
+.avatar{width:52px;height:52px;border-radius:50%;border:1px solid var(--line-2);background:#3A332D;color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
 .pf-main{flex:1;min-width:0}
 .name-in{font:inherit;font-size:20px;font-weight:400;border:0;border-bottom:1px dashed var(--line-2);background:none;width:100%;padding:2px 0;outline:none;color:var(--ink)}
 .pf-since{font-size:12px;color:var(--muted);margin-top:5px}
@@ -570,7 +570,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .pair-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .ufriends .frow .finfo{display:flex;align-items:center;gap:10px;cursor:pointer}
 /* ⚙ 시트 공통 줄: 썸네일 44px, 이름은 누를 수 있다 */
-.mth{display:inline-flex;width:44px;height:44px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.07);flex:none}.mth img{width:100%;height:100%;object-fit:cover}.live-row{display:flex;align-items:center;gap:12px;padding:10px 12px;margin:10px 0 4px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.live-row .mth{width:64px;height:64px;border-radius:12px;position:relative;cursor:pointer}.live-row .mth .livestk{left:4px;right:auto;top:4px;font-size:9px;padding:2px 6px}.live-row .finfo{flex:1;min-width:0;cursor:pointer}.live-row .finfo b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-row .finfo span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.35}.live-row .like.fol{margin:0}.live-row .live-time{color:var(--sky);font-weight:600}.live-row .live-time .live-el{font-style:normal;font-variant-numeric:tabular-nums}.live-badge .live-el{font-style:normal;font-variant-numeric:tabular-nums}.live-row.live{border:1.5px solid var(--sky);animation:liveblink 1.4s ease-in-out infinite}@keyframes liveblink{0%,100%{border-color:var(--sky);box-shadow:0 0 0 0 rgba(143,182,232,.35)}50%{border-color:rgba(143,182,232,.2);box-shadow:0 0 0 4px rgba(143,182,232,0)}}@media (prefers-reduced-motion:reduce){.live-row.live{animation:none}}
+.mth{display:inline-flex;width:44px;height:44px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.07);flex:none}.mth img{width:100%;height:100%;object-fit:cover}.live-row{display:flex;align-items:center;gap:12px;padding:10px 12px;margin:10px 0 4px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.live-row .mth{width:64px;height:64px;border-radius:12px;position:relative;cursor:pointer}.live-row .mth .livestk{left:4px;right:auto;top:4px;font-size:9px;padding:2px 6px}.live-row .finfo{flex:1;min-width:0;cursor:pointer}.live-row .finfo b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-row .finfo span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.35}.live-row .like.fol{margin:0}.live-row .live-time{color:var(--sky);font-weight:600}.live-row .live-time .live-el{font-style:normal;font-variant-numeric:tabular-nums}.live-badge .live-el{font-style:normal;font-variant-numeric:tabular-nums}.live-row.live{border:1.5px solid var(--sky);animation:liveblink 3s ease-in-out infinite}@keyframes liveblink{0%,100%{border-color:var(--sky);box-shadow:0 0 0 0 rgba(143,182,232,.35)}50%{border-color:rgba(143,182,232,.2);box-shadow:0 0 0 4px rgba(143,182,232,0)}}@media (prefers-reduced-motion:reduce){.live-row.live{animation:none}}
 .frow .finfo b[data-trip-reels],.frow .finfo b[data-user]{cursor:pointer}
 .trow-owner{display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:13px;color:var(--ink-2)}.trow-owner .like{margin-left:auto}
 .stat-list .frow{padding:10px 0;justify-content:space-between}.stat-list .finfo b{font-weight:400;font-size:14px;color:var(--ink-2)}.stat-list .val{font-size:15px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -604,9 +604,9 @@ body.trip-on .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 88px)
 #pf-avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
 #pf-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .av-edit{position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:var(--flag);color:var(--bg);font-size:14px;font-style:normal;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
-.av{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--sky);color:var(--bg);font-weight:700;font-size:11px;align-items:center;justify-content:center;overflow:hidden;vertical-align:-6px;margin-right:6px;flex:none}
-.av img{width:100%;height:100%;object-fit:cover}
-.reel-info .av{width:26px;height:26px;vertical-align:-7px}
+.av{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#3A332D;color:#fff;font-weight:600;font-size:11px;align-items:center;justify-content:center;overflow:hidden;vertical-align:-6px;margin-right:6px;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}.av.anon{background:#3A2A1F}.av.anon svg{width:100%;height:100%;display:block}
+.reel-info .av{width:26px;height:26px;vertical-align:-7px;color:#fff;font-size:12px}
 .orig-row{display:flex;justify-content:center;gap:8px;margin-top:8px}
 .orig-row .hint{color:#7E756D;font-size:11px}
 .chip-btn.tog{display:inline-flex;align-items:center;gap:8px;color:#B7ADA2;border-color:rgba(255,255,255,.3)}
@@ -874,7 +874,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-03w'; // shown in trip error sheets
+const APP_BUILD='2026-10-03y'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=10; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1016,8 +1016,10 @@ async function pumpGeo(){if(geoBusy||!geoQ.length)return;geoBusy=true;const ck=g
   setTimeout(()=>{geoBusy=false;pumpGeo()},1100)}
 const geoHTML=(key,p)=>{const {k,z}=geoKey(key,p),n=geoName(key,p);return`<span class="geo" data-geo="${k}:${z}">${n?esc(n):''}</span>`};
 const placeTitle=key=>`${geoHTML(key)} <span class="mono dim">(${esc(key.slice(4,8))}${key.length>=10?'+'+esc(key.slice(8)):''})</span>`;
-const avatarHTML=u=>{const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return`<span class="av" data-user="${u.id||''}">${url?`<img src="${url}" alt="">`:esc((nm||'?')[0])}</span>`};
-const userLink=p=>`<span class="ulink" data-user="${p.user.id||''}">${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</span>`;
+// 익명 사진의 아바타는 커버럽 로고 (누구인지 이어지지 않게 data-user 없음)
+function logoHTML(){const el=document.querySelector('.brand .logo');return el?el.outerHTML.replace(/ class="logo"/,'').replace(/id="lc"/g,'id="lc-av"').replace(/url\(#lc\)/g,'url(#lc-av)'):'●'}
+const avatarHTML=u=>{if(u.anon)return`<span class="av anon" aria-label="${t('anon')}">${logoHTML()}</span>`;const url=u.id&&S.avatars.get(u.id);const nm=u.me?S.profile.name:(u.name||'?');return`<span class="av" data-user="${u.id||''}">${url?`<img src="${url}" alt="">`:esc((nm||'?')[0])}</span>`};
+const userLink=p=>p.anonymous&&!p.user.me?`<span class="ulink">${avatarHTML({anon:true})}${esc(nameOf(p))}</span>`:`<span class="ulink" data-user="${p.user.id||''}">${avatarHTML(p.user)}${p.user.me?t('me')+' ('+esc(nameOf(p))+')':esc(nameOf(p))}</span>`;
 const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 
 // ---------- 데이터
@@ -1596,7 +1598,7 @@ async function addMyJourney(blob,order,cap,title){const img=await blobToDataUrl(
   const rec=idx>=0?{...list[idx],img,ts:Date.now(),n,ids,cap:cap||'',title:title||'',track,dur,vis:JOURNEY_VIS,friends:TSTART.mates.slice(0,10).map(m=>({id:m.id,name:m.name||''}))}:{id:'j'+Date.now(),img,ts:Date.now(),n,ids,cap:cap||'',title:title||'',track,dur,vis:JOURNEY_VIS,friends:TSTART.mates.slice(0,10).map(m=>({id:m.id,name:m.name||''}))};
   if(idx>=0)list[idx]=rec;else list.unshift(rec);
   EDIT_JOURNEY_ID=null;
-  try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,20)))}catch(e){try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,5)))}catch(e2){}}
+  try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,40)))}catch(e){try{localStorage.setItem('ctw-journeys',JSON.stringify(list.slice(0,5)))}catch(e2){}}
   if(S.tab==='profile'&&mineFilter==='journeys')renderProfile();
   return rec}
 function b64uEncode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
@@ -2231,15 +2233,17 @@ async function pollTripsRun(){
     // 요청이 허용됐거나(다른 기기에서) 참여 중인 여정이 있는데 로컬 여정이 꺼져 있으면 붙는다
     for(const x of TRIPS.mine){if(!TRIP.on&&!TRIP_SEEN.has('att:'+x.id)){attachLocalTrip(x);break}}
     // 끝난 여정의 카드 받기
-    for(const x of TRIPS.all){if(x.ended_at&&x.card&&['owner','joined'].includes(TRIPS.myState.get(x.id)))importTripCard(x)}
+    for(const x of TRIPS.all){if(x.ended_at&&x.card&&(x.owner===S.user.id||['owner','joined'].includes(TRIPS.myState.get(x.id))))importTripCard(x)}
     updateTripsUI();tripPopups();
     if(S.tab==='trips')renderTrips(true);if(S.tab==='profile')renderTripStats();if(S.tripMap==='live'){updateTripBar();requestRender()}
     if(S.sheet&&S.sheet.type==='tripMembers'&&TRIPS.all.some(x=>x.id===S.sheet.key))openTripMembers(S.sheet.key,true)}
   catch(e){console.warn('pollTrips',e)}finally{TRIPS.busy=false;TRIPS.ts=Date.now()}}
 function attachLocalTrip(x){tripSeen('att:'+x.id);const mrow=(TRIPS.members.get(x.id)||[]).find(m=>S.user&&m.user_id===S.user.id);TRIP.on=true;TRIP.id=x.id;TRIP.owner=x.owner;TRIP.name=x.name||'';TRIP.role=x.owner===(S.user&&S.user.id)?'post':((mrow&&mrow.role)||TRIPS.myRole.get(x.id)||'post');TRIP.start=tripMs(x.started_at)||Date.now();TRIP.pts=[];TRIP.photos=[];if(S.me.src==='gps')TRIP.pts.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});saveTrip();updateTripUI();locate(true);toast(t('trip_joined'))}
-function importTripCard(x){if(!S.user||x.owner===S.user.id)return;const list=loadMyJourneys(),jid='t'+x.id;if(list.some(j=>j.id===jid||j.tripId===x.id))return;const c=x.card;if(!c||!c.img)return;
-  list.unshift({id:jid,img:c.img,ts:tripMs(x.ended_at)||Date.now(),n:(c.ids||[]).length,ids:c.ids||[],cap:c.cap||'',title:c.title||x.name||'',track:c.track||null,dur:c.dur||0,tripId:x.id,shared:true,members:c.members||[],owner:c.owner||x.owner,cover:c.cover||null,body:c.body||'',tags:c.tags||''});
-  saveMyJourneysList(list.slice(0,20));toast(t('trip_ended_card',{name:x.name||''}));if(S.tab==='profile'&&mineFilter==='journeys')renderProfile()}
+// 서버의 카드를 내 폰의 여정 목록에 넣는다: 내가 만든 여정(다른 기기에서 만들었거나 폰 목록에서만 빠진 것)과 참여했던 여정.
+// 그래야 '나'가 랭킹·피드와 같은 목록이 되고, 삭제는 '나'에서 서버까지 지운다
+function importTripCard(x){if(!S.user)return;const me=S.user.id,mine=x.owner===me,list=loadMyJourneys(),jid='t'+x.id;if(list.some(j=>j.id===jid||j.tripId===x.id))return;const c=x.card;if(!c||!c.img)return;
+  list.unshift({id:jid,img:c.img,ts:tripMs(x.ended_at)||Date.now(),n:(c.ids||[]).length,ids:c.ids||[],cap:c.cap||'',title:c.title||x.name||'',track:c.track||null,dur:c.dur||0,tripId:x.id,shared:!mine,members:c.members||[],owner:c.owner||x.owner,cover:c.cover||null,body:c.body||'',tags:c.tags||'',vis:x.visibility==='open'?'open':'friends'});
+  saveMyJourneysList(list.slice(0,40));if(!mine)toast(t('trip_ended_card',{name:x.name||''}));if(S.tab==='profile'&&mineFilter==='journeys')renderProfile()}
 let tripSyncT=0;
 async function syncTripTrack(force){if(!sb||!S.user||!TRIP.on||!TRIP.id)return;if(!force&&Date.now()-tripSyncT<45000)return;tripSyncT=Date.now();
   try{await sb.from('trip_members').update({track:downsampleTrack(TRIP.pts,400)}).match({trip_id:TRIP.id,user_id:S.user.id})}catch(e){}}
@@ -2408,6 +2412,19 @@ function openTripFollowers(tid,refresh){const x=tripObj(tid);if(!x)return;const 
 function openTripMapRemote(tid){const x=TRIPS.all.find(z=>z.id===tid);if(!x)return;const pts=tripTrackOf(x);if(!(pts&&pts.length>1)){toast(t('trip_map_none'));return}
   closeSheet();S.tripMap={pts,photos:(TRIPS.photos.get(tid)||[]).map(r=>r.photo_id),dur:(x.card&&x.card.dur)||tripDurationFor(x),name:tripName(x),owner:x.owner,members:(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state)).map(m=>m.user_id)};S.myMapOnly=false;S.followMap=false;openMapOverlay();updateTripBar();requestAnimationFrame(()=>tripFitBounds(pts))}
 function tripBadge(p){const tid=TRIPS.photoTrip.get(p.id);if(!tid)return'';const x=TRIPS.all.find(z=>z.id===tid);if(!x||x.ended_at)return'';return`<span class="badge sky" data-trip-about="${tid}">${t('trip_live_badge')}</span>`}
+// ---------- 당겨서 새로고침: 맨 위에서 아래로 당기면 동그라미가 내려오고, 충분히 당긴 뒤 놓으면 튕기며 최신으로 다시 받는다 (브라우저 새로고침 대신)
+const PTR={el:null,y0:0,dy:0,active:false,busy:false};const PTR_MIN=56;
+function ptrEl(){let p=$('#ptr');if(!p){p=document.createElement('div');p.id='ptr';p.innerHTML='<i></i>';document.body.appendChild(p)}return p}
+function ptrShow(px,drag){const p=ptrEl();p.style.setProperty('--pull',px+'px');p.classList.toggle('show',px>0);p.classList.toggle('drag',!!drag&&px>0)}
+function bindPullRefresh(el){if(!el||el.dataset.ptr||el.id==='jreels-list')return;el.dataset.ptr='1';
+  el.addEventListener('touchstart',e=>{if(PTR.busy||el.scrollTop>0||!e.touches||!e.touches.length)return;PTR.el=el;PTR.y0=e.touches[0].clientY;PTR.dy=0;PTR.active=true},{passive:true});
+  el.addEventListener('touchmove',e=>{if(!PTR.active||PTR.el!==el||!e.touches||!e.touches.length)return;const dy=e.touches[0].clientY-PTR.y0;if(dy<=0||el.scrollTop>0){PTR.dy=0;ptrShow(0);return}PTR.dy=dy;ptrShow(Math.min(96,dy*0.55),true)},{passive:true});
+  const end=()=>{if(!PTR.active||PTR.el!==el)return;PTR.active=false;if(PTR.dy*0.55>=PTR_MIN)ptrRun();else ptrShow(0)};
+  el.addEventListener('touchend',end);el.addEventListener('touchcancel',end)}
+async function ptrRun(){if(PTR.busy)return;PTR.busy=true;const p=ptrEl();p.classList.add('spin');ptrShow(PTR_MIN);const t0=Date.now();try{await refreshNow()}catch(e){console.warn('refresh',e)}
+  await new Promise(r=>setTimeout(r,Math.max(0,500-(Date.now()-t0))));p.classList.remove('spin');ptrShow(0);PTR.busy=false}
+// 최신으로: 사진·좋아요·팔로우 다시 받기 + 여정 다시 받기, 보고 있던 화면 다시 그리기
+async function refreshNow(){S.lastLoad=0;await loadWorld();await pollTrips(true);if(S.tab==='rank')renderRank();if(S.tab==='profile')renderProfile();if($('#userpage').classList.contains('show')&&UPAGE.uid){UPAGE.loaded=false;await loadUserPage(UPAGE.uid)}}
 // 진행 중인 여정의 경과 시간을 1초마다 갱신한다 (프로필 줄 · 여정 시트 배지)
 function tickLive(){$$('.live-el[data-since]').forEach(el=>{el.textContent=fmtDur(Date.now()-(+el.dataset.since||Date.now()))})}
 function liveElHTML(start){return`<i class="live-el" data-since="${start}">${fmtDur(Date.now()-start)}</i>`}
@@ -2952,7 +2969,7 @@ async function init(){applyLang();initMap();bindUI();bindTrip();bindDistPick();b
   if(S.deepJData){S.suppressLogin=true;const data=S.deepJData;S.deepJData=null;openDeepJourneyLink(data)}
   await initAuth();
   if(S.deepKey){const k=S.deepKey;S.deepKey=null;const b=OLC.bounds(k);S.selected=k;centerOn(b.lat,b.lng,160);setTimeout(()=>openCellSheet(k),400);$('#login').classList.remove('show')}
-  startFeedGpsPoll();setInterval(tickLive,1000);setInterval(maybeReload,60000);setInterval(()=>{if(document.visibilityState==='visible'){pollTrips();syncTripTrack()}},20000)}
+  $$('.reels,.rank-body,.screen.scroll,.ov-body').forEach(bindPullRefresh);startFeedGpsPoll();setInterval(tickLive,1000);setInterval(maybeReload,60000);setInterval(()=>{if(document.visibilityState==='visible'){pollTrips();syncTripTrack()}},20000)}
 init();
 
 })();
