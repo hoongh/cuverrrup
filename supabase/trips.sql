@@ -171,13 +171,34 @@ drop trigger if exists trip_members_guard on public.trip_members;
 create trigger trip_members_guard before insert or update on public.trip_members
   for each row execute function public.trip_members_guard();
 
+-- 친구 팔로우: 사람을 팔로우한다 (피드 › 친구, 프로필의 팔로워·팔로잉). 누구나 읽고, 자기 행만 넣고 뺀다
+create table if not exists public.user_follows (
+  follower    uuid not null references auth.users(id) on delete cascade,
+  followee    uuid not null references auth.users(id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  primary key (follower, followee),
+  check (follower <> followee)
+);
+create index if not exists user_follows_followee_idx on public.user_follows(followee);
+alter table public.user_follows enable row level security;
+drop policy if exists uf_read   on public.user_follows;
+drop policy if exists uf_insert on public.user_follows;
+drop policy if exists uf_delete on public.user_follows;
+create policy uf_read   on public.user_follows for select to authenticated using (true);
+create policy uf_insert on public.user_follows for insert to authenticated with check (follower = auth.uid());
+create policy uf_delete on public.user_follows for delete to authenticated using (follower = auth.uid());
+
+-- 지역 팔로우(follows)는 누구나 읽을 수 있게: 친구 프로필에 그 친구가 팔로우한 지역을 보여준다 (쓰기 규칙은 그대로)
+drop policy if exists follows_read_all on public.follows;
+create policy follows_read_all on public.follows for select to authenticated using (true);
+
 -- Version stamp. The app calls this to tell whether (and which version of) this file is applied; it is created last,
 -- so if it exists everything above it ran too. Bump the number together with TRIPS_SQL_EXPECT in index.html.
-create or replace function public.trips_sql_version() returns int language sql stable as 'select 8';
+create or replace function public.trips_sql_version() returns int language sql stable as 'select 9';
 grant execute on function public.trips_sql_version() to authenticated;
 
 -- Owner must be able to see profiles to search friends by name: profiles already readable (used by the app).
 -- Card images are uploaded to the existing public photos bucket at {owner}/trip-{trip_id}.jpg.
 
--- When the whole file ran, the editor shows one row with installed_version = 8
+-- When the whole file ran, the editor shows one row with installed_version = 9
 select public.trips_sql_version() as installed_version;
