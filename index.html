@@ -875,7 +875,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-04a'; // shown in trip error sheets
+const APP_BUILD='2026-10-04b'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=10; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1197,12 +1197,12 @@ function tripPhotoIds(){const ids=new Set(TRIP.photos);if(TRIP.id)for(const p of
 function tripHasPhoto(id){return tripPhotoIds().has(id)}
 function photoListHTML(ph,list,title){list=list.filter(p=>p&&p.id!==ph.id&&!p.hidden);if(!list.length)return'';
   return`<h3 class="sh-h3">${title(list.length)}</h3><div class="alist">${list.map(p=>{const c=S.world.get(p.key),isC=c&&coverOf(c)===p;return`<div class="acard"><div class="ph acard-img" data-photo="${p.id}" data-size="small" data-open-photo="${p.id}"><span class="pg-k mono">${OLC.short(p.key)}</span>${isC?coverMark('pg'):''}</div><div class="acard-bar"><span class="who">${userLink(p)}</span>${likeBtn(p)}${cmtBtn(p)}${reportBtn(p)}</div>${p.caption?`<p class="cap">${esc(p.caption)}</p>`:''}</div>`}).join('')}</div>`}
-function tripPhotosListHTML(ph){const list=[...tripPhotoIds()].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>b.ts-a.ts);return photoListHTML(ph,list,n=>t('trip_photos_h',{n}))}
+function tripPhotosListHTML(ph){const list=[...tripPhotoIds()].map(id=>S.photos.get(id)).filter(Boolean).sort(byNewest);return photoListHTML(ph,list,n=>t('trip_photos_h',{n}))}
 // 피드 모드에 맞춰 팝업 아래 목록의 범위를 좁힌다: 여정 → 그 여정의 사진, 친구 → 그 친구의 사진, 지역 → 그 지역의 사진. 해당 없으면 null (주변 목록)
 function scopedPhotoList(ph){
-  if(S.tab==='trips'){const tid=TRIPS.photoTrip.get(ph.id)||(TRIP.on&&TRIP.photos.includes(ph.id)?TRIP.id:null);if(tid){const list=(TRIPS.photos.get(tid)||[]).map(r=>S.photos.get(r.photo_id)).filter(Boolean).sort((a,b)=>a.ts-b.ts);return photoListHTML(ph,list,n=>t('trip_photos_h',{n}))}}
-  if(S.tab==='friends'){const list=[...S.photos.values()].filter(p=>p.user.id===ph.user.id).sort((a,b)=>b.ts-a.ts);return photoListHTML(ph,list,n=>t('user_photos_h',{name:esc(ph.user.name),n}))}
-  if(S.tab==='follow'){const k=[...S.follows].filter(f=>ph.key.startsWith(f)).sort((a,b)=>b.length-a.length)[0];if(k){const list=[];for(const c of S.world.values())if(c.key.startsWith(k))list.push(...c.photos);list.sort((a,b)=>b.ts-a.ts);return photoListHTML(ph,list,n=>t('region_photos_h',{name:esc(OLC.format(k)),n}))}}
+  if(S.tab==='trips'){const tid=TRIPS.photoTrip.get(ph.id)||(TRIP.on&&TRIP.photos.includes(ph.id)?TRIP.id:null);if(tid){const list=(TRIPS.photos.get(tid)||[]).map(r=>S.photos.get(r.photo_id)).filter(Boolean).sort(byTaken);return photoListHTML(ph,list,n=>t('trip_photos_h',{n}))}}
+  if(S.tab==='friends'){const list=[...S.photos.values()].filter(p=>p.user.id===ph.user.id).sort(byNewest);return photoListHTML(ph,list,n=>t('user_photos_h',{name:esc(ph.user.name),n}))}
+  if(S.tab==='follow'){const k=[...S.follows].filter(f=>ph.key.startsWith(f)).sort((a,b)=>b.length-a.length)[0];if(k){const list=[];for(const c of S.world.values())if(c.key.startsWith(k))list.push(...c.photos);list.sort(byNewest);return photoListHTML(ph,list,n=>t('region_photos_h',{name:esc(OLC.format(k)),n}))}}
   return null}
 // --- 신고
 function openReport(id){if(!S.user)return needLogin();const ph=S.photos.get(id);if(!ph)return;pushSheet();S.sheet={type:'report',key:id};
@@ -1281,7 +1281,7 @@ async function shareCard(save){if(!SHARE.blob)return;const ph=SHARE.ph,name=`cov
 function areaListHTML(ph){const g=ph.key.slice(0,8),b0=OLC.bounds(ph.key);const list=[];for(const c of S.world.values()){if(!c.key.startsWith(g))continue;for(const p of c.photos){if(p.id===ph.id)continue;list.push({p,d:distM(b0.lat,b0.lng,c.lat,c.lng)})}}
   if(!list.length)return'';list.sort((a,c)=>a.d-c.d||(better(a.p,c.p)?-1:1));
   return`<h3 class="sh-h3">${t('nearby_in_area')} · ${list.length}</h3><div class="alist">${list.slice(0,60).map(({p,d})=>{const c=S.world.get(p.key),isC=c&&coverOf(c)===p;return`<div class="acard"><div class="ph acard-img" data-photo="${p.id}" data-size="small" data-open-photo="${p.id}"><span class="pg-k mono">${OLC.short(p.key)} · ${d<20?t('here'):fmtDist(d)}</span>${isC?coverMark('pg'):''}</div><div class="acard-bar"><span class="who">${userLink(p)}</span>${likeBtn(p)}${cmtBtn(p)}${reportBtn(p)}</div>${p.caption?`<p class="cap">${esc(p.caption)}</p>`:''}</div>`}).join('')}</div>`}
-function hashtagSheetHTML(tag){const needle='#'+tag.toLowerCase();const list=[...S.photos.values()].filter(p=>p.caption&&p.caption.toLowerCase().includes(needle)).sort((a,b)=>b.ts-a.ts);
+function hashtagSheetHTML(tag){const needle='#'+tag.toLowerCase();const list=[...S.photos.values()].filter(p=>p.caption&&p.caption.toLowerCase().includes(needle)).sort(byNewest);
   const head=`<div class="sh-head"><div><div class="sh-title">#${esc(tag)}</div><div class="sh-sub"><span>${t('photos_n',{n:list.length})}</span></div></div></div>`;
   if(!list.length)return head+`<p class="hint">${t('hashtag_empty')}</p>`;
   return head+`<div class="alist">${list.map(p=>{const c=S.world.get(p.key),isC=c&&coverOf(c)===p;return`<div class="acard"><div class="ph acard-img" data-photo="${p.id}" data-size="small" data-open-photo="${p.id}"><span class="pg-k mono">${OLC.short(p.key)}</span>${isC?coverMark('pg'):''}</div><div class="acard-bar"><span class="who">${userLink(p)}</span>${likeBtn(p)}${cmtBtn(p)}${reportBtn(p)}</div>${p.caption?`<p class="cap">${esc(p.caption)}</p>`:''}</div>`}).join('')}</div>`}
@@ -1335,7 +1335,7 @@ function buildNearbyList(){const now=Date.now();
   return items}
 function buildFollowList(){const keys=orderList('follow',[...S.follows]).filter(k=>!S.followSel.size||S.followSel.has(k)),ps=[],rk=orderRank('follow',[...S.follows]);
   for(const k of keys){for(const c of S.world.values()){if(!c.key.startsWith(k)||!c.photos.length)continue;const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),g:k})}}
-  ps.sort((a,b)=>(rk.get(a.g)-rk.get(b.g))||b.p.ts-a.p.ts);
+  ps.sort((a,b)=>(rk.get(a.g)-rk.get(b.g))||byNewest(a.p,b.p));
   return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.g,grp:x.g,isCover:x.isCover,followed:true}))}
 // 피드 순서: ⚙ 시트에서 ▲▼로 정한 순서 (지역 키 · 여정 id · 친구 id). 정하지 않은 건 원래 순서대로 그 뒤에. 띠와 릴스 묶음이 이 순서를 따른다
 const ORDER={follow:[],trips:[],friends:[]};try{Object.assign(ORDER,JSON.parse(localStorage.getItem('ctw-order')||'{}'))}catch(e){}
@@ -1371,7 +1371,7 @@ function friendStripItem(uid){const av=S.avatars.get(uid),name=userName(uid),n=[
 function markStrip(reelId,pickId){const st=reelState(reelId),it=st.items[Math.min(st.cur||0,Math.max(0,st.items.length-1))],btns=$$('#'+pickId+' [data-gpick]');let cur=it?(it.grp||it.trip||null):null;if(!cur&&btns.length)cur=btns[0].dataset.gpick;btns.forEach(b=>b.classList.toggle('on',b.dataset.gpick===cur))}
 function jumpToGroup(reelId,g){const st=reelState(reelId),el=$('#'+reelId);if(!el)return;const i=st.items.findIndex(it=>(it.grp||it.trip)===g);if(i<0)return;if(i>=st.shown)renderReels(reelId,null,false,undefined,i,reelId==='treels');el.scrollTop=i*el.clientHeight;st.cur=i;updateReelDist(reelId)}
 const ownsUid=(p,uid)=>(S.user&&uid===S.user.id)?p.user.me:p.user.id===uid;
-function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)).sort((a,b)=>b.ts-a.ts);return ps.map((p,i)=>{let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
+function buildUserList(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)).sort(byNewest);return ps.map((p,i)=>{let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}return{p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),idx:i,n:ps.length,mine:false,g:p.key.slice(0,8),isCover:coverOf(c)===p}})}
 function renderReels(id,items,reset,emptyHTML,startAt,noCta){const st=reelState(id),el=$('#'+id),dist=$('#'+id+'-dist');
   if(reset){st.items=items;st.shown=0;st.cur=0;el.innerHTML='';el.scrollTop=0}
   if(!st.items.length){el.innerHTML=emptyHTML||'';if(dist)dist.hidden=true;return}
@@ -1460,7 +1460,7 @@ function toggleTripFilter(f){if(f==='all')rankTripF.clear();else if(rankTripF.ha
 // 여정 거리: 카드의 경로 → 진행 중이면 오너의 서버 경로 → 없으면 사진 칸 사이 거리의 합
 function tripDistanceFor(x){const tr=x.card&&Array.isArray(x.card.track)&&x.card.track.length>1?x.card.track:null;if(tr)return tripDist(tr);
   if(!x.ended_at){const m=(TRIPS.members.get(x.id)||[]).find(m=>m.user_id===x.owner);if(m&&Array.isArray(m.track)&&m.track.length>1)return tripDist(m.track)}
-  const ps=(TRIPS.photos.get(x.id)||[]).map(r=>S.photos.get(r.photo_id)).filter(Boolean).sort((a,b)=>a.ts-b.ts);let d=0;for(let i=1;i<ps.length;i++){const a=OLC.bounds(ps[i-1].key),b=OLC.bounds(ps[i].key);d+=distM(a.lat,a.lng,b.lat,b.lng)}return d}
+  const ps=(TRIPS.photos.get(x.id)||[]).map(r=>S.photos.get(r.photo_id)).filter(Boolean).sort(byTaken);let d=0;for(let i=1;i<ps.length;i++){const a=OLC.bounds(ps[i-1].key),b=OLC.bounds(ps[i].key);d+=distM(a.lat,a.lng,b.lat,b.lng)}return d}
 function tripDurationFor(x){return Math.max(0,(x.ended_at?tripMs(x.ended_at):Date.now())-tripMs(x.started_at))}
 // 필터: 전체 · 여정중
 function tripPasses(x,info){return !(rankTripF.has('live')&&x.ended_at)}
@@ -1513,7 +1513,7 @@ function openFollowAction(k,isF){S.sheet={type:'faction',key:k};const shown=!S.f
 function viewFollowsOnMap(){closeSheet();S.myMapOnly=false;S.followMap=true;openMapOverlay();gpsCenter(900)}
 // ---------- 사용자 페이지 / 뷰어
 function userStats(uid){const ps=[...S.photos.values()].filter(p=>ownsUid(p,uid)),cells=new Set(ps.map(p=>p.key)),covers=[...cells].filter(k=>{const c=S.world.get(k);return c&&ownsUid(coverOf(c),uid)}).length,likes=ps.reduce((a,p)=>a+p.likes,0);return{ps,cells:cells.size,covers,likes}}
-function userGridHTML(uid,filter){const {ps}=userStats(uid);const isCov=p=>{const c=S.world.get(p.key);return c&&coverOf(c)===p};const list=(filter==='covers'?ps.filter(isCov):ps).sort((a,b)=>b.ts-a.ts);
+function userGridHTML(uid,filter){const {ps}=userStats(uid);const isCov=p=>{const c=S.world.get(p.key);return c&&coverOf(c)===p};const list=(filter==='covers'?ps.filter(isCov):ps).sort(byNewest);
   return`<div class="pgrid">${list.map(p=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-view-user="${uid}" data-view-id="${p.id}"><span class="pg-l">♥ ${p.likes}</span><span class="pg-k mono">${OLC.short(p.key)}</span>${isCov(p)?coverMark('pg'):''}${(p.hidden||p.anonymous)?`<div class="pg-badges">${p.hidden?`<span class="pg-badge hidden">${t('hidden_badge')}</span>`:''}${p.anonymous?`<span class="pg-badge anon">${t('anon')}</span>`:''}</div>`:''}</div>`).join('')}</div>`}
 // ---------- 친구 팔로우 (user_follows): 피드 › 친구에 그 사람들의 새 사진이 모인다
 let UF_OK=true;
@@ -1526,7 +1526,7 @@ async function toggleUserFollow(uid){if(!S.user)return needLogin();if(!sb||!uid|
 function refreshUserFollowUI(uid){const on=S.ufollows.has(uid);$$(`[data-ufollow="${uid}"]`).forEach(b=>{b.classList.toggle('on',on);b.textContent=on?t('following_user'):'+ '+t('follow')});
   if(S.tab==='friends')renderFriends(true);if(S.tab==='profile')renderProfile();if($('#userpage').classList.contains('show')&&UPAGE.uid)renderUserPage()}
 function buildFriendList(){const ps=[];for(const p of S.photos.values()){if(!S.ufollows.has(p.user.id)||FRIEND_HIDE.has(p.user.id)||p.hidden)continue;let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}ps.push({p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),isCover:coverOf(c)===p})}
-  const rk=orderRank('friends',[...S.ufollows]);ps.sort((a,b)=>((rk.get(a.p.user.id)??1e9)-(rk.get(b.p.user.id)??1e9))||b.p.ts-a.p.ts);return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.p.key.slice(0,8),grp:x.p.user.id,isCover:x.isCover}))}
+  const rk=orderRank('friends',[...S.ufollows]);ps.sort((a,b)=>((rk.get(a.p.user.id)??1e9)-(rk.get(b.p.user.id)??1e9))||byNewest(a.p,b.p));return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.p.key.slice(0,8),grp:x.p.user.id,isCover:x.isCover}))}
 function renderFriends(reset){const empty=S.ufollows.size?emptyReel(t('friends_none_photos'),'',''):emptyReel(t('friends_empty'),t('friends_empty_p'),`<button class="btn" data-goto="rank">${t('tab_rank')}</button>`);
   setStrip('screen-friends','friend-pick',orderList('friends',[...S.ufollows]).map(friendStripItem).join(''));renderReels('ureels',reset?buildFriendList():null,reset,empty);markStrip('ureels','friend-pick')}
 // ---------- 사용자 페이지: 나 탭과 같은 구성 (프로필 카드 + 팔로우 버튼 · 통계 · 진행 중인 여정 · 함께 커버맵 · 사진/커버/여정카드/팔로우 탭)
@@ -1635,13 +1635,13 @@ async function unpublishJourney(tid){let gone=false;try{const r=await sb.from('t
 function deleteTripEverywhere(tid){const list=loadMyJourneys(),j=list.find(x=>x.tripId===tid);if(j)saveMyJourneysList(list.filter(x=>x.tripId!==tid));if(S.tab==='profile')renderProfile();return unpublishJourney(tid)}
 function tripDelBtn(x){const me=S.user&&S.user.id;return x.owner===me?`<button class="like" data-tdel="${x.id}">${t('journey_delete')}</button>`:''}
 function saveMyJourneysList(list){localStorage.setItem('ctw-journeys',JSON.stringify(list))}
-function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort((a,b)=>b.ts-a.ts)}
-function journeyOrder(){return[...journeySel].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts)}
+function journeyMinePhotos(){return[...S.photos.values()].filter(p=>p.user.me).sort(byNewest)}
+function journeyOrder(){return[...journeySel].map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken)}
 function toggleJourneySel(id){if(journeySel.has(id))journeySel.delete(id);else{if(journeySel.size>=JOURNEY_MAX&&!isTripEdit()){toast(t('journey_max',{max:JOURNEY_MAX}));return}journeySel.add(id)}refreshJourneyPick()}
 // 라이브 여정으로 만든 카드(경로 있음)는 수정 시 그 여정에서 찍은 사진만 보여 주고 빼기만 할 수 있다.
 // 사진을 빼도 경로 기록은 그대로 두고 카드에서만 사라진다.
 function journeyPickHTML(){const editing=EDIT_JOURNEY_ID?loadMyJourneys().find(x=>x.id===EDIT_JOURNEY_ID):null,tripOnly=!!(editing&&editing.track&&editing.track.length>1);
-  const mine=tripOnly?(editing.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>b.ts-a.ts):journeyMinePhotos();const order=journeyOrder(),rank=new Map(order.map((p,i)=>[p.id,i+1]));
+  const mine=tripOnly?(editing.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort(byNewest):journeyMinePhotos();const order=journeyOrder(),rank=new Map(order.map((p,i)=>[p.id,i+1]));
   return`<div class="sh-head jpick-head"><div><div class="sh-title">${t('journey_pick_title')}</div><div class="sh-sub">${tripOnly?t('journey_trip_edit_hint'):t('journey_pick_hint',{n:journeySel.size,max:JOURNEY_MAX})}</div></div><button class="btn small primary" id="journey-next" data-act="journey-next"${journeySel.size?'':' disabled'}>${EDIT_JOURNEY_ID?t('journey_next'):t('journey_create')}</button></div>
   <div class="pgrid jpick" id="journey-grid">${mine.map(p=>`<div class="ph pg jsel-item${journeySel.has(p.id)?' sel':''}" data-photo="${p.id}" data-size="small" data-jsel="${p.id}">${journeySel.has(p.id)?`<span class="jsel-order">${rank.get(p.id)}</span>`:''}</div>`).join('')}</div>
   ${mine.length?'':`<p class="hint">${EDIT_JOURNEY_ID?t('journey_edit_nophotos'):t('my_photos_none')}</p>`}`}
@@ -1702,7 +1702,7 @@ function journeyRowSizes(n){const R=Math.max(1,Math.min(n,Math.round(n/4)));cons
 // 지역 = distinct 275m areas, 장소 = distinct 14m cells
 // 카드의 경로: 라이브 여정이면 실제 GPS 트랙, 아니면 사진을 시간순으로 이어 만든 트랙 (각 점은 14m 칸의 중심)
 function journeyTrackFor(order){if(JOURNEY_TRACK&&JOURNEY_TRACK.length>1)return{track:JOURNEY_TRACK,dur:JOURNEY_DUR||0};
-  const s=order.slice().sort((a,b)=>a.ts-b.ts),track=s.map(p=>{const b=OLC.bounds(p.key);return{lat:b.lat,lng:b.lng,ts:p.ts,photo:p.id}});
+  const s=order.slice().sort(byTaken),track=s.map(p=>{const b=OLC.bounds(p.key);return{lat:b.lat,lng:b.lng,ts:p.ts,photo:p.id}});
   return{track,dur:track.length>1?Math.max(0,track[track.length-1].ts-track[0].ts):0}}
 // 통계는 모두 14m 칸 기준: 커버럽한 지역 = 사진이 있는 칸, 지나온 지역 = 경로가 지나간 칸, 총 이동 거리 = 경로 길이
 function journeyStats(order,track,dur){const tr=track||journeyTrackFor(order).track,du=dur!==undefined?dur:journeyTrackFor(order).dur;
@@ -2078,7 +2078,7 @@ function tripFitBounds(pts){if(!pts.length){centerOn(S.me.lat,S.me.lng,300);retu
 function openTripMap(){if(!TRIP.on)return;S.tripMap='live';S.myMapOnly=false;S.followMap=false;openMapOverlay();updateTripBar();if(S.me.src!=='gps'&&!TRIP.pts.length){gpsCenter(300);return}requestAnimationFrame(()=>tripFitBounds(TRIP.pts.concat(tripRemote().pts,S.me.src==='gps'?[{lat:S.me.lat,lng:S.me.lng}]:[])))}
 // 여정카드에서 연 여정맵: 뒤로 가면 그 여정카드로 돌아간다 (back)
 // 여정맵에 쓸 경로: 여정 중 기록된 경로가 있으면 그것, 사진 고르기로 만든 카드면 사진 위치를 시간순으로 이은 경로
-function journeyMapTrack(j){if(j.track&&j.track.length>1)return{pts:j.track,dur:j.dur||0};const order=(j.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts);if(order.length<2)return null;
+function journeyMapTrack(j){if(j.track&&j.track.length>1)return{pts:j.track,dur:j.dur||0};const order=(j.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken);if(order.length<2)return null;
   const pts=order.map(p=>{const b=OLC.bounds(p.key);return{lat:b.lat,lng:b.lng,ts:p.ts,photo:p.id}});return{pts,dur:Math.max(0,pts[pts.length-1].ts-pts[0].ts)}}
 function openTripMapFor(id){const j=loadMyJourneys().find(x=>x.id===id);const tr=j&&journeyMapTrack(j);if(!tr)return;closeSheet();S.tripMap={pts:tr.pts,photos:j.ids||[],dur:tr.dur,back:id,name:j.title||'',owner:j.owner||null,members:j.members||[]};S.myMapOnly=false;S.followMap=false;openMapOverlay();updateTripBar();requestAnimationFrame(()=>tripFitBounds(tr.pts))}
 // 여정맵 머리글: 여정 이름 + 만든 사람, 함께한 친구들 (프로필 사진 + 이름)
@@ -2178,7 +2178,7 @@ function openTripFinish(){S.sheet={type:'tripFinish'};openSheet(`<div class="sh-
 async function finishTrip(){const tid=TRIP.id,shared=!!(tid&&sb&&S.user);
   if(shared){try{await pollTrips(true);if(Date.now()-S.lastLoad>5000)await loadWorld()}catch(e){}}
   const r=shared?tripRemote():{pts:[],photos:[]};
-  const photos=[...new Set(TRIP.photos.concat(r.photos))].map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts);const own=TRIP.pts.slice();if(S.me.src==='gps')own.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});
+  const photos=[...new Set(TRIP.photos.concat(r.photos))].map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken);const own=TRIP.pts.slice();if(S.me.src==='gps')own.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});
   const track=downsampleTrack(own,600),dur=Date.now()-TRIP.start,members=shared?(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state)).map(m=>m.user_id):[];
   const endedAt=new Date().toISOString();
   const meta0={body:TRIP.body||'',tags:TRIP.tags||'',cover:TRIP.cover||(photos[0]?photos[0].id:null)};
@@ -2204,6 +2204,8 @@ const TRIPS={mine:[],watch:[],feed:[],all:[],myState:new Map(),myRole:new Map(),
 const TRIP_SEEN=new Set(JSON.parse(localStorage.getItem('ctw-trip-seen')||'[]'));
 function tripSeen(k){TRIP_SEEN.add(k);try{localStorage.setItem('ctw-trip-seen',JSON.stringify([...TRIP_SEEN].slice(-200)))}catch(e){}}
 const tripMs=s=>s?new Date(s).getTime():0;
+// 사진 시간 정렬: 같은 시각(Exif는 초 단위)이면 id로 고정 순서 → 보는 곳마다 앞뒤가 바뀌지 않는다
+const byTaken=(a,b)=>(a.ts-b.ts)||(a.id<b.id?-1:a.id>b.id?1:0),byNewest=(a,b)=>byTaken(b,a);
 const tripName=x=>x&&x.name?x.name:t('trip_live_badge');
 const userName=uid=>(S.user&&uid===S.user.id)?S.profile.name:((S.names&&S.names.get(uid))||t('anon'));
 function recentMates(){try{return JSON.parse(localStorage.getItem('ctw-mates')||'[]')}catch(e){return[]}}
@@ -2305,11 +2307,11 @@ async function ensurePhotos(ids,then){const miss=[...new Set(ids)].filter(id=>id
 function buildTripList(tid){const me=S.user&&S.user.id,rows=tripPhotoRows(tid);
   const ps=[];for(const r of rows){const p=S.photos.get(r.photo_id);if(!p||p.hidden)continue;let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}ps.push({p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),isCover:coverOf(c)===p})}
   // 여정은 시간 순서대로 (출발 → 도착)
-  ps.sort((a,b)=>a.p.ts-b.p.ts);return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:!!x.p.user.me,g:x.p.key.slice(0,8),isCover:x.isCover}))}
+  ps.sort((a,b)=>byTaken(a.p,b.p));return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:!!x.p.user.me,g:x.p.key.slice(0,8),isCover:x.isCover}))}
 function buildTripFeedList(){let out=[];for(const x of tripsList())out=out.concat(buildTripList(x.id).map(it=>({...it,trip:x.id})));return out}
 // 여정 대표 사진: 정한 대표사진 → 없으면 그 여정의 첫 사진 썸네일
 // (카드 이미지는 쓰지 않는다: 사진 자체를 보여준다. 여정 사진이 캐시에 없으면 카드에 적힌 사진 id로 찾는다)
-function tripThumb(x){const cv=tripMetaOf(x).cover,cp=cv&&S.photos.get(cv);if(cp)return cp.thumb||cp.full||'';let ids=x.local?TRIP.photos:tripPhotoRows(x.id).map(r=>r.photo_id);const ps=ids.map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts);return ps.length?(ps[0].thumb||ps[0].full||''):''}
+function tripThumb(x){const cv=tripMetaOf(x).cover,cp=cv&&S.photos.get(cv);if(cp)return cp.thumb||cp.full||'';let ids=x.local?TRIP.photos:tripPhotoRows(x.id).map(r=>r.photo_id);const ps=ids.map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken);return ps.length?(ps[0].thumb||ps[0].full||''):''}
 function tripStripItem(x){const th=tripThumb(x),me=S.user&&S.user.id;return`<button class="tstrip" data-tpick="${x.id}"><span class="th">${th?`<img src="${esc(th)}" alt="">`:''}${x.ended_at?'':`<i class="livestk">${t('trip_live_stk')}</i>`}</span><b>${esc(tripName(x))}</b><span class="who">${avatarHTML({id:x.owner,name:userName(x.owner),me:x.owner===me})}<span>${esc(userName(x.owner))}</span></span></button>`}
 function renderTrips(reset){const l=tripsList();setStrip('screen-trips','trip-pick',l.map(tripStripItem).join(''));
   const empty=l.length?emptyReel(t('trips_empty'),t('trips_empty_p'),TRIP.on&&TRIP.id?`<button class="btn" data-tripact="members" data-trip="${TRIP.id}">${t('trip_members')}</button>`:''):emptyReel(t('trips_empty_all'),t('trips_empty_all_p'),`<button class="btn" data-tripact="live-rank">${t('tab_live_trips')}</button>`);
@@ -2326,7 +2328,7 @@ function openTripReels(tid,startId){const items=buildTripList(tid);if(!items.len
 function tripMetaOf(x){const m=(x&&x.meta)||{},c=(x&&x.card)||{},l=(x&&TRIP.on&&(x.local||x.id===TRIP.id))?TRIP:{};return{body:m.body||l.body||c.body||c.cap||'',tags:m.tags||l.tags||c.tags||'',cover:m.cover||l.cover||c.cover||null}}
 function localTripObj(){const me=S.user&&S.user.id;return{id:TRIP.id||'local',owner:me,name:TRIP.name,started_at:new Date(TRIP.start||Date.now()).toISOString(),ended_at:null,visibility:'invite',meta:{body:TRIP.body||'',tags:TRIP.tags||'',cover:TRIP.cover||null},local:true}}
 function tripObj(tid){return TRIPS.all.find(z=>z.id===tid)||((TRIP.on&&(tid===TRIP.id||tid==='local'))?localTripObj():null)}
-function tripPhotosOf(x){const ps=buildTripList(x.local?(TRIP.id||'local'):x.id).map(it=>it.p);if(ps.length||!(x.card&&Array.isArray(x.card.ids)))return ps;return x.card.ids.map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts)}
+function tripPhotosOf(x){const ps=buildTripList(x.local?(TRIP.id||'local'):x.id).map(it=>it.p);if(ps.length||!(x.card&&Array.isArray(x.card.ids)))return ps;return x.card.ids.map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken)}
 function tripCoverPhoto(x,ps){const m=tripMetaOf(x);return(m.cover&&S.photos.get(m.cover))||ps[0]||null}
 function tripTrackOf(x){if(x.local||(TRIP.on&&x.id===TRIP.id))return TRIP.pts;if(x.card&&Array.isArray(x.card.track)&&x.card.track.length>1)return x.card.track;const m=(TRIPS.members.get(x.id)||[]).find(m=>m.user_id===x.owner);if(m&&Array.isArray(m.track)&&m.track.length>1)return m.track;const jt=journeyMapTrack({ids:tripPhotosOf(x).map(p=>p.id)});return jt?jt.pts:[]}
 // 팔로워 = 이 여정을 보는 사람들: 팔로우한 사람 + 초대받은 친구 (오너 제외)
@@ -2364,7 +2366,7 @@ function journeyModelFromTrip(x){const me=S.user&&S.user.id,tid=x.id,isOwner=x.o
   return{kind:'trip',ref:'trip:'+tid,id:tid,rid:x.local?(TRIP.id||'local'):tid,title:tripName(x),ownerId:x.owner,isOwner,live,start,end,dur:(end||Date.now())-start,body:meta.body,tags:meta.tags,cover:meta.cover,ps,ids:ps.map(p=>p.id),track:tripTrackOf(x),followers:x.local?null:tripFollowerRows(x).length,
     follow:isOwner?'':(x.visibility==='open'||!live?`<button class="like fol${fol?' on':''}" data-tripact="${fol?'unfollow':'follow'}" data-trip="${tid}">${fol?t('following'):'+ '+t('follow')}</button>`:''),
     editable:isOwner,local:!!x.local,inviteTid:isOwner&&live&&x.visibility!=='open'&&!x.local?tid:null,finishTid:isOwner&&live&&TRIP.on&&(x.local||TRIP.id===tid)?tid:null}}
-function journeyModelFromCard(j){const me=S.user&&S.user.id,ps=(j.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort((a,b)=>a.ts-b.ts),jt=journeyMapTrack(j),owner=j.owner||me,dur=j.dur||(jt?jt.dur:0),end=j.ts||null;
+function journeyModelFromCard(j){const me=S.user&&S.user.id,ps=(j.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken),jt=journeyMapTrack(j),owner=j.owner||me,dur=j.dur||(jt?jt.dur:0),end=j.ts||null;
   return{kind:'card',ref:'card:'+j.id,id:j.id,title:j.title||t('journeys_tab'),ownerId:owner,isOwner:owner===me,live:false,start:end?end-dur:0,end,dur,body:j.body||j.cap||'',tags:j.tags||'',cover:j.cover||null,ps,ids:j.ids||[],track:jt?jt.pts:[],followers:null,follow:'',editable:false,local:false,j}}
 function modelByRef(ref){const i=ref.indexOf(':'),k=ref.slice(0,i),id=ref.slice(i+1);if(k==='trip'){const x=tripObj(id);return x?journeyModelFromTrip(x):null}const j=loadMyJourneys().find(z=>z.id===id);return j?journeyModelFromCard(j):null}
 function journeySheetHTML(m){const n=m.ps.length,when=[m.start&&!m.live?fmtDateShort(new Date(m.start)):'',!m.live&&m.dur>0?fmtDurWords(m.dur):''].filter(Boolean).join(' · ');
@@ -2740,7 +2742,7 @@ function stopRecording(){if(!REC.on)return;REC.on=false;clearInterval(REC.timer)
   const done=[];for(const r of [REC.lo,REC.hi])done.push(new Promise(res=>{r.onstop=res;try{r.stop()}catch(e){res()}}));
   Promise.all(done).then(()=>{const ext=REC.mime.includes('mp4')?'mp4':'webm';S.cam.video={lo:new Blob(REC.loChunks,{type:REC.mime}),hi:new Blob(REC.hiChunks,{type:REC.mime}),ext,poster:REC.poster};
     if(S.cam.video.lo.size<1000){S.cam.video=null;toast(t('novideo'));return}
-    S.cam.shot=REC.poster;S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;$('#caption').value='';setTool(null);renderStickers();
+    S.cam.shot=REC.poster;S.cam.shotTs=Date.now();S.cam.orig=null;S.cam.origBlob=null;S.cam.stickers=[];S.cam.sel=null;$('#caption').value='';setTool(null);renderStickers();
     const vd=$('#shot-video');vd.src=URL.createObjectURL(S.cam.video.lo);vd.muted=true;vd.play().catch(()=>{});setCamState('review');S.cam.fix=null;$('#cam-status').textContent=t('fixing');
     freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})})}
 // 갤러리 사진의 촬영 시각: Exif DateTimeOriginal(0x9003) → 없으면 파일의 수정 시각. 올릴 때 created_at으로 써서 여정·피드가 찍은 순서가 되게 한다
@@ -2750,7 +2752,9 @@ async function exifTakenAt(blob){try{const b=new Uint8Array(await blob.slice(0,2
     const readIFD=(off,want)=>{const n=u16(off);for(let k=0;k<n;k++){const e=off+2+k*12;if(e+12>b.length)break;if(u16(e)===want)return e}return -1};
     const ifd0=tiff+u32(tiff+4);let e=readIFD(ifd0,0x8769);let dateE=-1;if(e>=0){const exifIfd=tiff+u32(e+8);dateE=readIFD(exifIfd,0x9003);if(dateE<0)dateE=readIFD(exifIfd,0x9004)}if(dateE<0)dateE=readIFD(ifd0,0x0132);if(dateE<0)return null;
     const cnt=u32(dateE+4),off=cnt>4?tiff+u32(dateE+8):dateE+8;let str='';for(let k=0;k<Math.min(cnt,19);k++)str+=String.fromCharCode(b[off+k]);
-    const m=str.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);if(!m)return null;const d=new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime();return isFinite(d)&&d>946684800000?d:null}catch(e){return null}}
+    const m=str.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);if(!m)return null;let ms=0;
+    if(e>=0){const exifIfd=tiff+u32(e+8),subE=readIFD(exifIfd,0x9291);if(subE>=0){const c2=u32(subE+4),o2=c2>4?tiff+u32(subE+8):subE+8;let sub='';for(let k=0;k<Math.min(c2,3);k++){const ch=b[o2+k];if(ch>=48&&ch<=57)sub+=String.fromCharCode(ch)}if(sub)ms=Math.round(parseInt(sub.padEnd(3,'0'),10))}}
+    const d=new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6],ms).getTime();return isFinite(d)&&d>946684800000?d:null}catch(e){return null}}
 function handlePhoneFile(f){const url=URL.createObjectURL(f),im=new Image();S.cam.pickFile=f;S.cam.origTs=(f.lastModified&&f.lastModified<Date.now()-30000)?f.lastModified:null;exifTakenAt(f).then(ts=>{if(ts&&S.cam.pickFile===f)S.cam.origTs=ts});im.onload=()=>{setOriginal(im,im.naturalWidth,im.naturalHeight);S.cam.origFile=f;S.cam.video=null;S.cam.shot=cropToSquare(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);S.cam.fix=null;showReview();$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})};im.onerror=()=>toast(t('img_fail'));im.src=url}
 async function handlePhoneVideo(f){toast(t('video_convert',{p:0}));const url=URL.createObjectURL(f);const v=document.createElement('video');v.src=url;v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');
   try{await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=rej});const dur=Math.min(15,v.duration||15);if((v.duration||0)>15.5)toast(t('video_too_long'));
@@ -2881,7 +2885,7 @@ function bakeStickers(src){if(!S.cam.stickers||!S.cam.stickers.length)return src
   for(const st of S.cam.stickers){const fs=st.size*c.width;x.font=`700 ${fs}px ${SANS}`;x.textAlign='center';x.textBaseline='middle';const lines=st.text.split('\n');
     x.save();x.translate(st.x*c.width,st.y*c.height);x.rotate((st.rot||0)*Math.PI/180);lines.forEach((ln,i)=>{const y=(i-(lines.length-1)/2)*fs*1.15;if(st.type==='text'){x.shadowColor='rgba(0,0,0,.55)';x.shadowBlur=fs*0.12;x.shadowOffsetY=fs*0.04;x.fillStyle=st.color||'#fff'}else{x.shadowColor='transparent'}x.fillText(ln,0,y)});x.restore()}
   x.shadowColor='transparent';return c}
-function resetShot(){if(zoomValue!==1){zoomValue=1;buildZoomChips();applyZoomValue()}S.cam.shot=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.origFile=null;S.cam.origTs=null;S.cam.origStill=false;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('#stickers').innerHTML='';$('#edit-panel').hidden=true;const camFrame=$('#shot-box .trim-frame');if(camFrame)camFrame.hidden=true;tool=null}
+function resetShot(){if(zoomValue!==1){zoomValue=1;buildZoomChips();applyZoomValue()}S.cam.shot=null;S.cam.shotTs=null;S.cam.video=null;S.cam.orig=null;S.cam.origBlob=null;S.cam.origFile=null;S.cam.origTs=null;S.cam.origStill=false;S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').removeAttribute('src');$('#shot').style.transform='none';$('#stickers').innerHTML='';$('#edit-panel').hidden=true;const camFrame=$('#shot-box .trim-frame');if(camFrame)camFrame.hidden=true;tool=null}
 function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(key),n=cell?cell.photos.length:0;
   const mineCov=cell&&n&&coverOf(cell).user.me;const st=S.me.src!=='gps'?t('cam_place_noloc'):n===0?t('cam_place_empty'):mineCov?t('cam_place_mine',{n}):t('cam_place_n',{n});
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps';$('#vidbtn').disabled=S.me.src!=='gps'}
@@ -2893,7 +2897,7 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
     const u1=await sb.storage.from('photos').upload(path,fb,{contentType:isV?fb.type:'image/jpeg'});if(u1.error)throw u1.error;
     const u2=await sb.storage.from('photos').upload(thumbPath(path),tb,{contentType:'image/jpeg'});if(u2.error)throw u2.error;
     // 갤러리에서 고른 사진은 찍은 시각을 created_at으로 (여정·피드 순서 = 찍은 순서). 카메라로 바로 찍은 건 지금
-    const takenTs=(S.cam.origFile&&S.cam.origTs&&S.cam.origTs<Date.now()-30000)?S.cam.origTs:null;
+    const takenTs=S.cam.origFile?((S.cam.origTs&&S.cam.origTs<Date.now()-30000)?S.cam.origTs:null):(S.cam.shotTs||null);
     const {error}=await sb.from('photos').insert({id,cell:key,user_id:S.user.id,filter:S.filter.id,path,caption:caption||null,media:isV?'video':'photo',hidden:hideUpload,anonymous:anonUpload,...(takenTs?{created_at:new Date(takenTs).toISOString()}:{})});
     if(error){await sb.storage.from('photos').remove([path,thumbPath(path)]);throw error}
     const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:takenTs||Date.now(),likes:0,filter:S.filter.id,caption,media:isV?'video':'photo',path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path),hidden:hideUpload,anonymous:anonUpload};if(!hideUpload)cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();tripAddPhoto(ph);if(TRIP.on&&TRIP.id&&TRIP.role!=='view')sb.from('trip_photos').insert({trip_id:TRIP.id,photo_id:id,user_id:S.user.id}).then(r=>{if(r.error)console.warn('trip_photos',r.error);else pollTrips(true)});
@@ -2948,7 +2952,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
     // 폰에 저장하는 원본 = 디지털 줌만큼 가운데를 잘라낸 4:3 전체 프레임. 커버럽에 올리는 정사각형(1080)은 지금과 같다
     const dz=digitalZ(),fw=Math.round(v.videoWidth/dz),fh=Math.round(v.videoHeight/dz);
     const full=document.createElement('canvas');full.width=fw;full.height=fh;full.getContext('2d').drawImage(v,(v.videoWidth-fw)/2,(v.videoHeight-fh)/2,fw,fh,0,0,fw,fh);
-    S.cam.video=null;setOriginal(full,fw,fh);S.cam.shot=cropToSquare(full,fw,fh);S.cam.fix=null;showReview();captureStill(dz);$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
+    S.cam.video=null;setOriginal(full,fw,fh);S.cam.shot=cropToSquare(full,fw,fh);S.cam.shotTs=Date.now();S.cam.fix=null;showReview();captureStill(dz);$('#cam-status').textContent=t('fixing');freshFix().then(pos=>{if(S.cam.state!=='review')return;if(pos){S.cam.fix={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,ts:Date.now()};$('#cam-status').textContent=t('fix_ok',{m:Math.round(pos.coords.accuracy)})}else $('#cam-status').textContent=t('fix_old')})});
   $('#vidbtn').addEventListener('click',()=>{if(REC.on)stopRecording();else startRecording()});$('#rec-ext').addEventListener('click',e=>{e.stopPropagation();extendRecording()});bindZoom();
   $('#retake').addEventListener('click',()=>{resetShot();setCamState(camMode==='phone'?'phone':(S.cam.stream?'live':'fallback'))});
   $('#upload').addEventListener('click',uploadShot);
