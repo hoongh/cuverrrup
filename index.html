@@ -88,7 +88,9 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 #backdrop.open{opacity:1;pointer-events:auto}
 .sheet{position:absolute;left:0;right:0;bottom:0;max-height:86%;background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid var(--line-2);transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:88;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
 .sheet.open{transform:none}
-.sheet .handle{width:36px;height:3px;border-radius:2px;background:var(--line-2);margin:10px auto 6px;flex:none}
+/* 시트는 바깥을 누르거나 손잡이를 누르면 닫힌다 (닫기 버튼 없음). 손잡이의 터치 영역은 넓게 */
+.sheet .handle{width:36px;height:3px;border-radius:2px;background:var(--line-2);margin:10px auto 6px;flex:none;position:relative;cursor:pointer}
+.sheet .handle::after{content:"";position:absolute;inset:-14px -70px}
 .sheet .body{overflow-y:auto;padding:8px 18px calc(18px + var(--safe))}
 .sh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
 /* The sheet body scrolls with 8px top padding; pull the sticky header up over it (margin + top:-8px)
@@ -861,7 +863,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-03g'; // shown in trip error sheets
+const APP_BUILD='2026-10-03h'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=9; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2253,7 +2255,7 @@ function tripUserRowHTML(uid){const list=TRIPS.all.filter(x=>!x.ended_at&&(TRIPS
 function tripMembersLine(tid){const ms=(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state));return`<p class="hint">${t('trip_members_n',{n:ms.length})} · ${ms.map(m=>esc(userName(m.user_id))).join(', ')}</p>`}
 function openTripAbout(tid,refresh){const x=TRIPS.all.find(z=>z.id===tid);if(!x)return;const st=TRIPS.myState.get(tid),inIt=st==='owner'||st==='joined',fol=st==='follower',open=x.visibility==='open';if(!refresh)pushSheet();S.sheet={type:'tripAbout',key:tid};
   openSheet(`<div class="sh-head"><div><div class="sh-title">${esc(tripName(x))}</div><div class="sh-sub"><span>${t('trip_owner_lbl')} · ${esc(userName(x.owner))}</span><span>${fmtDur(Date.now()-tripMs(x.started_at))}</span><span>${open?t('trip_vis_open'):t('trip_vis_invite')}</span></div></div></div>${tripMembersLine(tid)}
-  <div class="row2" style="margin-top:14px">${inIt?`<button class="btn" data-tripact="members" data-trip="${tid}">${t('trip_members')}</button><button class="btn primary" data-tripact="view" data-trip="${tid}">${t('trip_view')}</button>`:`${open?`<button class="btn${fol?' primary':''}" data-tripact="${fol?'unfollow':'follow'}" data-trip="${tid}">${fol?'✓ '+t('following'):'+ '+t('follow')}</button>`:`<button class="btn" data-act="back">${t('cancel')}</button>`}<button class="btn${open&&!fol?'':' primary'}" data-tripact="request" data-trip="${tid}">${st==='requested'?t('st_requested'):t('trip_request')}</button>`}</div>
+  <div class="row2" style="margin-top:14px">${inIt?`<button class="btn" data-tripact="members" data-trip="${tid}">${t('trip_members')}</button><button class="btn primary" data-tripact="view" data-trip="${tid}">${t('trip_view')}</button>`:`${open?`<button class="btn${fol?' primary':''}" data-tripact="${fol?'unfollow':'follow'}" data-trip="${tid}">${fol?'✓ '+t('following'):'+ '+t('follow')}</button>`:''}<button class="btn${open&&!fol?'':' primary'}" data-tripact="request"data-trip="${tid}">${st==='requested'?t('st_requested'):t('trip_request')}</button>`}</div>
   ${fol?`<div class="row2" style="margin-top:10px"><button class="btn primary" data-tripact="view" data-trip="${tid}">${t('trip_view')}</button></div>`:''}`)}
 function openTripMembers(tid,refresh){const x=TRIPS.all.find(z=>z.id===tid);if(!x)return;const me=S.user&&S.user.id,isOwner=x.owner===me;
   const ms=(TRIPS.members.get(tid)||[]).filter(m=>!['declined','rejected','left','follower'].includes(m.state)).sort((a,b)=>(a.state==='owner'?0:a.state==='requested'?1:2)-(b.state==='owner'?0:b.state==='requested'?1:2));
@@ -2264,7 +2266,7 @@ function openTripMembers(tid,refresh){const x=TRIPS.all.find(z=>z.id===tid);if(!
     return`<div class="frow">${avatarHTML({id:m.user_id,name:nm,me:m.user_id===me})}<div class="finfo"><b>${nm}</b><span class="state">${t('st_'+m.state)}${m.state!=='owner'&&m.role==='view'?' · '+t('trip_role_view'):''}</span></div>${act}</div>`}).join('')}</div>
   ${(()=>{const nf=(TRIPS.members.get(tid)||[]).filter(m=>m.state==='follower').length;return nf?`<p class="hint">${t('trip_followers_n',{n:nf})}</p>`:''})()}
   <div class="row2" style="margin-top:14px">${isOwner?`<button class="btn" data-tripact="invite-more" data-trip="${tid}">${t('trip_invite_more')}</button>`:`<button class="btn" data-tripact="leave" data-trip="${tid}">${t('trip_leave')}</button>`}<button class="btn primary" data-tripact="map" data-trip="${tid}">${t('trip_map')}</button></div>
-  ${isOwner&&!x.ended_at&&TRIP.on&&TRIP.id===tid?`<div class="row2" style="margin-top:10px"><button class="btn" data-act="back">${t('back')}</button><button class="btn" data-tripact="finish" data-trip="${tid}">${t('trip_stop')}</button></div>`:`<div class="row2" style="margin-top:10px"><button class="btn" data-act="back">${t('back')}</button></div>`}`)}
+  ${isOwner&&!x.ended_at&&TRIP.on&&TRIP.id===tid?`<div class="row2" style="margin-top:10px"><button class="btn" data-tripact="finish" data-trip="${tid}">${t('trip_stop')}</button></div>`:''}`)}
 // 초대/요청 팝업: 시트가 닫혀 있을 때 하나씩. 한 번 본 건 다시 안 뜨고, 시작 시트(받은 초대)·참여자 시트(요청)에서 처리할 수 있다
 function tripPopups(){if(!S.user||S.sheet||$('#sheet').classList.contains('open'))return;const me=S.user.id;
   for(const x of TRIPS.all){if(x.ended_at)continue;if(TRIPS.myState.get(x.id)==='invited'&&!TRIP_SEEN.has('inv:'+x.id)){openTripInvite(x);return}}
@@ -2297,7 +2299,7 @@ function tripFail(act,tid,e){const m=String((e&&(e.message||e.details))||e||'');
   const oldSql=TRIPS.sqlv!==undefined&&TRIPS.sqlv<TRIPS_SQL_EXPECT,old=/row-level security|not open|not allowed|violates|does not exist|column/i.test(m);
   const txt=[`${act} · ${TRIP_ERR.tid}`,m,TRIP_ERR.details,TRIP_ERR.hint,TRIP_ERR.code?'code '+TRIP_ERR.code:'',`build ${APP_BUILD} · sql ${tripsSqlState()} · ${S.user?S.user.id:'-'}`].filter(Boolean).join('\n');
   pushSheet();S.sheet={type:'tripErr'};
-  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_act_fail')}</div></div></div>${oldSql?`<p class="hint">${t('trip_sql_old',{have:TRIPS.sqlv?'v'+TRIPS.sqlv:t('sql_none'),need:TRIPS_SQL_EXPECT})}</p>`:old?`<p class="hint">${t('trip_sql_hint')}</p>`:''}<pre class="mono" style="white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.5;background:rgba(127,127,127,.12);padding:10px 12px;border-radius:12px;margin:10px 0 0">${esc(txt)}</pre><div class="row2" style="margin-top:12px"><button class="btn" data-act="back">${t('back')}</button><button class="btn primary" data-copy="${esc(txt)}">${t('copy_err')}</button></div>`);updateVpDiag()}
+  openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_act_fail')}</div></div></div>${oldSql?`<p class="hint">${t('trip_sql_old',{have:TRIPS.sqlv?'v'+TRIPS.sqlv:t('sql_none'),need:TRIPS_SQL_EXPECT})}</p>`:old?`<p class="hint">${t('trip_sql_hint')}</p>`:''}<pre class="mono" style="white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.5;background:rgba(127,127,127,.12);padding:10px 12px;border-radius:12px;margin:10px 0 0">${esc(txt)}</pre><div class="row2" style="margin-top:12px"><button class="btn primary" data-copy="${esc(txt)}">${t('copy_err')}</button></div>`);updateVpDiag()}
 // 카메라의 여정 버튼: 안의 길이 계속 다른 종류의 길로 바뀐다 — 직선, 구불구불, 시작점으로 돌아오는 원형, S자, W자, 지그재그, 나선, U자, 계단…
 // 출발 점은 여정맵의 출발 색(민트), 도착 점은 도착 색(주황). 카메라 탭에서만 돌고, 모션 줄이기 설정이면 멈춘다
 const TRIP_SHAPES=[
@@ -2715,7 +2717,7 @@ function handleAction(e){const like=e.target.closest('[data-like]');if(like){tog
   const jl=e.target.closest('[data-jlike]');if(jl){toggleJourneyLike(jl.dataset.jlike);return true}const jt=e.target.closest('[data-jtrip]');if(jt){openTripMapFor(jt.dataset.jtrip);return true}const jr=e.target.closest('[data-jreport]');if(jr){openJourneyReport(jr.dataset.jreport);return true}const jrs=e.target.closest('[data-jreason]');if(jrs){sendJourneyReport(jrs.dataset.key,jrs.dataset.jreason);return true}
   const jvr=e.target.closest('[data-jview-reels]');if(jvr){viewJourneyReels(jvr.dataset.jviewReels);return true}const jvl=e.target.closest('[data-jview-link]');if(jvl){copyJourneyLink(jvl.dataset.jviewLink);return true}const jve=e.target.closest('[data-jview-edit]');if(jve){editJourney(jve.dataset.jviewEdit);return true}const jvs=e.target.closest('[data-jview-share]');if(jvs){shareExistingJourney(jvs.dataset.jviewShare);return true}return false}
 function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchTab(tb.dataset.tab)));
-  $('#backdrop').addEventListener('click',closeSheet);
+  $('#backdrop').addEventListener('click',closeSheet);$('.sheet .handle').addEventListener('click',closeSheet);
   $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
     if(a==='back'){backSheet()}else if(a==='share-card'){shareCard(false)}else if(a==='save-card'){shareCard(true)}else if(a==='shoot'){closeSheet();switchTab('camera')}else if(a==='zoomto'){const b=OLC.bounds(k);closeSheet();centerOn(b.lat,b.lng,b.res*111320*Math.cos(b.lat*Math.PI/180)*1.25,true)}
     else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}
