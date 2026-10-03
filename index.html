@@ -318,9 +318,10 @@ body.trip-on .page{padding-top:calc(18px + var(--safe-top) + 40px)}
 .tcard .who,.tstrip .who{display:flex;align-items:center;font-size:11px;color:var(--ink-2);margin-top:3px;min-width:0}.tcard .who .av,.tstrip .who .av{width:16px;height:16px;font-size:8px;margin-right:4px;vertical-align:middle}.tcard .who span,.tstrip .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 랭킹 › 여정: 한 줄에 3개, 대표 사진 + 순위 + 여정중 스티커 + 이름 + 만든 사람 + 팔로워 */
 .tf-chips{margin:8px 0 12px;flex-wrap:wrap}
-.tgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 4px;margin:0 -10px}
-.tcard{min-width:0}.tcard .th{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#2A2520}.tcard .th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.tcard .nm,.tcard .who,.tcard .acts{padding:0 4px}
+/* 썸네일은 여정 피드 띠와 같은 92px */
+.tgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 6px;margin:0}
+.tcard{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}.tcard .th{position:relative;width:92px;height:92px;border-radius:12px;overflow:hidden;background:#2A2520;flex:none}.tcard .th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.tcard .nm,.tcard .who,.tcard .acts{width:100%;padding:0 2px}.tcard .who,.tcard .acts{justify-content:center}.tcard .acts{gap:8px}
 .sh-sub .mono[data-goto-key]{text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .tcard .rkn{display:inline-block;min-width:14px;margin-right:4px;font-size:11px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .tcard .nm{display:block;font-size:12.5px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -865,7 +866,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-03i'; // shown in trip error sheets
+const APP_BUILD='2026-10-03j'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=9; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1061,8 +1062,14 @@ function pairsForScale(){const P=pxPerDeg();for(const p of [5,4,3])if(OLC.RES[p-
 function requestRender(){if(map.dirty)return;map.dirty=true;requestAnimationFrame(()=>{map.dirty=false;render()})}
 function zoomForWidth(widthM,lat){return Math.log2(156543.03*Math.cos(lat*Math.PI/180)*W0()/widthM)}
 // 시트의 좌표 코드를 누르면 커버맵에서 그 칸으로 간다 (칸이 보이도록 칸 너비의 6배 폭으로)
-function gotoKeyOnMap(key){if(!key)return;const b=OLC.bounds(key);if(!isFinite(b.lat)||!isFinite(b.lng))return;closeSheet();if(S.mapOverlay)closeMapOverlay();$('#userpage').classList.remove('show');switchTab('map');S.selected=key;
+// 탭을 바꾸지 않고 지도를 오버레이로 띄운다. 보고 있던 시트(와 그 아래 시트들, 릴스 팝업·프로필)는 기억해 두었다가 ‹ 뒤로에서 그대로 되살린다
+function gotoKeyOnMap(key){if(!key)return;const b=OLC.bounds(key);if(!isFinite(b.lat)||!isFinite(b.lng))return;
+  const saved={stack:sheetStack.map(x=>({...x})),cur:S.sheet&&$('#sheet').classList.contains('open')?{...S.sheet,scroll:$('#sheet-body').scrollTop}:null,jreels:!$('#jreels').hidden,userpage:$('#userpage').classList.contains('show')};
+  closeSheet();if(S.mapOverlay)closeMapOverlay();$('#userpage').classList.remove('show');$('#jreels').hidden=true;
+  S.mapBack=saved;S.myMapOnly=false;S.followMap=false;S.tripMap=null;S.pairUid=null;S.selected=key;openMapOverlay();
   const w=Math.max(80,(b.lngHi-b.lngLo)*111320*Math.cos(b.lat*Math.PI/180)*6);requestAnimationFrame(()=>centerOn(b.lat,b.lng,w,true))}
+function restoreMapBack(mb){if(mb.userpage)$('#userpage').classList.add('show');if(mb.jreels){$('#jreels').hidden=false;S.suppressLogin=true}
+  sheetStack.length=0;for(const x of mb.stack)sheetStack.push(x);if(mb.cur){sheetStack.push(mb.cur);backSheet()}}
 function centerOn(lat,lng,widthM,animate){if(map.ml){const o={center:[lng,lat]};if(widthM)o.zoom=clamp(zoomForWidth(widthM,lat),0.8,21);if(animate)map.ml.easeTo({...o,duration:450});else map.ml.jumpTo(o);return}
   const sc=widthM?W0()/widthM:S.view.scale;if(animate)animateTo(lat,lng,sc);else{S.view.lat=lat;S.view.lng=lng;S.view.scale=sc;clampScale();requestRender()}}
 let animId=0;
@@ -2713,7 +2720,7 @@ function switchTab(name){if(S.mapOverlay)closeMapOverlay();const prev=S.tab;S.ta
   if(name==='profile')renderProfile();if(name==='feed'){maybeReload();renderFeed(true)}if(name==='follow'){maybeReload();renderFollow(true)}if(name==='friends'){maybeReload();renderFriends(true)}if(name==='trips'){maybeReload();pollTrips(true);renderTrips(true);if(TRIPS.sel){jumpToTrip(TRIPS.sel);TRIPS.sel=null}}if(name==='rank'){maybeReload();renderRank()}
   if(name==='map'){maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}if(prev==='map'&&name!=='map'){S.followMap=false;S.myMapOnly=false;S.tripMap=null;$('#trip-bar').hidden=true}}
 function openMapOverlay(){S.mapOverlay=true;$('#screen-map').classList.add('active','mymap-overlay');$('#mymap-back').hidden=false;maybeReload();requestAnimationFrame(()=>{resizeMap();requestRender()})}
-function closeMapOverlay(){const back=S.tripMap&&S.tripMap.back,pu=S.pairUid;S.pairUid=null;S.mapOverlay=false;S.myMapOnly=false;S.followMap=false;S.tripMap=null;$('#trip-bar').hidden=true;const lg=$('#pair-legend');if(lg)lg.hidden=true;$('#screen-map').classList.remove('active','mymap-overlay');$('#mymap-back').hidden=true;requestRender();if(back)showJourneyAfterEdit(back);else if(pu)openUserPage(pu,true)}
+function closeMapOverlay(){const back=S.tripMap&&S.tripMap.back,pu=S.pairUid,mb=S.mapBack;S.mapBack=null;S.pairUid=null;S.mapOverlay=false;S.myMapOnly=false;S.followMap=false;S.tripMap=null;$('#trip-bar').hidden=true;const lg=$('#pair-legend');if(lg)lg.hidden=true;$('#screen-map').classList.remove('active','mymap-overlay');$('#mymap-back').hidden=true;requestRender();if(back)showJourneyAfterEdit(back);else if(pu)openUserPage(pu,true);else if(mb)restoreMapBack(mb)}
 function openMyCoverMap(){S.myMapOnly=true;S.followMap=false;openMapOverlay();gpsCenter(600)}
 let toastT;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),String(msg).length>60?7000:2800)}
 function handleAction(e){const like=e.target.closest('[data-like]');if(like){toggleLike(like.dataset.like);return true}const cm=e.target.closest('[data-comments]');if(cm){openComments(cm.dataset.comments);return true}
