@@ -171,6 +171,9 @@ drop trigger if exists trip_members_guard on public.trip_members;
 create trigger trip_members_guard before insert or update on public.trip_members
   for each row execute function public.trip_members_guard();
 
+-- 여정 정보: 본문 · 해시태그 · 대표사진 id (json). 오너만 바꾼다 (trips_update 정책)
+alter table public.trips add column if not exists meta jsonb;
+
 -- 친구 팔로우: 사람을 팔로우한다 (피드 › 친구, 프로필의 팔로워·팔로잉). 누구나 읽고, 자기 행만 넣고 뺀다
 create table if not exists public.user_follows (
   follower    uuid not null references auth.users(id) on delete cascade,
@@ -194,11 +197,11 @@ create policy follows_read_all on public.follows for select to authenticated usi
 
 -- Version stamp. The app calls this to tell whether (and which version of) this file is applied; it is created last,
 -- so if it exists everything above it ran too. Bump the number together with TRIPS_SQL_EXPECT in index.html.
-create or replace function public.trips_sql_version() returns int language sql stable as 'select 9';
+create or replace function public.trips_sql_version() returns int language sql stable as 'select 10';
 grant execute on function public.trips_sql_version() to authenticated;
 
 -- Owner must be able to see profiles to search friends by name: profiles already readable (used by the app).
 -- Card images are uploaded to the existing public photos bucket at {owner}/trip-{trip_id}.jpg.
 
--- When the whole file ran, the editor shows one row with installed_version = 9
+-- When the whole file ran, the editor shows one row with installed_version = 10
 select public.trips_sql_version() as installed_version;
