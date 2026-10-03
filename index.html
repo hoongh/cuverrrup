@@ -487,7 +487,7 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .pg-badge{font-size:9px;padding:2px 6px;border-radius:999px;font-weight:600;line-height:1.4}
 .pg-badge.hidden{background:rgba(224,135,111,.9);color:#1B1714}
 .pg-badge.anon{background:rgba(143,182,232,.9);color:#141A24}
-.badge.warn{border-color:var(--flag);color:var(--flag)}.badge.red{background:#D9534F;color:#fff;border-color:#D9534F}.livestk.red{background:#D9534F;top:auto;bottom:6px;right:auto;left:6px}
+.badge.warn{border-color:var(--flag);color:var(--flag)}.badge.red{background:#D9534F;color:#fff;border-color:#D9534F}.livestk.red{background:#D9534F;top:auto;bottom:6px;right:auto;left:6px}.jtile .livestk.red{top:6px;bottom:auto}.jtile.live .livestk.red{top:30px}
 .jsel-item{transition:outline-color .15s}.jsel-item.sel{outline:3px solid var(--sky);outline-offset:-3px}
 .jsel-order{position:absolute;left:6px;top:6px;min-width:24px;height:24px;padding:0 5px;border-radius:12px;background:var(--sky);color:#141A24;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
 .jcard-wrap{width:100%;border-radius:14px;overflow:hidden;margin:14px 0;background:#000}
@@ -875,7 +875,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-04e'; // shown in trip error sheets
+const APP_BUILD='2026-10-04f'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=10; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1958,12 +1958,15 @@ function activityHTML(){const list=ACT.view==='likes'?ACT.likes:ACT.comments,nm=
   return chips+`<div class="act-list">${list.map(r=>{const ago=timeAgo(new Date(r.created_at).getTime()),line=t(ACT.view==='likes'?'act_like_line':'act_comment_line',{name:nm(r.user_id),ago});
     return`<div class="act-row" data-open-photo="${r.photo_id}"><div class="ph act-th" data-photo="${r.photo_id}" data-size="small"></div><div class="act-body">${r.body?`<b>“${esc(r.body)}”</b>`:''}<span>${line}</span></div></div>`}).join('')}</div>`}
 function staleLiveTripsHTML(){const me=S.user&&S.user.id;if(!me)return'';const list=TRIPS.all.filter(x=>x.owner===me&&!x.ended_at&&!(TRIP.on&&TRIP.id===x.id));
-  return list.map(x=>{const th=tripThumb(x);return`<div class="ph pg jtile live" data-trip-open="${x.id}"${th?` style="background-image:url('${esc(th)}');background-size:cover;background-position:center"`:''}><i class="livestk">${t('trip_live_stk')}</i><span class="pg-k jt">${esc(tripName(x))}</span></div>`}).join('')}
+  return list.map(x=>{const th=tripThumb(x);return`<div class="ph pg jtile live" data-trip-open="${x.id}"${th?` style="background-image:url('${esc(th)}');background-size:cover;background-position:center"`:''}><i class="livestk">${t('trip_live_stk')}</i>${x.visibility==='invite'?friendsOnlyStk():''}<span class="pg-k jt">${esc(tripName(x))}</span></div>`}).join('')}
+// 나 › 여정 타일의 빨간 친구끼리만 스티커 (여정 피드 스트립과 같은 모양, 타일 왼쪽 위)
+function friendsOnlyStk(){return`<i class="livestk red">${t('friends_only')}</i>`}
+function journeyFriendsOnly(j){const srv=j.tripId?TRIPS.all.find(x=>x.id===j.tripId):null;return srv?srv.visibility==='invite':j.vis==='friends'}
 function journeyGridHTML(){const list=loadMyJourneys(),stale=staleLiveTripsHTML();if(!list.length&&!stale)return`<p class="hint">${t('journey_empty')}</p>`;
   // background-size/position stay inline: the later .ph{background:...} shorthand would reset them.
   // 썸네일은 대표사진(없으면 첫 사진, 그것도 없으면 카드 이미지)
   const thumbOf=j=>{const cv=(j.cover&&S.photos.get(j.cover))||S.photos.get((j.ids||[])[0]);return cv?(cv.thumb||cv.full):j.img};
-  return`<div class="pgrid">${stale}${list.map(j=>`<div class="ph pg jtile" data-jview="${j.id}" style="background-image:url('${esc(thumbOf(j))}');background-size:cover;background-position:center"><span class="pg-l">♥ ${journeyLikes(j)}</span>${j.title?`<span class="pg-k jt">${esc(j.title)}</span>`:''}</div>`).join('')}</div>`}
+  return`<div class="pgrid">${stale}${list.map(j=>`<div class="ph pg jtile" data-jview="${j.id}" style="background-image:url('${esc(thumbOf(j))}');background-size:cover;background-position:center">${journeyFriendsOnly(j)?friendsOnlyStk():''}<span class="pg-l">♥ ${journeyLikes(j)}</span>${j.title?`<span class="pg-k jt">${esc(j.title)}</span>`:''}</div>`).join('')}</div>`}
 // Journey cards live only on this device (no server table yet), so a card's ♥ is a like on the
 // card itself, kept locally. Likes from other people need the journeys tables (see supabase/journeys.sql).
 const JLIKES=new Set(JSON.parse(localStorage.getItem('ctw-jlikes')||'[]'));
