@@ -874,7 +874,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-03n'; // shown in trip error sheets
+const APP_BUILD='2026-10-03p'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=10; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1341,8 +1341,8 @@ function orderRank(kind,keys){return new Map(orderList(kind,keys).map((k,i)=>[k,
 function moveOrder(kind,key,dir,keys){const cur=orderList(kind,keys),i=cur.indexOf(key),j=i+dir;if(i<0||j<0||j>=cur.length)return false;cur.splice(i,1);cur.splice(j,0,key);ORDER[kind]=cur;try{localStorage.setItem('ctw-order',JSON.stringify(ORDER))}catch(e){}return true}
 function ordBtns(kind,key,i,n){return`<span class="ord"><button class="like" data-ord="-1" data-okind="${kind}" data-okey="${esc(key)}"${i<=0?' disabled':''}>▲</button><button class="like" data-ord="1" data-okind="${kind}" data-okey="${esc(key)}"${i>=n-1?' disabled':''}>▼</button></span>`}
 // 아래쪽 띠: 피드 모드마다 그 묶음(여정 · 지역 · 친구)을 썸네일로 보여주고, 누르면 그 묶음의 첫 사진으로 점프한다
-// 띠는 평소엔 손잡이만 보인다: 손잡이를 위로 쓸어 올리면(또는 누르면) 펼쳐지고, 아래로 쓸어 내리면 접힌다. 상태는 세 피드가 같이 쓴다
-let STRIP_OPEN=localStorage.getItem('ctw-strip-open')==='1';
+// 띠는 기본으로 펼쳐져 있다: 아래로 쓸어 내리면(또는 손잡이를 누르면) 접혀 손잡이만 남고, 위로 쓸어 올리면 다시 펼쳐진다. 상태는 세 피드가 같이 쓴다
+let STRIP_OPEN=localStorage.getItem('ctw-strip-open')!=='0';
 function setStripOpen(v){STRIP_OPEN=!!v;try{localStorage.setItem('ctw-strip-open',v?'1':'0')}catch(e){}$$('.feedlike.has-strip').forEach(s=>s.classList.toggle('strip-open',STRIP_OPEN));
   requestAnimationFrame(()=>{for(const id of ['freels','treels','ureels']){const el=$('#'+id),st=REELS[id];if(el&&st&&st.items.length&&el.clientHeight)el.scrollTop=(st.cur||0)*el.clientHeight}})}
 function bindStrip(p){if(p.dataset.bound)return;p.dataset.bound='1';let pid=null,sx=0,sy=0,moved=false;
