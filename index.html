@@ -236,9 +236,10 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .filter-pop{left:0;transform:none}
 .zoom-pop{left:auto;right:0;transform:none}
 .zoom-pop{padding:4px;gap:0}
-.zoom-pop button{border:0;background:none;color:#fff;font-size:12px;padding:4px 12px;white-space:nowrap;border-radius:8px;text-align:center;line-height:1.3}
+/* 줌 피커도 같은 이유로 칩 간격을 넓힌다 (트랙이 길수록 배율을 세밀하게) */
+.zoom-pop button{border:0;background:none;color:#fff;font-size:12px;padding:9px 12px;white-space:nowrap;border-radius:8px;text-align:center;line-height:1.3}
 .zoom-pop button.on{color:#8FB6E8;font-weight:600}
-#zoom-steps{display:flex;flex-direction:column;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none;overflow:visible}
+#zoom-steps{display:flex;flex-direction:column;gap:4px;touch-action:none;user-select:none;-webkit-user-select:none;overflow:visible}
 #zoom-steps button{cursor:ns-resize}
 .zoom-lens-toggle{margin-top:4px;border-top:1px solid rgba(255,255,255,.15);padding-top:8px!important;font-size:11px!important;color:#B7ADA2!important}
 .zoom-nowide{font-size:11px;color:#E0876F;text-align:center;padding:6px 10px 2px;white-space:normal;max-width:220px;line-height:1.4;border-top:1px solid rgba(255,255,255,.1);margin-top:4px}
@@ -432,7 +433,8 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 #reels-dist{pointer-events:auto;cursor:pointer}
 /* 거리 선택: 배지를 누르면 아래로 거리 단계가 펼쳐지고, 줌처럼 위아래로 끌어 그 거리부터 릴스를 본다 */
 .dist-pop{position:absolute;top:calc(72px + var(--safe-top));right:14px;z-index:6;display:flex;flex-direction:column;background:rgba(20,18,16,.94);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:4px;backdrop-filter:blur(8px);touch-action:none;user-select:none;-webkit-user-select:none}
-.dist-pop button{border:0;background:none;color:#fff;font-size:12px;padding:5px 14px;white-space:nowrap;border-radius:8px;text-align:right;font-variant-numeric:tabular-nums;cursor:ns-resize}
+/* 거리 피커: 칩 사이 간격을 넉넉히 두어 드래그 트랙이 길다 → 칩 사이 값도 정교하게 고를 수 있다 */
+.dist-pop button{border:0;background:none;color:#fff;font-size:12px;padding:11px 14px;white-space:nowrap;border-radius:8px;text-align:right;font-variant-numeric:tabular-nums;cursor:ns-resize}
 .dist-pop button.on{color:#8FB6E8;font-weight:600}
 .act-chips{margin-top:12px}
 .act-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
@@ -853,7 +855,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-03b'; // shown in trip error sheets
+const APP_BUILD='2026-10-03c'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=9; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
