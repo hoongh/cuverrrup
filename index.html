@@ -875,7 +875,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-04f'; // shown in trip error sheets
+const APP_BUILD='2026-10-04g'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=10; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2055,7 +2055,7 @@ function updateTripUI(){document.body.classList.toggle('trip-on',TRIP.on);$('#tr
     if(!tripPoll)tripPoll=setInterval(()=>{if(document.visibilityState==='visible')freshFix()},10000)}
   else{clearInterval(tripTick);tripTick=null;clearInterval(tripPoll);tripPoll=null}
   updateTripsUI();if(S.tab==='trips')renderTrips(true)}
-function openTripConfirm(){if(TRIP.on){openTripPanel();return}if(!S.user)return needLogin();TSTART={mode:'solo',mates:[],q:'',results:[],name:autoTripName(),body:'',tags:'',inviteFor:null,vis:'invite',role:'view'};S.sheet={type:'tripStart'};openSheet(tripStartHTML());bindTripStart();pollTrips(true)}
+function openTripConfirm(){if(TRIP.on){openTripPanel();return}if(!S.user)return needLogin();TSTART={mode:'solo',mates:[],q:'',results:[],name:autoTripName(),body:'',tags:'',inviteFor:null,vis:'open',role:'view'};S.sheet={type:'tripStart'};openSheet(tripStartHTML());bindTripStart();pollTrips(true)}
 // 시작: 서버에 여정 행을 만들고(실패하면 폰에서만), 친구들은 '초대됨'으로 넣는다. 수락하면 그쪽도 여정중이 된다
 // 시작: 서버에 여정 행(meta: 본문·해시태그·대표사진)을 만들고, 초대한 친구는 보기만(invited/view)으로 넣는다. 서버가 없으면 폰에서만
 async function startTrip(){const name=(TSTART.name||autoTripName()).trim().slice(0,40),mates=TSTART.vis==='open'?[]:TSTART.mates.slice(0,10),meta={body:(TSTART.body||'').trim().slice(0,400),tags:(TSTART.tags||'').trim().slice(0,120),cover:null};let id=null,serverFail=false;
@@ -2428,7 +2428,8 @@ function openTripFollowers(tid,refresh){const x=tripObj(tid);if(!x)return;const 
 function openTripMapRemote(tid){const x=TRIPS.all.find(z=>z.id===tid);if(!x)return;const pts=tripTrackOf(x);if(!(pts&&pts.length>1)){toast(t('trip_map_none'));return}
   closeSheet();S.tripMap={pts,photos:(TRIPS.photos.get(tid)||[]).map(r=>r.photo_id),dur:(x.card&&x.card.dur)||tripDurationFor(x),name:tripName(x),owner:x.owner,members:(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state)).map(m=>m.user_id)};S.myMapOnly=false;S.followMap=false;openMapOverlay();updateTripBar();requestAnimationFrame(()=>tripFitBounds(pts))}
 const friendsOnlyBadge=()=>`<span class="badge red">${t('friends_only')}</span>`;
-function tripBadge(p){const tid=TRIPS.photoTrip.get(p.id)||(TRIP.on&&TRIP.photos.includes(p.id)?TRIP.id:null);if(!tid)return'';const x=TRIPS.all.find(z=>z.id===tid);if(!x)return'';return(x.ended_at?'':`<span class="badge sky" data-trip-about="${tid}">${t('trip_live_badge')}</span>`)+(x.visibility==='invite'?friendsOnlyBadge():'')}
+function tripBadge(p){const tid=TRIPS.photoTrip.get(p.id)||(TRIP.on&&TRIP.photos.includes(p.id)?TRIP.id:null);if(!tid)return'';const x=TRIPS.all.find(z=>z.id===tid);if(!x)return'';// 친구끼리만은 여정 카드의 공유 범위다: 사진 자체는 공개라 개별 사진(릴스)에는 붙이지 않는다 (스트립 타일·여정 시트·나 타일에만)
+  return x.ended_at?'':`<span class="badge sky" data-trip-about="${tid}">${t('trip_live_badge')}</span>`}
 // ---------- 당겨서 새로고침: 맨 위에서 아래로 당기면 동그라미가 내려오고, 충분히 당긴 뒤 놓으면 튕기며 최신으로 다시 받는다 (브라우저 새로고침 대신)
 const PTR={el:null,y0:0,dy:0,active:false,busy:false};const PTR_MIN=56;
 function ptrEl(){let p=$('#ptr');if(!p){p=document.createElement('div');p.id='ptr';p.innerHTML='<i></i>';document.body.appendChild(p)}return p}
