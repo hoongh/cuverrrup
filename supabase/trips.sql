@@ -13,6 +13,7 @@
 --   joined     taking part
 --   follower   following an open trip: sees its photos in the feed, does not post, not counted as a participant
 --   declined / rejected / left   out (may be invited, follow or request again)
+--   removed    the owner took them out: they cannot follow or request again on their own; only the owner can invite them back
 
 create extension if not exists pgcrypto;
 
@@ -54,7 +55,7 @@ alter table public.trip_members add column if not exists role text not null defa
 alter table public.trip_members drop constraint if exists trip_members_role_check;
 alter table public.trip_members add constraint trip_members_role_check check (role in ('post','view'));
 alter table public.trip_members drop constraint if exists trip_members_state_check;
-alter table public.trip_members add constraint trip_members_state_check check (state in ('owner','invited','requested','joined','declined','rejected','left','follower'));
+alter table public.trip_members add constraint trip_members_state_check check (state in ('owner','invited','requested','joined','declined','rejected','left','follower','removed'));
 
 alter table public.trips        enable row level security;
 alter table public.trip_members enable row level security;
@@ -107,7 +108,8 @@ create policy tp_update on public.trip_photos for update to authenticated using 
 -- The body is a plain single-quoted string (quotes inside doubled) instead of dollar quoting: the Supabase SQL
 -- editor splits statements without understanding dollar quotes and kept breaking the function apart.
 -- Rules: my own row — invited→joined/declined, joined|requested→left, declined|rejected|left→requested; track updates free.
---        owner on others — requested→joined/rejected, joined|invited|requested→left (remove/cancel), declined|rejected|left→invited;
+--        owner on others — requested→joined/rejected, joined|invited|requested|follower→left|removed (remove/cancel), declined|rejected|left|removed→invited;
+--        a removed member can change nothing on their own row (no follow/request back).
 --        never their track. At most 10 people besides the owner.
 create or replace function public.trip_members_guard() returns trigger
 language plpgsql security definer set search_path = public
@@ -149,8 +151,8 @@ begin
     if new.track is distinct from old.track then raise exception ''not allowed''; end if;
     if new.state <> old.state then
       if not ((old.state = ''requested'' and new.state in (''joined'',''rejected''))
-           or (old.state in (''joined'',''invited'',''requested'',''follower'') and new.state = ''left'')
-           or (old.state in (''declined'',''rejected'',''left'') and new.state = ''invited'')) then
+           or (old.state in (''joined'',''invited'',''requested'',''follower'') and new.state in (''left'',''removed''))
+           or (old.state in (''declined'',''rejected'',''left'',''removed'') and new.state = ''invited'')) then
         raise exception ''not allowed'';
       end if;
       if new.state = ''invited'' then
@@ -197,11 +199,11 @@ create policy follows_read_all on public.follows for select to authenticated usi
 
 -- Version stamp. The app calls this to tell whether (and which version of) this file is applied; it is created last,
 -- so if it exists everything above it ran too. Bump the number together with TRIPS_SQL_EXPECT in index.html.
-create or replace function public.trips_sql_version() returns int language sql stable as 'select 10';
+create or replace function public.trips_sql_version() returns int language sql stable as 'select 11';
 grant execute on function public.trips_sql_version() to authenticated;
 
 -- Owner must be able to see profiles to search friends by name: profiles already readable (used by the app).
 -- Card images are uploaded to the existing public photos bucket at {owner}/trip-{trip_id}.jpg.
 
--- When the whole file ran, the editor shows one row with installed_version = 10
+-- When the whole file ran, the editor shows one row with installed_version = 11
 select public.trips_sql_version() as installed_version;
