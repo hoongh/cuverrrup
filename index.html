@@ -25,8 +25,9 @@
   --tab-h:66px;--safe:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);--reel-top-h:calc(94px + var(--safe-top));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overscroll-behavior:none}
-body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;inset:0}
+html,body{margin:0;height:100%;overscroll-behavior:none}html{background:#0F0D0B}
+body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;top:0;left:0;right:0;height:var(--app-h,100%)}
+/* body도 앱 상자와 같은 높이: inset:0이면 아이폰이 짧게 보고한 화면 높이로 body가 잘려 탭바 글자가 사라졌다 */
 button,input{font-family:inherit;color:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-offset:2px}
@@ -877,7 +878,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-19b'; // shown in trip error sheets
+const APP_BUILD='2026-10-19c'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
