@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#1B1714">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- black (not black-translucent): iOS sizes a translucent-status-bar web app as screen minus the status bar but pins it to the top,
+     leaving an empty status-bar-tall band at the bottom (device readout: inner 793, screen 852, 59pt band). With black the web view starts
+     below the status bar and reaches the bottom edge. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Coverrrup">
 <meta name="description" content="Let's coverrrup the world!! 지금 있는 곳을 사진 한 장으로 덮어요.">
 <link rel="manifest" href="manifest.json">
@@ -878,7 +881,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-19d'; // shown in trip error sheets
+const APP_BUILD='2026-10-19e'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -3086,6 +3089,7 @@ const IS_STANDALONE=()=>navigator.standalone===true||(window.matchMedia&&window.
 // 아이폰 설치형은 실행 직후(그리고 가끔 계속) innerHeight·visualViewport·position:fixed 기준 화면을 사파리 툴바만큼
 // 짧게 보고한다(아래 약 80~100pt가 배경색만 칠해진 빈 띠로 남음). 그래서 100lvh(가장 큰 뷰포트)와 100vh를 직접 재서 큰 값을
 // 쓰고, 그래도 화면보다 툴바 크기만큼만 짧으면 화면 높이(screen)를 쓴다. 탭바는 safe-area 만큼 아래 여백을 따로 둔다.
+function probeTop(){if(!document.body)return 0;const d=document.createElement('div');d.style.cssText='position:absolute;top:0;left:-9px;width:1px;visibility:hidden;padding-top:env(safe-area-inset-top,0px)';document.body.appendChild(d);const h=d.getBoundingClientRect().height;d.remove();return h||0}
 function probeH(v){const d=document.createElement('div');d.style.cssText='position:absolute;top:0;left:-9px;width:1px;visibility:hidden;pointer-events:none;height:'+v;document.body.appendChild(d);const h=d.getBoundingClientRect().height;d.remove();return h||0}
 let VP_INFO='';
 // 실기기 측정(아이폰 설치형): inner 793 · screen 852. 웹뷰가 실제로 793까지만 그려지고 아래 59pt는 iOS가 바탕색으로 칠한다.
@@ -3093,7 +3097,7 @@ let VP_INFO='';
 // 바탕(html) 색을 탭바 색으로 맞춰 아래 띠가 탭바가 이어진 것처럼 보이게 한다.
 function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0,ih=window.innerHeight;let h=vv||ih,lv=0,vh=0,sh=0;
   if(IS_STANDALONE()){h=Math.max(ih,vv);if(IS_IOS){const portrait=window.innerWidth<=window.innerHeight;sh=portrait?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
-    document.documentElement.classList.toggle('short-wv',sh-h>20)}}
+    const st=probeTop();document.documentElement.classList.toggle('short-wv',sh-h>20&&st>20)}}
   VP_INFO=`build ${typeof APP_BUILD!=='undefined'?APP_BUILD:''} · inner ${ih} · vv ${Math.round(vv)} · lvh ${Math.round(lv)} · vh ${Math.round(vh)} · screen ${sh||screen.height} · used ${Math.round(h)} · ${IS_STANDALONE()?'standalone':'browser'}`;const d=document.getElementById('vp-diag');if(d)d.textContent=VP_INFO;
   document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
