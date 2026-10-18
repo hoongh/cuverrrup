@@ -33,7 +33,7 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 [hidden]{display:none!important}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 /* 앱 상자는 보이는 화면에 고정(position:fixed; inset:0): 아이폰 사파리·설치형 모두 툴바/홈 인디케이터를 뺀 실제 화면에 딱 맞는다 */
-.phone{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;width:100%;height:auto;background:var(--bg);overflow:hidden}
+.phone{position:fixed;top:0;left:0;right:0;margin:0 auto;width:100%;height:var(--app-h,100%);background:var(--bg);overflow:hidden}
 @media (min-width:900px){
   body{background:#0F0D0B}
   .phone{width:min(100%,720px)}
@@ -761,6 +761,7 @@ body.trip-on .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 88px)
       </div>
 
       <div id="admin-box" hidden>
+      <p class="hint mono" id="vp-diag" style="font-size:10px;opacity:.6;margin:0 0 8px"></p>
         <h2 data-i18n="admin"></h2>
         <div class="stats2 adm" id="adm-stats"></div>
         <h3 class="sh-h3" data-i18n="adm_reported"></h3>
@@ -876,7 +877,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-19a'; // shown in trip error sheets
+const APP_BUILD='2026-10-19b'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -3081,8 +3082,15 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
 const IS_STANDALONE=()=>navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
 // 설치형에서는 innerHeight(웹뷰 높이)와 visualViewport 중 큰 값을 쓴다. screen.height를 하한으로 쓰면
 // 아이폰에서 웹뷰보다 큰 레이아웃이 되어 탭바 글자와 시트 아래가 화면 밖으로 잘렸다 (실기기 확인).
-function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0;let h=vv||window.innerHeight;
-  if(IS_STANDALONE())h=Math.max(window.innerHeight,vv);
+// 아이폰 설치형은 실행 직후(그리고 가끔 계속) innerHeight·visualViewport·position:fixed 기준 화면을 사파리 툴바만큼
+// 짧게 보고한다(아래 약 80~100pt가 배경색만 칠해진 빈 띠로 남음). 그래서 100lvh(가장 큰 뷰포트)와 100vh를 직접 재서 큰 값을
+// 쓰고, 그래도 화면보다 툴바 크기만큼만 짧으면 화면 높이(screen)를 쓴다. 탭바는 safe-area 만큼 아래 여백을 따로 둔다.
+function probeH(v){const d=document.createElement('div');d.style.cssText='position:absolute;top:0;left:-9px;width:1px;visibility:hidden;pointer-events:none;height:'+v;document.body.appendChild(d);const h=d.getBoundingClientRect().height;d.remove();return h||0}
+let VP_INFO='';
+function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0,ih=window.innerHeight;let h=vv||ih,lv=0,vh=0,sh=0;
+  if(IS_STANDALONE()){h=Math.max(ih,vv);if(IS_IOS&&document.body){lv=probeH('100lvh');vh=probeH('100vh');const portrait=window.innerWidth<=window.innerHeight;sh=portrait?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
+    h=Math.max(h,lv,vh);if(sh>h&&sh-h<=140)h=sh}}
+  VP_INFO=`build ${typeof APP_BUILD!=='undefined'?APP_BUILD:''} · inner ${ih} · vv ${Math.round(vv)} · lvh ${Math.round(lv)} · vh ${Math.round(vh)} · screen ${sh||screen.height} · used ${Math.round(h)} · ${IS_STANDALONE()?'standalone':'browser'}`;const d=document.getElementById('vp-diag');if(d)d.textContent=VP_INFO;
   document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
 if(window.matchMedia)window.matchMedia('(display-mode: standalone)').addEventListener('change',fitViewport);
