@@ -875,7 +875,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-17b'; // shown in trip error sheets
+const APP_BUILD='2026-10-18a'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2079,6 +2079,7 @@ function fmtDur(ms){const s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600)
 function tripDist(pts){let d=0;for(let i=1;i<pts.length;i++){if(pts[i-1].u!==pts[i].u)continue;d+=distM(pts[i-1].lat,pts[i-1].lng,pts[i].lat,pts[i].lng)}return d}
 // 함께하는 여정: 다른 참여자들의 경로(점마다 u=사용자)와 사진을 서버 캐시(TRIPS)에서 가져와 내 것과 합친다
 // 동선은 오너(만든 사람) 기준만: 내가 오너면 내 경로, 참여자면 서버에 올라온 오너의 경로. 다른 사람의 경로는 무시하고 사진만 보여준다
+function tripRemoteFor(tid){const keep=TRIP.id,keepP=TRIP.photos;if(tid===keep)return tripRemote();TRIP.id=tid;TRIP.photos=[];try{return tripRemote()}finally{TRIP.id=keep;TRIP.photos=keepP}}
 function tripRemote(){if(!TRIP.id)return{pts:[],photos:[]};const me=S.user&&S.user.id,pts=[],photos=[];
   for(const m of TRIPS.members.get(TRIP.id)||[]){if(m.user_id===me||!['owner','joined'].includes(m.state))continue;if(m.user_id===TRIP.owner)for(const p of (Array.isArray(m.track)?m.track:[]))pts.push({...p,u:m.user_id})}
   for(const p of TRIPS.photos.get(TRIP.id)||[]){if(p.user_id!==me&&!TRIP.photos.includes(p.photo_id))photos.push(p.photo_id)}
@@ -2213,24 +2214,30 @@ function bindTripTimer(){const el=$('#trip-timer');if(!el)return;let pid=null,sx
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
   el.addEventListener('click',()=>{if(suppress){suppress=false;return}tripTimerTap()});
   window.addEventListener('resize',()=>{if(!el.hidden&&el.style.left)applyTimerPos()});applyTimerPos()}
-function openTripFinish(){S.sheet={type:'tripFinish'};openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_finish_title')}</div><div class="sh-sub"><span>${fmtDist(tripDist(TRIP.pts))}</span><span>${fmtDur(Date.now()-TRIP.start)}</span><span>${t('photos_n',{n:TRIP.photos.length})}</span></div></div></div><p class="cap big">${TRIP.photos.length?t('trip_finish_body'):t('trip_finish_nophoto')}</p><div class="row2" style="margin-top:14px"><button class="btn" data-act="back">${t('cancel')}</button><button class="btn primary" data-act="trip-done">${t('trip_stop')}</button></div>`)}
+function finishSource(tid){const att=TRIP.on&&(!tid||tid===TRIP.id||tid==='local');if(att)return{tid:TRIP.id,att:true,pts:TRIP.pts,start:TRIP.start,photos:TRIP.photos.slice(),name:TRIP.name,body:TRIP.body,tags:TRIP.tags,cover:TRIP.cover};
+  const x=TRIPS.all.find(z=>z.id===tid);if(!x)return null;const m=tripMetaOf(x);return{tid:x.id,att:false,pts:tripTrackOf(x),start:tripStartMs(x),photos:tripPhotoRows(x.id).map(r=>r.photo_id),name:x.name||'',body:m.body,tags:m.tags,cover:m.cover}}
+function openTripFinish(tid){const f=finishSource(tid);if(!f)return;if(S.sheet&&$('#sheet').classList.contains('open'))pushSheet();S.sheet={type:'tripFinish'};openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_finish_title')}</div><div class="sh-sub"><span>${fmtDist(tripDist(f.pts))}</span><span>${fmtDur(Date.now()-f.start)}</span><span>${t('photos_n',{n:f.photos.length})}</span></div></div></div><p class="cap big">${f.photos.length?t('trip_finish_body'):t('trip_finish_nophoto')}</p><div class="row2" style="margin-top:14px"><button class="btn" data-act="back">${t('cancel')}</button><button class="btn primary" data-act="trip-done" data-trip="${f.tid||''}">${t('trip_stop')}</button></div>`)}
 // 마치기(오너): 참여자 전원의 사진·경로를 합쳐 카드를 만들고, 서버에 카드(이미지는 스토리지)를 올리면 참여자들이 다음 폴링 때 받아간다
-async function finishTrip(){const tid=TRIP.id,shared=!!(tid&&sb&&S.user);
-  if(shared){try{await pollTrips(true);if(Date.now()-S.lastLoad>5000)await loadWorld()}catch(e){}}
-  const r=shared?tripRemote():{pts:[],photos:[]};
-  const photos=[...new Set(TRIP.photos.concat(r.photos))].map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken);const own=TRIP.pts.slice();if(S.me.src==='gps')own.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});
-  const track=downsampleTrack(own,600),dur=Date.now()-TRIP.start,members=shared?(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state)).map(m=>m.user_id):[];
-  const endedAt=new Date().toISOString();
-  const meta0={body:TRIP.body||'',tags:TRIP.tags||'',cover:TRIP.cover||(photos[0]?photos[0].id:null)};
-  TRIP.on=false;TRIP.id=null;TRIP.owner=null;TRIP.name='';TRIP.body='';TRIP.tags='';TRIP.cover=null;saveTrip();updateTripUI();closeSheet();if(S.mapOverlay)closeMapOverlay();
-  if(!photos.length){toast(t('trip_finish_nophoto'));if(shared){try{await sb.from('trips').update({ended_at:endedAt}).eq('id',tid)}catch(e){}pollTrips(true)}return}
+// 마치기: 서버에 ended_at을 "먼저" 적고(카드보다 앞서), 다시 붙지 않게 표시한다. 예전엔 카드 이미지를 만들어 올린 뒤에야
+// ended_at을 적어서, 그 사이 폴링이 아직 진행 중인 서버 여정을 다시 붙였고, 이미지 업로드가 실패하면 영영 안 끝났다.
+async function finishTrip(tidArg){const f=finishSource(tidArg||null);if(!f){closeSheet();return}const tid=f.tid,shared=!!(tid&&tid!=='local'&&sb&&S.user);
+  if(tid)tripSeen('att:'+tid);TRIPS.finishedAt=Date.now();const endedAt=new Date().toISOString();
+  if(f.att){TRIP.on=false;TRIP.id=null;TRIP.owner=null;TRIP.name='';TRIP.body='';TRIP.tags='';TRIP.cover=null;saveTrip();updateTripUI()}closeSheet();if(S.mapOverlay)closeMapOverlay();
+  if(shared){let ok=false;for(let i=0;i<3&&!ok;i++){try{const r0=await sb.from('trips').update({ended_at:endedAt}).eq('id',tid);if(r0.error)throw r0.error;ok=true}catch(e){console.warn('trip end',e);if(i===2)tripFail('finish',tid,e);else await new Promise(r=>setTimeout(r,800))}}
+    const sx=TRIPS.all.find(z=>z.id===tid);if(sx)sx.ended_at=endedAt;recomputeTripFeed();try{await pollTrips(true);if(Date.now()-S.lastLoad>5000)await loadWorld()}catch(e){}}
+  const r=shared?tripRemoteFor(tid):{pts:[],photos:[]};
+  const photos=[...new Set(f.photos.concat(r.photos))].map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken);const own=f.pts.slice();if(f.att&&S.me.src==='gps')own.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});
+  const track=downsampleTrack(own,600),dur=Date.now()-f.start,members=shared?(TRIPS.members.get(tid)||[]).filter(m=>['owner','joined'].includes(m.state)).map(m=>m.user_id):[];
+  const meta0={body:f.body||'',tags:f.tags||'',cover:f.cover||(photos[0]?photos[0].id:null)};const TRIPNAME=f.name;
+  if(S.tab==='profile')renderProfile();if(S.tab==='trips')renderTrips(true);
+  if(!photos.length){toast(t('trip_finish_nophoto'));return}
   try{JOURNEY_TRACK=track;JOURNEY_DUR=dur;EDIT_JOURNEY_ID=null;JOURNEY_MEMBERS=members.length>1?{owner:S.user.id,members}:null;
-    const cap=[...new Set(photos.flatMap(p=>(p.caption||'').match(/#[^\s#]+/g)||[]))].join(' ').slice(0,120),title=TRIP.name||autoJourneyTitle(photos);
+    const cap=[...new Set(photos.flatMap(p=>(p.caption||'').match(/#[^\s#]+/g)||[]))].join(' ').slice(0,120),title=TRIPNAME||autoJourneyTitle(photos);
     const cv=document.createElement('canvas');await renderJourneyCanvas(photos,cap,cv,title);const blob=await canvasBlob(cv,0.92);
     const rec=await addMyJourney(blob,photos,cap,title);
     {const list=loadMyJourneys(),j=list.find(z=>z.id===rec.id);if(j){j.owner=S.user?S.user.id:null;j.members=members;j.shared=members.length>1;if(tid)j.tripId=tid;j.cover=meta0.cover;j.body=meta0.body;j.tags=meta0.tags;saveMyJourneysList(list)}}
     if(shared){try{const path=`${S.user.id}/trip-${tid}.jpg`;const up=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',upsert:true});if(up.error)throw up.error;
-        const card={ids:photos.map(p=>p.id),track,dur,cap,title,img:pubUrl(path),members,owner:S.user.id,cover:meta0.cover,body:meta0.body,tags:meta0.tags};const r2=await sb.from('trips').update({ended_at:endedAt,card}).eq('id',tid);if(r2.error)throw r2.error}
+        const card={ids:photos.map(p=>p.id),track,dur,cap,title,img:pubUrl(path),members,owner:S.user.id,cover:meta0.cover,body:meta0.body,tags:meta0.tags};const r2=await sb.from('trips').update({card}).eq('id',tid);if(r2.error)throw r2.error}
       catch(e){console.warn('trip finish server',e);toast(t('trip_card_share_fail'))}pollTrips(true)}
     toast(t('trip_saved'));switchTab('profile');mineFilter='journeys';renderProfile();showJourneyAfterEdit(rec.id)}
   catch(e){console.warn('trip',e);toast(t('share_fail'))}finally{JOURNEY_TRACK=null;JOURNEY_DUR=0;JOURNEY_MEMBERS=null}}
@@ -2285,7 +2292,8 @@ async function pollTripsRun(){
     // 오너가 나를 내보냈으면(removed, 예전 SQL은 left) 내 폰의 여정도 끝낸다
     if(TRIP.on&&TRIP.id&&TRIP.owner&&TRIP.owner!==S.user.id){const ms=TRIPS.myState.get(TRIP.id);if(ms==='removed'||ms==='left'||ms==='rejected'){TRIP.on=false;TRIP.id=null;saveTrip();updateTripUI();if(S.tripMap==='live')closeMapOverlay();toast(t('trip_removed'))}}
     // 요청이 허용됐거나(다른 기기에서) 참여 중인 여정이 있는데 로컬 여정이 꺼져 있으면 붙는다
-    for(const x of TRIPS.mine){if(!TRIP.on&&!TRIP_SEEN.has('att:'+x.id)){attachLocalTrip(x);break}}
+    // 내가 만든 여정은 12시간 안에 시작된 것만, 그리고 방금 여정을 마친 뒤 10분 동안은 자동으로 붙이지 않는다 (마친 직후 예전 여정이 붙어 "안 끝난 것처럼" 보이던 문제)
+    for(const x of TRIPS.mine){if(TRIP.on||TRIP_SEEN.has('att:'+x.id))continue;const own=x.owner===S.user.id;if(own&&(Date.now()-tripMs(x.started_at)>12*3600e3||Date.now()-(TRIPS.finishedAt||0)<600e3))continue;attachLocalTrip(x);break}
     // 끝난 여정의 카드 받기
     for(const x of TRIPS.all){if(x.ended_at&&x.card&&(x.owner===S.user.id||['owner','joined'].includes(TRIPS.myState.get(x.id))))importTripCard(x)}
     updateTripsUI();tripPopups();if(applyPriv()){if(S.tab==='feed')renderFeed(true);if(S.tab==='follow')renderFollow(true);if(S.tab==='friends')renderFriends(true)}
@@ -2432,7 +2440,7 @@ async function drawTripInfoMap(x,ps){const cv=$('#ti-map');if(!cv)return;const t
 function journeyModelFromTrip(x){const me=S.user&&S.user.id,tid=x.id,isOwner=x.owner===me,st=x.local?'owner':TRIPS.myState.get(tid),fol=st==='follower',live=!x.ended_at,ps=tripPhotosOf(x),meta=tripMetaOf(x),start=tripStartMs(x),end=x.ended_at?tripMs(x.ended_at):null;
   return{kind:'trip',ref:'trip:'+tid,id:tid,rid:x.local?(TRIP.id||'local'):tid,title:tripName(x),ownerId:x.owner,isOwner,live,start,end,dur:(end||Date.now())-start,body:meta.body,tags:meta.tags,cover:meta.cover,ps,ids:ps.map(p=>p.id),track:tripTrackOf(x),followers:x.local?null:tripFollowerRows(x).length,friendsOnly:x.visibility==='invite'&&!x.local,
     follow:isOwner?'':(x.visibility==='open'||!live?`<button class="like fol${fol?' on':''}" data-tripact="${fol?'unfollow':'follow'}" data-trip="${tid}">${fol?t('following'):'+ '+t('follow')}</button>`:''),
-    editable:isOwner&&live&&TRIP.on&&(!!x.local||TRIP.id===tid),local:!!x.local,vis:x.visibility,manage:isOwner&&live&&!x.local&&TRIP.on&&TRIP.id===tid,inviteTid:isOwner&&live&&x.visibility!=='open'&&!x.local?tid:null,finishTid:isOwner&&live&&TRIP.on&&(x.local||TRIP.id===tid)?tid:null}}
+    editable:isOwner&&live&&TRIP.on&&(!!x.local||TRIP.id===tid),local:!!x.local,vis:x.visibility,manage:isOwner&&live&&!x.local&&TRIP.on&&TRIP.id===tid,inviteTid:isOwner&&live&&x.visibility!=='open'&&!x.local?tid:null,finishTid:isOwner&&live&&(x.local?TRIP.on:true)?tid:null}}
 function journeyModelFromCard(j){const me=S.user&&S.user.id,ps=(j.ids||[]).map(id=>S.photos.get(id)).filter(Boolean).sort(byTaken),jt=journeyMapTrack(j),owner=j.owner||me,dur=j.dur||(jt?jt.dur:0),end=j.ts||null,srv=j.tripId?TRIPS.all.find(x=>x.id===j.tripId):null;
   return{kind:'card',ref:'card:'+j.id,id:j.id,title:j.title||t('journeys_tab'),ownerId:owner,isOwner:owner===me,live:false,start:end?end-dur:0,end,dur,body:j.body||j.cap||'',tags:j.tags||'',cover:j.cover||null,ps,ids:j.ids||[],track:jt?jt.pts:[],followers:srv?tripFollowerRows(srv).length:null,followersTid:srv?srv.id:null,follow:'',editable:false,local:false,friendsOnly:srv?srv.visibility==='invite':j.vis==='friends',j}}
 function modelByRef(ref){const i=ref.indexOf(':'),k=ref.slice(0,i),id=ref.slice(i+1);if(k==='trip'){const x=tripObj(id);return x?journeyModelFromTrip(x):null}const j=loadMyJourneys().find(z=>z.id===id);return j?journeyModelFromCard(j):null}
@@ -2544,7 +2552,7 @@ function openTripRequest(x,m){tripSeen('req:'+x.id+':'+m.user_id);S.sheet={type:
   openSheet(`<div class="sh-head"><div><div class="sh-title">${t('trip_req_title')}</div></div></div><p class="cap big">${t('trip_req_body',{name:esc(userName(m.user_id)),trip:esc(tripName(x))})}</p>${tripMembersLine(x.id)}<div class="row2" style="margin-top:14px"><button class="btn" data-tripact="reject" data-trip="${x.id}" data-user="${m.user_id}">${t('trip_deny')}</button><button class="btn primary" data-tripact="approve" data-trip="${x.id}" data-user="${m.user_id}">${t('trip_allow')}</button></div>`)}
 function pendingInvitesHTML(){const list=TRIPS.all.filter(x=>!x.ended_at&&TRIPS.myState.get(x.id)==='invited');if(!list.length)return'';
   return`<h3 class="sh-h3">${t('trip_invite_title')}</h3><div class="flist mlist">${list.map(x=>`<div class="frow"><div class="finfo"><b>${esc(tripName(x))}</b><span class="state">${esc(userName(x.owner))}</span></div><button class="like" data-tripact="decline" data-trip="${x.id}">${t('trip_nojoin')}</button><button class="like on" data-tripact="accept" data-trip="${x.id}">${t('trip_join')}</button></div>`).join('')}</div>`}
-async function tripAction(act,tid,uid){if(act==='map'){closeSheet();openTripMap();return}if(act==='finish'){openTripFinish();return}if(act==='live-rank'){closeSheet();rankView='trips';switchTab('rank');return}if(!sb||!S.user)return;const me=S.user.id,x=TRIPS.all.find(z=>z.id===tid);
+async function tripAction(act,tid,uid){if(act==='map'){closeSheet();openTripMap();return}if(act==='finish'){openTripFinish(tid);return}if(act==='live-rank'){closeSheet();rankView='trips';switchTab('rank');return}if(!sb||!S.user)return;const me=S.user.id,x=TRIPS.all.find(z=>z.id===tid);
   try{if(act==='accept'){if(TRIP.on){toast(t('trip_busy'));return}const r=await sb.from('trip_members').update({state:'joined'}).match({trip_id:tid,user_id:me});if(r.error)throw r.error;closeSheet();if(x){attachLocalTrip(x);rememberMates([{id:x.owner,name:userName(x.owner)}])}}
     else if(act==='decline'){const r=await sb.from('trip_members').update({state:'declined'}).match({trip_id:tid,user_id:me});if(r.error)throw r.error;if(S.sheet&&S.sheet.type==='tripStart')refreshTripStart();else closeSheet()}
     else if(act==='approve'||act==='reject'){const r=await sb.from('trip_members').update({state:act==='approve'?'joined':'rejected'}).match({trip_id:tid,user_id:uid});if(r.error)throw r.error;if(act==='approve'&&uid)rememberMates([{id:uid,name:userName(uid)}]);if(!(S.sheet&&S.sheet.type==='tripMembers'))closeSheet()}
@@ -3004,7 +3012,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#sheet-body').addEventListener('click',e=>{if(handleAction(e))return;const act=e.target.closest('[data-act]');if(!act)return;const a=act.dataset.act,k=act.dataset.key;
     if(a==='back'){backSheet()}else if(a==='share-card'){shareCard(false)}else if(a==='save-card'){shareCard(true)}else if(a==='shoot'){closeSheet();switchTab('camera')}else if(a==='zoomto'){const b=OLC.bounds(k);closeSheet();centerOn(b.lat,b.lng,b.res*111320*Math.cos(b.lat*Math.PI/180)*1.25,true)}
     else if(a==='save-photo')savePhotoFilter(k);else if(a==='del-photo'){if(!delArmed){delArmed=true;act.textContent=t('del_confirm');setTimeout(()=>{delArmed=false;if(document.body.contains(act))act.textContent=t('delete')},4000)}else deletePhoto(k)}
-    else if(a==='journey-next')openJourneyPreview();else if(a==='journey-save')shareJourneyCard(true);else if(a==='journey-share')shareJourneyCard(false);else if(a==='journey-mine')saveJourneyMineOnly();else if(a==='trip-go')startTrip();else if(a==='trip-done')finishTrip()});
+    else if(a==='journey-next')openJourneyPreview();else if(a==='journey-save')shareJourneyCard(true);else if(a==='journey-share')shareJourneyCard(false);else if(a==='journey-mine')saveJourneyMineOnly();else if(a==='trip-go')startTrip();else if(a==='trip-done')finishTrip(act.dataset.trip||null)});
   for(const id of ['reels','freels','treels','ureels','vreels','jreels-list']){const el=$('#'+id);el.addEventListener('click',handleAction);el.addEventListener('scroll',()=>{const st=reelState(id);clearTimeout(st._t);st._t=setTimeout(()=>updateReelDist(id),60)},{passive:true})}
   $('#follow-set').addEventListener('click',openFollowManage);$('#trips-set').addEventListener('click',()=>{pollTrips(true);openTripFeedManage()});$('#friends-set').addEventListener('click',openFriendManage);$$('.feed-seg,.rank-seg,#rank-body,#trip-pick,#follow-pick,#friend-pick,#pair-legend,#pf-live').forEach(el=>el.addEventListener('click',handleAction));$('#userpage-body').addEventListener('click',handleAction);$('#pf-grid').addEventListener('click',handleAction);$('#admin-box').addEventListener('click',handleAction);$('#pf-seg').addEventListener('click',handleAction);
   $('#userpage-back').addEventListener('click',()=>$('#userpage').classList.remove('show'));$('#viewer-close').addEventListener('click',()=>$('#viewer').classList.remove('show'));
