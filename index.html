@@ -297,16 +297,17 @@ h1{font-size:24px;letter-spacing:-.01em;margin:6px 0 4px;font-weight:400}
 .tripbtn svg{width:32px;height:32px;overflow:visible;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tripbtn.on{background:#8FB6E8;color:#141A24}
 .phone-mode .trip-big{border-color:#8FB6E8;color:#8FB6E8}
-.trip-timer{position:absolute;top:calc(10px + var(--safe-top));right:14px;z-index:60;display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid rgba(143,182,232,.6);background:rgba(20,18,16,.9);color:#fff;font-size:13px;backdrop-filter:blur(8px);cursor:pointer}
+body.trip-on .tab[data-tab="journeys"] span{visibility:hidden}.trip-timer.docked{padding:3px 9px;font-size:11px;gap:5px}
+.trip-timer{position:absolute;top:auto;bottom:calc(var(--safe) + 4px);left:calc(70% - 47px);right:auto;z-index:60;display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid rgba(143,182,232,.6);background:rgba(20,18,16,.9);color:#fff;font-size:13px;backdrop-filter:blur(8px);cursor:pointer}
 .trip-timer{touch-action:none;user-select:none;-webkit-user-select:none}
 .trip-timer .trip-lbl{font-size:11px;color:#8FB6E8;font-weight:600;letter-spacing:.02em}
-body.trip-on .rank-seg{padding-top:calc(12px + var(--safe-top) + 42px)}
-body.trip-on .follow-set,body.trip-on .feed-seg{top:calc(14px + var(--safe-top) + 42px)}
-body.trip-on .feedlike .reel-dist{top:calc(14px + var(--safe-top) + 88px)}
-body.trip-on .feedlike .dist-pop{top:calc(72px + var(--safe-top) + 88px)}
-body.trip-on .map-hdr .lvl{margin-top:40px}
-body.trip-on .cam-top{padding-right:112px}
-body.trip-on .page{padding-top:calc(18px + var(--safe-top) + 40px)}
+
+
+
+
+
+
+
 .trip-bar{position:absolute;left:14px;right:14px;bottom:14px;z-index:8;display:flex;gap:10px;align-items:stretch}
 .trip-head{position:absolute;left:14px;right:14px;top:calc(96px + var(--safe-top));z-index:7;background:rgba(20,18,16,.82);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 12px;color:#fff;backdrop-filter:blur(8px)}
 .trip-head b{display:block;font-size:15px;margin-bottom:6px}.trip-head .who{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:12px;color:#D9D0C6}.trip-head .who .ulink{display:inline-flex;align-items:center;gap:5px}.trip-head .who .av{width:22px;height:22px;font-size:11px}
@@ -561,13 +562,14 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 #screen-follow{display:none;flex-direction:column}#screen-follow.active{display:flex}
 /* 팔로우 탭은 주변 탭과 같은 레이아웃: 릴스가 화면 전체, 거리 배지도 같은 자리. 지역 칩 줄 대신
    둥근 ⚙ 버튼 하나(거리 배지 왼쪽)가 모드·지역 선택 시트를 연다 */
-.rank-btn{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:6;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(36,31,27,.85);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:600;padding:0 11px 0 9px;display:flex;align-items:center;gap:4px}.rank-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.follow-set+.rank-btn{right:58px}body.trip-on .rank-btn{top:calc(14px + var(--safe-top) + 42px)}
+.rank-btn{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:6;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(36,31,27,.85);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:600;padding:0 11px 0 9px;display:flex;align-items:center;gap:4px}.rank-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.follow-set+.rank-btn{right:58px}
 .rank-back{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;line-height:1;padding:0 0 3px;display:flex;align-items:center;justify-content:center}
-.jl-head{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + var(--safe-top)) 14px 4px}.jl-head h2{margin:0;font-size:20px}body.trip-on .jl-head{padding-top:calc(14px + var(--safe-top) + 42px)}
+.jl-head{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + var(--safe-top)) 14px 4px}.jl-head h2{margin:0;font-size:20px}
 .jl-new{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600}
 .jl-filters{display:flex;gap:6px;padding:8px 14px 4px;overflow-x:auto;scrollbar-width:none}.jl-filters::-webkit-scrollbar{display:none}.jl-filters .chip-btn{flex:none}
 .jl-body{padding:0 10px 24px}.jl-body .pgrid{margin-top:8px}.jl-body .hint{padding:30px 6px;text-align:center}.jtile .jl-own{position:absolute;left:6px;bottom:24px;display:flex}.jtile .jl-own .av{width:20px;height:20px;font-size:10px;border:1.5px solid #fff;margin-right:-6px}
 .jmem{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;margin-top:6px;scrollbar-width:none}.jmem::-webkit-scrollbar{display:none}.jmem button{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:var(--ink);padding:0;width:54px;font-size:11px}.jmem button b{font-weight:500;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.jmem .av{width:42px;height:42px;font-size:16px;margin:0;border:2px solid transparent;box-sizing:border-box}.jmem button.on .av{border-color:#8FB6E8;box-shadow:0 0 0 2px rgba(143,182,232,.35)}.jmem button.on b{font-weight:700}.jmem .av.all{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--card);color:var(--ink);font-size:12px;font-weight:700;border:2px solid var(--line)}
+.sheet .jstrip{z-index:3;height:calc(166px + var(--safe));padding-bottom:var(--safe);transform:translateY(144px);border-radius:0;background:var(--card)}.sheet .jstrip.open{transform:none}.sheet .jstrip .sitems{height:144px}.jstrip .av-big.all{font-size:15px}#sheet-body.has-jstrip{padding-bottom:34px}#sheet-body.jstrip-open{padding-bottom:176px}
 .jmem-list .frow .finfo,.ti-flist .frow .finfo{display:flex;align-items:center;gap:10px}.jmem-list .finfo .av,.ti-flist .finfo .av{flex:none;width:30px;height:30px;font-size:13px;margin:0;display:inline-flex;align-items:center;justify-content:center}.jmem-list{border:1px solid var(--line);border-radius:14px;padding:0 12px}.jmem-list .frow:first-child{border-top:0}.jmem-add{margin-top:8px}
 .follow-set{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:6;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(36,31,27,.85);backdrop-filter:blur(8px);color:#fff;font-size:16px;padding:0;display:flex;align-items:center;justify-content:center}
 /* 피드 탭 = 주변/팔로우 토글(왼쪽 위) + 거리 배지(오른쪽 위, 팔로우에선 ⚙ 아래). 두 화면의 사진 위치는 같다 */
@@ -592,8 +594,8 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 46px)}
 .feedlike .reel-dist{top:calc(14px + var(--safe-top) + 46px)}
 .feedlike .dist-pop{top:calc(72px + var(--safe-top) + 46px)}
-body.trip-on .feedlike{--reel-top-h:calc(178px + var(--safe-top))}
-body.trip-on .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 88px)}
+
+
 .rank-seg{flex:none;display:flex;align-items:center;gap:8px;padding:calc(12px + var(--safe-top)) 14px 6px}.rank-seg .segpill{flex:none}
 .rank-dist{margin-left:auto;background:rgba(36,31,27,.85);border:1px solid var(--line-2);border-radius:14px;padding:7px 12px;font-size:12px;color:#fff;font-variant-numeric:tabular-nums;min-width:58px;text-align:center}
 .rank-dist-pop{top:calc(54px + var(--safe-top))}
@@ -827,7 +829,7 @@ body.trip-on .feedlike .reel-top{padding-top:calc(14px + var(--safe-top) + 88px)
       <p class="hint legal"><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a></p>
     </div>
   </div>
-  <button id="trip-timer" class="trip-timer" hidden><span class="trip-lbl" data-i18n="trip_live"></span><b class="mono" id="trip-time">00:00</b></button>
+  <button id="trip-timer" class="trip-timer docked" hidden><span class="trip-lbl" data-i18n="trip_live"></span><b class="mono" id="trip-time">00:00</b></button>
   <div id="toast"></div>
 </div>
 
@@ -897,7 +899,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-24c'; // shown in trip error sheets
+const APP_BUILD='2026-10-24d'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1197,7 +1199,7 @@ function onTap(x,y){if(S.tripMap)return;const w=toWorld(x,y),p=pairsForScale(),k
 // ---------- 시트
 const sheetStack=[];
 function pushSheet(){if(S.sheet&&$('#sheet').classList.contains('open'))sheetStack.push({...S.sheet,scroll:$('#sheet-body').scrollTop})}
-function openSheet(html){const back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';$('#sheet-body').innerHTML=back+html;$('#sheet-body').scrollTop=0;$('#sheet').classList.add('open');$('#backdrop').classList.add('open');mountPhotos($('#sheet-body'))}
+function openSheet(html){{const os=$('#ti-strip');if(os)os.remove();$('#sheet-body').classList.remove('has-jstrip','jstrip-open')}const back=sheetStack.length?`<button class="sh-back link" data-act="back">‹ ${t('back')}</button>`:'';$('#sheet-body').innerHTML=back+html;$('#sheet-body').scrollTop=0;$('#sheet').classList.add('open');$('#backdrop').classList.add('open');mountPhotos($('#sheet-body'))}
 function closeSheet(){$('#sheet').classList.remove('open');$('#backdrop').classList.remove('open');S.sheet=null;S.selected=null;sheetStack.length=0;requestRender()}
 function autoCloseSheet(delay){const mine=S.sheet,body=$('#sheet-body');let done=false;
   const cancel=()=>{done=true};body.addEventListener('pointerdown',cancel,{once:true});
@@ -2244,7 +2246,7 @@ async function drawJourneyMap(ctx,x0,y0,W,H,track,order,dur){const cells=tripCel
   ctx.fillStyle='rgba(40,30,20,.55)';ctx.font='400 15px '+SANS;ctx.textAlign='right';ctx.textBaseline='alphabetic';ctx.fillText('© OpenMapTiles © OpenStreetMap',x0+W-12,y0+H-10);
   ctx.restore()}
 // 여정중 버튼: 탭하면 참여자/여정맵 패널, 손가락으로 끌면 화면 안 어디로든 옮길 수 있다 (위치는 폰에 기억)
-const TIMER_POS_KEY='ctw-timer-pos';
+const TIMER_POS_KEY='ctw-timer-pos2';
 function tripTimerTap(){if(S.tripMap==='live'){closeMapOverlay();return}openTripInfo()}
 // 지금 참여 중인 여정들: 이 폰의 여정(TRIP) + 참여 중(joined)인 다른 단체여정. 단체여정은 서버 상태에서 바로 계산한다
 function tripExtras(){const me=S.user&&S.user.id;if(!me)return[];return TRIPS.all.filter(x=>!x.ended_at&&x.id!==TRIP.id&&x.owner!==me&&TRIPS.myState.get(x.id)==='joined')}
@@ -2266,7 +2268,7 @@ function openTripPanelOld(){if(!TRIP.on)return;if(TRIP.id&&TRIPS.all.some(z=>z.i
   if(TRIP.id)pollTrips(true).then(()=>{if(S.sheet&&S.sheet.type==='tripPanel'&&TRIPS.all.some(z=>z.id===TRIP.id))openTripMembers(TRIP.id,true)})}
 function timerBounds(el){const pr=(el.offsetParent||document.body).getBoundingClientRect(),r=el.getBoundingClientRect();const cs=getComputedStyle(document.documentElement);const safeTop=parseFloat(cs.getPropertyValue('--safe-top'))||0,tabH=(parseFloat(cs.getPropertyValue('--tab-h'))||66)+(parseFloat(cs.getPropertyValue('--safe'))||0);
   const W=pr.width||innerWidth,H=pr.height||innerHeight;return{minX:4,maxX:Math.max(4,W-r.width-4),minY:safeTop+4,maxY:Math.max(safeTop+4,H-tabH-r.height-8),pr}}
-function placeTimer(el,x,y){const b=timerBounds(el);x=clamp(x,b.minX,b.maxX);y=clamp(y,b.minY,b.maxY);el.style.right='auto';el.style.left=Math.round(x)+'px';el.style.top=Math.round(y)+'px';return{x,y}}
+function placeTimer(el,x,y){const b=timerBounds(el);x=clamp(x,b.minX,b.maxX);y=clamp(y,b.minY,b.maxY);el.style.right='auto';el.style.bottom='auto';el.style.left=Math.round(x)+'px';el.style.top=Math.round(y)+'px';return{x,y}}
 function applyTimerPos(){const el=$('#trip-timer');if(!el)return;let p=null;try{p=JSON.parse(localStorage.getItem(TIMER_POS_KEY)||'null')}catch(e){}if(p&&isFinite(p.x)&&isFinite(p.y))placeTimer(el,p.x,p.y)}
 function bindTripTimer(){const el=$('#trip-timer');if(!el)return;let pid=null,sx=0,sy=0,ox=0,oy=0,moved=false,suppress=false;
   el.addEventListener('pointerdown',e=>{pid=e.pointerId;sx=e.clientX;sy=e.clientY;const b=timerBounds(el),r=el.getBoundingClientRect();ox=r.left-b.pr.left;oy=r.top-b.pr.top;moved=false;try{el.setPointerCapture(pid)}catch(err){}});
@@ -2525,18 +2527,27 @@ function renderJourneys(){const body=$('#jl-body');if(!body)return;$$('#jl-filte
   body.innerHTML=list.length?`<div class="pgrid">${list.map(journeyTileHTML).join('')}</div>`:`<p class="hint">${t('jlist_empty')}</p>`}
 // 단체여정 시트: 참여자 아이콘 줄(전체 + 사람들) — 누른 사람들의 사진만 보인다 (여러 명 선택 가능)
 let TMEM={tid:null,sel:new Set()};
-function applyTripMemFilter(){const sel=TMEM.sel,grid=$('#sheet-body .pgrid.jnum');$$('#sheet-body [data-tmem]').forEach(b=>b.classList.toggle('on',b.dataset.tmem==='*'?!sel.size:sel.has(b.dataset.tmem)));if(!grid)return;let i=0;
+function applyTripMemFilter(){const sel=TMEM.sel,grid=$('#sheet-body .pgrid.jnum');$$('#sheet [data-tmem]').forEach(b=>b.classList.toggle('on',b.dataset.tmem==='*'?!sel.size:sel.has(b.dataset.tmem)));if(!grid)return;let i=0;
   for(const el of grid.querySelectorAll('[data-pid]')){const show=!sel.size||sel.has(el.dataset.uid);el.hidden=!show;if(show){const n=el.querySelector('.pg-n');if(n)n.textContent=++i}}}
 function toggleTripMem(uid){if(uid==='*')TMEM.sel.clear();else if(TMEM.sel.has(uid))TMEM.sel.delete(uid);else TMEM.sel.add(uid);applyTripMemFilter()}
-function tripMemRowHTML(m){if(!m.groupParts)return'';const me=S.user&&S.user.id;
-  return`<div class="jmem" id="ti-mem"><button data-tmem="*" class="on"><span class="av all">${t('mem_all')}</span><b>${t('mem_all')}</b></button>${m.groupParts.map(u=>`<button data-tmem="${u}">${avatarHTML({id:u,name:userName(u),me:u===me})}<b>${esc(userName(u))}</b></button>`).join('')}</div>`}
+function tripMemStripHTML(m){if(!m.groupParts)return'';const cnt=uid=>m.ps.filter(p=>p.user&&p.user.id===uid).length;
+  const item=uid=>{const av=S.avatars.get(uid),name=userName(uid);return`<button class="tstrip" data-tmem="${uid}"><span class="th round">${av?`<img src="${esc(av)}" alt="">`:`<span class="av-big">${esc((name||'?')[0])}</span>`}</span><b>${esc(name)}</b><span class="who"><span>${t('photos_n',{n:cnt(uid)})}</span></span></button>`};
+  return`<div class="sgrab" data-sgrab><i></i></div><div class="sitems"><button class="tstrip on" data-tmem="*"><span class="th round"><span class="av-big all">${t('mem_all')}</span></span><b>${t('mem_all')}</b><span class="who"><span>${t('photos_n',{n:m.ps.length})}</span></span></button>${m.groupParts.map(item).join('')}</div>`}
+// 시트 바닥에 붙는 참여자 스트립 (피드 › 친구 스트립과 같은 꼴): 처음엔 손잡이만, 위로 밀거나 손잡이를 누르면 올라온다
+let JSTRIP_OPEN=false;
+function mountTripStrip(m){const old=$('#ti-strip');if(old)old.remove();const sh=$('#sheet'),body=$('#sheet-body');const html=tripMemStripHTML(m);body.classList.toggle('has-jstrip',!!html);if(!html)return;
+  const el=document.createElement('div');el.id='ti-strip';el.className='trip-strip jstrip'+(JSTRIP_OPEN?' open':'');el.innerHTML=html;sh.appendChild(el);el.addEventListener('click',handleAction);
+  const setOpen=v=>{JSTRIP_OPEN=!!v;el.classList.toggle('open',JSTRIP_OPEN);body.classList.toggle('jstrip-open',JSTRIP_OPEN)};setOpen(JSTRIP_OPEN);
+  let pid=null,sy=0,sx=0,moved=false;el.addEventListener('pointerdown',e=>{pid=e.pointerId;sx=e.clientX;sy=e.clientY;moved=false});
+  el.addEventListener('pointermove',e=>{if(e.pointerId!==pid)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!moved&&Math.abs(dy)>=24&&Math.abs(dy)>Math.abs(dx)){moved=true;setOpen(dy<0)}});
+  const end=e=>{if(e.pointerId!==pid)return;pid=null;if(!moved&&e.type==='pointerup'&&e.target.closest('.sgrab'))setOpen(!JSTRIP_OPEN)};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);applyTripMemFilter()}
 // 단체여정 오너: 지금 단체에 속한 사람(참여 중·초대됨)을 보고 추가·내보내기
 function groupMembersHTML(m){if(!m.groupManage)return'';const x=tripObj(m.id);if(!x)return'';const me=S.user&&S.user.id,rows=(TRIPS.members.get(x.id)||[]).filter(r=>r.user_id!==x.owner&&(r.state==='joined'||(r.state==='invited'&&r.role!=='view')));
   return`<h3 class="sh-h3">${t('ti_members')}</h3><div class="flist mlist jmem-list"><div class="frow"><div class="finfo ulink" data-user="${x.owner}">${avatarHTML({id:x.owner,name:userName(x.owner),me:x.owner===me})}<b>${esc(userName(x.owner))}</b></div><span class="state">${t('trip_owner_lbl')}</span></div>${rows.map(r=>`<div class="frow"><div class="finfo ulink" data-user="${r.user_id}">${avatarHTML({id:r.user_id,name:userName(r.user_id),me:false})}<b>${esc(userName(r.user_id))}</b></div><span class="state">${t('st_'+r.state)}</span><button class="like rep" data-tripact="remove" data-trip="${x.id}" data-user="${r.user_id}">${t('trip_remove')}</button></div>`).join('')}</div>
   <div class="row2 jmem-add"><button class="btn" data-tripact="invite-more" data-trip="${x.id}">+ ${t('ti_add_member')}</button></div>`}
 // 진행 중인 내 여정도 처음엔 끝난 여정과 같은 보기 화면이고, 아래 ✎ 수정을 눌러야 편집(제목·본문·사진 빼기·공개 범위·멤버)이 열린다
 const TEDIT=new Set();
-function journeyModelFromTrip(x){const m=journeyModelFromTrip0(x);m.canEdit=!!(m.editable||m.manage||m.groupManage);m.editing=m.canEdit&&TEDIT.has(m.id);
+function journeyModelFromTrip(x){const m=journeyModelFromTrip0(x);m.canEdit=!!(m.editable||m.manage||m.groupManage||(m.isOwner&&m.finishTid));m.editing=m.canEdit&&TEDIT.has(m.id);
   if(!m.editing){m.editable=false;m.manage=false;m.groupManage=false;m.inviteTid=null}return m}
 function journeyModelFromTrip0(x){const me=S.user&&S.user.id,tid=x.id,isOwner=x.owner===me,st=x.local?'owner':TRIPS.myState.get(tid),fol=st==='follower',att=TRIP.on&&(x.local||TRIP.id===tid),live=!x.ended_at||att,ps=tripPhotosOf(x),meta=tripMetaOf(x),start=tripStartMs(x),end=x.ended_at?tripMs(x.ended_at):null;
   return{kind:'trip',ref:'trip:'+tid,id:tid,rid:x.local?(TRIP.id||'local'):tid,title:tripName(x),ownerId:x.owner,isOwner,live,start,end,dur:(end||Date.now())-start,body:meta.body,tags:meta.tags,cover:meta.cover,ps,ids:ps.map(p=>p.id),track:tripTrackOf(x),followers:x.local?null:tripFollowerRows(x).length,friendsOnly:x.visibility==='invite'&&!x.local,
@@ -2552,7 +2563,7 @@ function journeySheetHTML(m){const n=m.ps.length,when=[m.start&&!m.live?fmtDateS
   // 진행 중인 내 여정: 공개 범위를 바로 바꾼다 (초대한 친구만 ↔ 전체 공개)
   const perm=m.manage||m.groupManage?`<div class="ti-row ti-vis"><span>${t('trip_vis_h')}</span><span class="chips"><button class="chip-btn${m.vis!=='open'?' on':''}" data-tvis-set="invite" data-trip="${m.id}">${t(m.group?'trip_vis_group':'trip_vis_invite')}</button><button class="chip-btn${m.vis==='open'?' on':''}" data-tvis-set="open" data-trip="${m.id}">${t(m.group?'trip_vis_all':'ti_vis_open')}</button></span></div>`:'';
   const fol=m.followers==null?'':`<div class="ti-row"><span>${t('ti_followers',{n:m.followers})}</span>${m.followers?`<button class="like" data-tfollowers="${m.followersTid||m.id}" data-lbl="${m.manage?t('ti_manage'):t('ti_list_all')}">${m.manage?t('ti_manage'):t('ti_list_all')}</button>`:''}</div>`;
-  const live=[];if(m.inviteTid)live.push(`<button class="btn" data-tripact="invite-more" data-trip="${m.inviteTid}">${t('trip_invite_more')}</button>`);if(m.finishTid)live.push(`<button class="btn" data-tripact="finish" data-trip="${m.finishTid}">${t('trip_stop')}</button>`);
+  const live=[];if(m.inviteTid)live.push(`<button class="btn" data-tripact="invite-more" data-trip="${m.inviteTid}">${t('trip_invite_more')}</button>`);if(m.finishTid&&m.editing)live.push(`<button class="btn" data-tripact="finish" data-trip="${m.finishTid}">${t('trip_stop')}</button>`);
   const tile=p=>m.kind==='trip'?`data-treels="${m.rid}" data-pid="${p.id}"`:`data-jreels="${m.id}" data-pid="${p.id}"`;
   const grid=n?`<div class="pgrid jnum">${m.ps.map((p,i)=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-uid="${p.user&&p.user.id||''}" ${tile(p)}><span class="pg-n">${i+1}</span><span class="pg-l">♥ ${p.likes}</span>${p.hidden||p.priv?`<span class="pg-hid">${t('hidden_badge')}</span>`:''}${m.editable?`<button class="pg-x" data-tp-rm="${m.id}" data-pid="${p.id}" title="${t('ti_rm_photo')}">✕</button>`:''}</div>`).join('')}</div>`:`<p class="hint">${t('ti_no_photos')}</p>`;
   const hasRoute=m.track.length>0||n>0,JS=hasRoute?journeyStats(m.ps,m.track.length>1?m.track:null,m.dur):{dist:0,coveredN:0,passedN:0};
@@ -2566,7 +2577,7 @@ function journeySheetHTML(m){const n=m.ps.length,when=[m.start&&!m.live?fmtDateS
   if((!m.isOwner||m.kind==='card')&&n)acts.push(`<button class="like rep" data-jreport="${m.ref}" title="${t('report')}">⚑ ${t('report')}</button>`);
   const done=m.editing?`<div class="row2" style="margin-top:10px"><button class="btn primary" data-ti-done="${m.id}">${t('journey_edit_done')}</button></div>`:'';
   return`${head}${body}${done}${perm}${fol}${live.length?`<div class="row2 ti-acts" style="margin-top:12px">${live.join('')}</div>`:''}
-  ${groupMembersHTML(m)}<h3 class="sh-h3">${t('ti_photos')}</h3>${tripMemRowHTML(m)}${grid}${stats}${map}<div class="row2 acts">${acts.join('')}</div>`}
+  ${groupMembersHTML(m)}<h3 class="sh-h3">${t('ti_photos')}</h3>${grid}${stats}${map}<div class="row2 acts">${acts.join('')}</div>`}
 // 시트에 들어간 캔버스(사인 · 여정맵) 그리기
 function drawJourneySheet(m){const sg=$('#ti-sig');if(sg){if(m.ps.length||m.track.length>1){const w=sg.clientWidth||80,h=sg.clientHeight||56,dpr=Math.min(2,devicePixelRatio||1);sg.width=Math.round(w*dpr);sg.height=Math.round(h*dpr);const c=sg.getContext('2d');c.scale(dpr,dpr);drawJourneySignatureSmall(c,2,2,w-4,h-4,m.ps,m.track.length>1?m.track:[])}else sg.remove()}
   const cv=$('#ti-map');if(!cv)return;if(!m.track.length&&!m.ps.length){cv.remove();const h=$('#ti-map-h');if(h)h.remove();return}
@@ -2582,7 +2593,7 @@ function reopenByRef(ref){const m=modelByRef(ref);if(!m)return;if(m.kind==='trip
 async function copyLinkRef(ref){const m=modelByRef(ref);if(!m)return;const link=journeyShareLinkFor({ids:m.ids});if(!link){toast(t('journey_link_none'));return}try{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}catch(e){toast(link)}}
 async function shareLinkRef(ref){const m=modelByRef(ref);if(!m)return;const link=journeyShareLinkFor({ids:m.ids});if(!link){toast(t('journey_link_none'));return}try{if(navigator.share)await navigator.share({title:m.title,text:m.title,url:link});else{await navigator.clipboard.writeText(link);toast(t('journey_link_copied'))}}catch(e){}}
 function openTripSheet(tid,refresh){const x=tripObj(tid);if(!x){openTripReels(tid);return}tid=x.id;if(!refresh)TEDIT.delete(tid);const m=journeyModelFromTrip(x);const wasOpen=!!(refresh&&$('#ti-flist'));if(!refresh)pushSheet();S.sheet={type:'tripSheet',key:tid};
-  if(TMEM.tid!==tid||!refresh)TMEM={tid,sel:new Set()};openSheet(journeySheetHTML(m));applyTripMemFilter();if(m.editable){bindTripInfoEdit(tid);const ti=$('#ti-title');if(ti){let tt;ti.addEventListener('input',()=>{clearTimeout(tt);tt=setTimeout(()=>saveTripName(tid,ti.value),700)})}}drawJourneySheet(m);if(wasOpen){const b=$('#sheet-body [data-tfollowers]');if(b)toggleTripFollowers(tid,b)}
+  if(TMEM.tid!==tid||!refresh)TMEM={tid,sel:new Set()};openSheet(journeySheetHTML(m));mountTripStrip(m);if(m.editable){bindTripInfoEdit(tid);const ti=$('#ti-title');if(ti){let tt;ti.addEventListener('input',()=>{clearTimeout(tt);tt=setTimeout(()=>saveTripName(tid,ti.value),700)})}}drawJourneySheet(m);if(wasOpen){const b=$('#sheet-body [data-tfollowers]');if(b)toggleTripFollowers(tid,b)}
   if(!x.local&&!TRIPS.members.has(tid)&&sb)loadTripMembers(tid).then(()=>{if(S.sheet&&S.sheet.type==='tripSheet'&&S.sheet.key===tid)openTripSheet(tid,true)})}
 async function loadTripMembers(tid){try{const r=await sb.from('trip_members').select('trip_id,user_id,state,role').eq('trip_id',tid);if(r.error)throw r.error;TRIPS.members.set(tid,r.data||[]);const ids=(r.data||[]).map(m=>m.user_id).filter(id=>!(S.names&&S.names.get(id)));if(ids.length)await loadNames(ids)}catch(e){console.warn('trip members',e)}}
 async function loadNames(ids){if(!sb||!ids.length)return;try{const r=await sb.from('profiles').select('id,name,avatar_path').in('id',ids);for(const p of r.data||[]){if(!S.names)S.names=new Map();S.names.set(p.id,p.name||'');if(p.avatar_path)S.avatars.set(p.id,pubUrl(p.avatar_path))}}catch(e){}}
