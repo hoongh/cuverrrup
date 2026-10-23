@@ -1,0 +1,45 @@
+# Applies supabase/trips.sql to the Supabase database. Run it by hand:
+# GitHub → Actions → "Apply trips.sql" → Run workflow.
+# Needs one repository secret: SUPABASE_DB_URL = the "Session pooler" connection string
+# from Supabase (Connect button), with the database password filled in. Never put it in a file:
+# this repository is public.
+name: Apply trips.sql
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the secret is set
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is missing. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Install psql
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+      - name: Apply supabase/trips.sql
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -q -f supabase/trips.sql
+
+      - name: Check installed version
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          v=$(psql "$SUPABASE_DB_URL" -tAc "select public.trips_sql_version()")
+          echo "installed_version = $v"
+          expected=$(grep -o "as 'select [0-9]*'" supabase/trips.sql | grep -o "[0-9]*")
+          if [ "$v" != "$expected" ]; then echo "::error::expected $expected, got $v"; exit 1; fi
+          echo "::notice::trips.sql v$v is installed"
