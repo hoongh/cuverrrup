@@ -899,7 +899,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-24g'; // shown in trip error sheets
+const APP_BUILD='2026-10-24h'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2262,8 +2262,8 @@ function ownExtrasLive(){const me=S.user&&S.user.id;return TRIPS.all.filter(x=>!
 function tripExtras(){const me=S.user&&S.user.id;if(!me)return[];return TRIPS.all.filter(x=>!x.ended_at&&x.id!==TRIP.id&&!TRIP_FIN.has(x.id)&&((x.owner!==me&&TRIPS.myState.get(x.id)==='joined')||(x.owner===me&&TRIPS.myState.get(x.id)==='owner')))}
 // 기본 여정을 마치면 남아 있는 내 여정 중 가장 최근 것이 기본 여정이 된다 (그동안 올려 둔 경로를 이어서)
 function promoteExtra(){if(TRIP.on)return false;const l=ownExtrasLive().filter(x=>EXTRA_OWN.has(x.id)).sort((a,b)=>tripMs(b.started_at)-tripMs(a.started_at));const x=l[0];if(!x)return false;EXTRA_OWN.delete(x.id);saveExtraOwn();tripSeen('att:'+x.id);
-  const mrow=(TRIPS.members.get(x.id)||[]).find(m=>m.user_id===S.user.id),meta=tripMetaOf(x);TRIP.on=true;TRIP.id=x.id;TRIP.owner=x.owner;TRIP.name=x.name||'';TRIP.role='post';TRIP.vis=x.visibility==='open'?'open':'invite';TRIP.start=tripMs(x.started_at)||Date.now();
-  TRIP.pts=mrow&&Array.isArray(mrow.track)?mrow.track.map(p=>({lat:p.lat,lng:p.lng,ts:p.ts||Date.now()})):[];TRIP.photos=tripPhotoRows(x.id).filter(r=>r.user_id===S.user.id).map(r=>r.photo_id);TRIP.body=meta.body;TRIP.tags=meta.tags;TRIP.cover=meta.cover;
+  const mrow=(TRIPS.members.get(x.id)||[]).find(m=>m.user_id===S.user.id),meta=tripMetaOf(x);TRIP.photos=[];const mine=tripPhotoRows(x.id).filter(r=>r.user_id===S.user.id).map(r=>r.photo_id);TRIP.on=true;TRIP.id=x.id;TRIP.owner=x.owner;TRIP.name=x.name||'';TRIP.role='post';TRIP.vis=x.visibility==='open'?'open':'invite';TRIP.start=tripMs(x.started_at)||Date.now();
+  TRIP.pts=mrow&&Array.isArray(mrow.track)?mrow.track.map(p=>({lat:p.lat,lng:p.lng,ts:p.ts||Date.now()})):[];TRIP.photos=mine;TRIP.body=meta.body;TRIP.tags=meta.tags;TRIP.cover=meta.cover;
   if(S.me.src==='gps')TRIP.pts.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});saveTrip();updateTripUI();updateTimerMulti();return true}
 function activeTrips(){const l=[];if(TRIP.on)l.push({id:TRIP.id||'local',name:TRIP.name||t('trip_live_badge'),primary:true,vis:TRIP.vis,start:TRIP.start,post:TRIP.role!=='view'});
   for(const x of tripExtras())l.push({id:x.id,name:tripName(x),primary:false,vis:x.visibility,start:tripStartMs(x),post:TRIPS.myRole.get(x.id)!=='view'});return l}
@@ -2301,7 +2301,7 @@ function openTripFinish(tid){const f=finishSource(tid);if(!f)return;if(S.sheet&&
 async function finishTrip(tidArg){const f=finishSource(tidArg||null);if(!f){closeSheet();return}const tid=f.tid,shared=!!(tid&&tid!=='local'&&sb&&S.user);
   if(tid)tripSeen('att:'+tid);TRIPS.finishedAt=Date.now();const endedAt=new Date().toISOString();
   if(tid){TRIP_FIN.add(tid);if(EXTRA_OWN.has(tid)){EXTRA_OWN.delete(tid);saveExtraOwn()}}
-  if(f.att){TRIP.on=false;TRIP.id=null;TRIP.owner=null;TRIP.name='';TRIP.body='';TRIP.tags='';TRIP.cover=null;saveTrip();updateTripUI();promoteExtra()}updateTimerMulti();closeSheet();if(S.mapOverlay)closeMapOverlay();
+  if(f.att){TRIP.on=false;TRIP.id=null;TRIP.owner=null;TRIP.name='';TRIP.body='';TRIP.tags='';TRIP.cover=null;TRIP.photos=[];TRIP.pts=[];saveTrip();updateTripUI();promoteExtra()}updateTimerMulti();closeSheet();if(S.mapOverlay)closeMapOverlay();
   if(shared){let ok=false;for(let i=0;i<3&&!ok;i++){try{const r0=await sb.from('trips').update({ended_at:endedAt}).eq('id',tid);if(r0.error)throw r0.error;ok=true}catch(e){console.warn('trip end',e);if(i===2)tripFail('finish',tid,e);else await new Promise(r=>setTimeout(r,800))}}
     const sx=TRIPS.all.find(z=>z.id===tid);if(sx)sx.ended_at=endedAt;recomputeTripFeed();try{await pollTrips(true);if(Date.now()-S.lastLoad>5000)await loadWorld()}catch(e){}}
   const r=shared?tripRemoteFor(tid):{pts:[],photos:[]};
@@ -2988,7 +2988,7 @@ async function handlePhoneVideo(f){const vPressFix=shutterFix(),vTs=f.lastModifi
   catch(e){console.warn(e);toast(t('video_fail'))}finally{URL.revokeObjectURL(url)}}
 function setOriginal(src,sw,sh){const c=document.createElement('canvas');c.width=sw;c.height=sh;c.getContext('2d').drawImage(src,0,0,sw,sh);S.cam.orig=c;S.cam.origBlob=null;S.cam.origFile=null;S.cam.origStill=false;canvasBlob(c,0.92).then(b=>{S.cam.origBlob=b})}
 let saveOrig=localStorage.getItem('ctw-saveorig')!=='0';
-let hideUpload=false,anonUpload=false,noTripUpload=false,UPSEL=new Set();
+let hideUpload=false,anonUpload=false,noTripUpload=false,UPSEL=new Set(),HIDE_PREV=null;
 // 올리기 화면의 여정 고르기: 여정이 둘 이상이면 여정마다 칩(기본 모두 선택). 여정에 넣지 않기를 켜면 모두 해제
 // 단체여정(내가 참여 중인 다른 여정)에도 이 사진을 넣는다: trip_photos 줄 + 바로 보이도록 로컬 색인
 function linkPhotoToTrips(pid,tids){if(!tids.length||!sb||!S.user)return;for(const tid of tids){const row={trip_id:tid,photo_id:pid,user_id:S.user.id};sb.from('trip_photos').insert(row).then(r=>{if(r.error)console.warn('trip_photos',r.error)});if(!TRIPS.photos.has(tid))TRIPS.photos.set(tid,[]);TRIPS.photos.get(tid).push(row);TRIPS.photoTrip.set(pid,tid)}setTimeout(()=>pollTrips(true),800)}
@@ -3044,7 +3044,7 @@ async function saveOriginal(lat,lng){if(!saveOrig)return;let blob,name;const sta
   if(IS_IOS){try{const file=new File([blob],name,{type:blob.type||'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});toast(t('orig_saved'));return}}catch(e){if(e&&e.name==='AbortError'){toast(t('orig_skip'));return}}}
   try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast(t('orig_saved_dl'))}catch(e){toast(t('orig_skip'))}}
 function origInfo(){const oi=$('#orig-info');if(!oi)return;const f=S.cam.origFile,o=S.cam.orig;oi.textContent=f?t('orig_info_file',{w:o?o.width:'?',h:o?o.height:'?',mb:(f.size/1048576).toFixed(1)}):(o?t('orig_info_app',{w:o.width,h:o.height}):'')}
-function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);origInfo();S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;noTripUpload=false;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');UPSEL=new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips();setCamState('review')}
+function showReview(){$('#shot').src=S.cam.shot.toDataURL('image/jpeg',0.9);origInfo();S.cam.stickers=[];S.cam.sel=null;S.cam.trim=newTrim();$('#shot').style.transform='none';$('#caption').value='';setTool(null);renderStickers();hideUpload=false;anonUpload=false;noTripUpload=false;HIDE_PREV=null;$('#hide-toggle').classList.remove('on');$('#anon-toggle').classList.remove('on');UPSEL=new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips();setCamState('review')}
 // --- 스티커(글씨/이모지)
 const EMOJIS=['😀','😂','🥹','😍','😎','🤩','😭','🥰','😴','🤔','🙌','👍','👏','🙏','✌️','🤙','💪','❤️','🧡','💛','💚','💙','💜','🔥','✨','⭐','🌟','💫','🎉','🎈','🎂','🍕','🍔','🍜','☕','🍺','🌸','🌈','☀️','🌙','⛅','🌊','🏖️','⛰️','🗼','🏙️','🚲','✈️','🚗','📍','📸','🎵','⚽','🏀','🐶','🐱','🦋','🍀','💯','🆒'];
 const COLORS=['#FFFFFF','#141A24','#E0876F','#FFC933','#9FD8B3','#8FB6E8','#FF4F8F','#A855F7'];
@@ -3183,7 +3183,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#upload').addEventListener('click',uploadShot);
   $$('.tool').forEach(b=>b.addEventListener('click',()=>{S.cam.sel=null;renderStickers();setTool(b.dataset.tool)}));bindStickers();
   $('#orig-toggle').addEventListener('click',()=>{saveOrig=!saveOrig;localStorage.setItem('ctw-saveorig',saveOrig?'1':'0');$('#orig-toggle').classList.toggle('on',saveOrig)});
-  $('#hide-toggle').addEventListener('click',()=>{hideUpload=!hideUpload;$('#hide-toggle').classList.toggle('on',hideUpload);if(activeTrips().some(a=>a.post)){noTripUpload=hideUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()}});$('#notrip-toggle').addEventListener('click',()=>{noTripUpload=!noTripUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()});
+  $('#hide-toggle').addEventListener('click',()=>{hideUpload=!hideUpload;$('#hide-toggle').classList.toggle('on',hideUpload);if(activeTrips().some(a=>a.post)){if(hideUpload){HIDE_PREV={sel:new Set(UPSEL),no:noTripUpload};noTripUpload=true;UPSEL=new Set()}else if(HIDE_PREV){UPSEL=HIDE_PREV.sel;noTripUpload=HIDE_PREV.no;HIDE_PREV=null}else{noTripUpload=false;UPSEL=new Set(activeTrips().filter(a=>a.post).map(a=>a.id))}renderUpTrips()}});$('#notrip-toggle').addEventListener('click',()=>{noTripUpload=!noTripUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()});
   $('#uptrips').addEventListener('click',e=>{const b=e.target.closest('[data-uptrip]');if(!b)return;const id=b.dataset.uptrip;if(noTripUpload){noTripUpload=false;UPSEL=new Set()}if(UPSEL.has(id))UPSEL.delete(id);else UPSEL.add(id);if(!UPSEL.size)noTripUpload=true;renderUpTrips()});
   $('#anon-toggle').addEventListener('click',()=>{if(!anonUpload){confirmAnon(()=>{anonUpload=true;$('#anon-toggle').classList.add('on')})}else{anonUpload=false;$('#anon-toggle').classList.remove('on')}});
   $('#phone-photo').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;handlePhoneFile(f);e.target.value=''});
