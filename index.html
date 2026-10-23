@@ -899,7 +899,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-24e'; // shown in trip error sheets
+const APP_BUILD='2026-10-24f'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2256,10 +2256,12 @@ function tripTimerTap(){if(S.tripMap==='live'){closeMapOverlay();return}openTrip
 // 동시에 여러 여정: 처음 여정이 폰의 기본 여정(GPS 경로 기록)이고, 그 사이 새로 만든 내 여정은 여기 기록해 함께 진행한다
 const EXTRA_OWN=new Set((()=>{try{return JSON.parse(localStorage.getItem('ctw-extra-own')||'[]')}catch(e){return[]}})());
 function saveExtraOwn(){try{localStorage.setItem('ctw-extra-own',JSON.stringify([...EXTRA_OWN]))}catch(e){}}
-function ownExtrasLive(){const me=S.user&&S.user.id;return TRIPS.all.filter(x=>EXTRA_OWN.has(x.id)&&!x.ended_at&&x.owner===me&&x.id!==TRIP.id)}
-function tripExtras(){const me=S.user&&S.user.id;if(!me)return[];return TRIPS.all.filter(x=>!x.ended_at&&x.id!==TRIP.id&&((x.owner!==me&&TRIPS.myState.get(x.id)==='joined')||(x.owner===me&&EXTRA_OWN.has(x.id))))}
+// 끝내지 않은 내 여정은 모두 진행 중으로 친다 (이 폰에서 만들지 않았거나 12시간이 지나 자동으로 붙지 않은 것도). 방금 마친 여정은 늦게 온 폴링이 되살리지 못하게 뺀다
+const TRIP_FIN=new Set();
+function ownExtrasLive(){const me=S.user&&S.user.id;return TRIPS.all.filter(x=>!x.ended_at&&x.owner===me&&x.id!==TRIP.id&&!TRIP_FIN.has(x.id)&&TRIPS.myState.get(x.id)==='owner')}
+function tripExtras(){const me=S.user&&S.user.id;if(!me)return[];return TRIPS.all.filter(x=>!x.ended_at&&x.id!==TRIP.id&&!TRIP_FIN.has(x.id)&&((x.owner!==me&&TRIPS.myState.get(x.id)==='joined')||(x.owner===me&&TRIPS.myState.get(x.id)==='owner')))}
 // 기본 여정을 마치면 남아 있는 내 여정 중 가장 최근 것이 기본 여정이 된다 (그동안 올려 둔 경로를 이어서)
-function promoteExtra(){if(TRIP.on)return false;const l=ownExtrasLive().sort((a,b)=>tripMs(b.started_at)-tripMs(a.started_at));const x=l[0];if(!x)return false;EXTRA_OWN.delete(x.id);saveExtraOwn();tripSeen('att:'+x.id);
+function promoteExtra(){if(TRIP.on)return false;const l=ownExtrasLive().filter(x=>EXTRA_OWN.has(x.id)).sort((a,b)=>tripMs(b.started_at)-tripMs(a.started_at));const x=l[0];if(!x)return false;EXTRA_OWN.delete(x.id);saveExtraOwn();tripSeen('att:'+x.id);
   const mrow=(TRIPS.members.get(x.id)||[]).find(m=>m.user_id===S.user.id),meta=tripMetaOf(x);TRIP.on=true;TRIP.id=x.id;TRIP.owner=x.owner;TRIP.name=x.name||'';TRIP.role='post';TRIP.vis=x.visibility==='open'?'open':'invite';TRIP.start=tripMs(x.started_at)||Date.now();
   TRIP.pts=mrow&&Array.isArray(mrow.track)?mrow.track.map(p=>({lat:p.lat,lng:p.lng,ts:p.ts||Date.now()})):[];TRIP.photos=tripPhotoRows(x.id).filter(r=>r.user_id===S.user.id).map(r=>r.photo_id);TRIP.body=meta.body;TRIP.tags=meta.tags;TRIP.cover=meta.cover;
   if(S.me.src==='gps')TRIP.pts.push({lat:S.me.lat,lng:S.me.lng,ts:Date.now()});saveTrip();updateTripUI();updateTimerMulti();return true}
@@ -2298,7 +2300,7 @@ function openTripFinish(tid){const f=finishSource(tid);if(!f)return;if(S.sheet&&
 // ended_at을 적어서, 그 사이 폴링이 아직 진행 중인 서버 여정을 다시 붙였고, 이미지 업로드가 실패하면 영영 안 끝났다.
 async function finishTrip(tidArg){const f=finishSource(tidArg||null);if(!f){closeSheet();return}const tid=f.tid,shared=!!(tid&&tid!=='local'&&sb&&S.user);
   if(tid)tripSeen('att:'+tid);TRIPS.finishedAt=Date.now();const endedAt=new Date().toISOString();
-  if(tid&&EXTRA_OWN.has(tid)){EXTRA_OWN.delete(tid);saveExtraOwn()}
+  if(tid){TRIP_FIN.add(tid);if(EXTRA_OWN.has(tid)){EXTRA_OWN.delete(tid);saveExtraOwn()}}
   if(f.att){TRIP.on=false;TRIP.id=null;TRIP.owner=null;TRIP.name='';TRIP.body='';TRIP.tags='';TRIP.cover=null;saveTrip();updateTripUI();promoteExtra()}updateTimerMulti();closeSheet();if(S.mapOverlay)closeMapOverlay();
   if(shared){let ok=false;for(let i=0;i<3&&!ok;i++){try{const r0=await sb.from('trips').update({ended_at:endedAt}).eq('id',tid);if(r0.error)throw r0.error;ok=true}catch(e){console.warn('trip end',e);if(i===2)tripFail('finish',tid,e);else await new Promise(r=>setTimeout(r,800))}}
     const sx=TRIPS.all.find(z=>z.id===tid);if(sx)sx.ended_at=endedAt;recomputeTripFeed();try{await pollTrips(true);if(Date.now()-S.lastLoad>5000)await loadWorld()}catch(e){}}
