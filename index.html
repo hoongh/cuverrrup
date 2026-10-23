@@ -899,7 +899,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-10-24f'; // shown in trip error sheets
+const APP_BUILD='2026-10-24g'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=11; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2580,7 +2580,7 @@ function journeySheetHTML(m){const n=m.ps.length,when=[m.start&&!m.live?fmtDateS
     :`${m.body?`<p class="cap big ti-body">${esc(m.body)}</p>`:''}${tagsHTML(m.tags)}`;
   // 진행 중인 내 여정: 공개 범위를 바로 바꾼다 (초대한 친구만 ↔ 전체 공개)
   const perm=m.manage||m.groupManage?`<div class="ti-row ti-vis"><span>${t('trip_vis_h')}</span><span class="chips"><button class="chip-btn${m.vis!=='open'?' on':''}" data-tvis-set="invite" data-trip="${m.id}">${t(m.group?'trip_vis_group':'trip_vis_invite')}</button><button class="chip-btn${m.vis==='open'?' on':''}" data-tvis-set="open" data-trip="${m.id}">${t(m.group?'trip_vis_all':'ti_vis_open')}</button></span></div>`:'';
-  const fol=m.followers==null?'':`<div class="ti-row"><span>${t('ti_followers',{n:m.followers})}</span>${m.followers?`<button class="like" data-tfollowers="${m.followersTid||m.id}" data-lbl="${m.manage?t('ti_manage'):t('ti_list_all')}">${m.manage?t('ti_manage'):t('ti_list_all')}</button>`:''}</div>`;
+  const fol=m.followers==null||(m.group&&m.friendsOnly)?'':`<div class="ti-row"><span>${t('ti_followers',{n:m.followers})}</span>${m.followers?`<button class="like" data-tfollowers="${m.followersTid||m.id}" data-lbl="${m.manage?t('ti_manage'):t('ti_list_all')}">${m.manage?t('ti_manage'):t('ti_list_all')}</button>`:''}</div>`;
   const live=[];if(m.inviteTid)live.push(`<button class="btn" data-tripact="invite-more" data-trip="${m.inviteTid}">${t('trip_invite_more')}</button>`);if(m.finishTid&&m.editing)live.push(`<button class="btn" data-tripact="finish" data-trip="${m.finishTid}">${t('trip_stop')}</button>`);
   const tile=p=>m.kind==='trip'?`data-treels="${m.rid}" data-pid="${p.id}"`:`data-jreels="${m.id}" data-pid="${p.id}"`;
   const grid=n?`<div class="pgrid jnum">${m.ps.map((p,i)=>`<div class="ph pg" data-photo="${p.id}" data-size="small" data-uid="${p.user&&p.user.id||''}" ${tile(p)}><span class="pg-n">${i+1}</span><span class="pg-l">♥ ${p.likes}</span>${p.hidden||p.priv?`<span class="pg-hid">${t('hidden_badge')}</span>`:''}${m.editable?`<button class="pg-x" data-tp-rm="${m.id}" data-pid="${p.id}" title="${t('ti_rm_photo')}">✕</button>`:''}</div>`).join('')}</div>`:`<p class="hint">${t('ti_no_photos')}</p>`;
@@ -3183,7 +3183,7 @@ function bindUI(){$$('.tab').forEach(tb=>tb.addEventListener('click',()=>switchT
   $('#upload').addEventListener('click',uploadShot);
   $$('.tool').forEach(b=>b.addEventListener('click',()=>{S.cam.sel=null;renderStickers();setTool(b.dataset.tool)}));bindStickers();
   $('#orig-toggle').addEventListener('click',()=>{saveOrig=!saveOrig;localStorage.setItem('ctw-saveorig',saveOrig?'1':'0');$('#orig-toggle').classList.toggle('on',saveOrig)});
-  $('#hide-toggle').addEventListener('click',()=>{hideUpload=!hideUpload;$('#hide-toggle').classList.toggle('on',hideUpload)});$('#notrip-toggle').addEventListener('click',()=>{noTripUpload=!noTripUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()});
+  $('#hide-toggle').addEventListener('click',()=>{hideUpload=!hideUpload;$('#hide-toggle').classList.toggle('on',hideUpload);if(activeTrips().some(a=>a.post)){noTripUpload=hideUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()}});$('#notrip-toggle').addEventListener('click',()=>{noTripUpload=!noTripUpload;UPSEL=noTripUpload?new Set():new Set(activeTrips().filter(a=>a.post).map(a=>a.id));renderUpTrips()});
   $('#uptrips').addEventListener('click',e=>{const b=e.target.closest('[data-uptrip]');if(!b)return;const id=b.dataset.uptrip;if(noTripUpload){noTripUpload=false;UPSEL=new Set()}if(UPSEL.has(id))UPSEL.delete(id);else UPSEL.add(id);if(!UPSEL.size)noTripUpload=true;renderUpTrips()});
   $('#anon-toggle').addEventListener('click',()=>{if(!anonUpload){confirmAnon(()=>{anonUpload=true;$('#anon-toggle').classList.add('on')})}else{anonUpload=false;$('#anon-toggle').classList.remove('on')}});
   $('#phone-photo').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;handlePhoneFile(f);e.target.value=''});
