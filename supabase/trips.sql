@@ -197,13 +197,33 @@ create policy uf_delete on public.user_follows for delete to authenticated using
 drop policy if exists follows_read_all on public.follows;
 create policy follows_read_all on public.follows for select to authenticated using (true);
 
+-- v12: 단체여정 채팅. 그 여정의 오너와 참여 중(joined)인 사람만 읽고 쓰고, 자기 메시지는 지울 수 있다
+create table if not exists public.trip_chat (
+  id          bigint generated always as identity primary key,
+  trip_id     uuid not null references public.trips(id) on delete cascade,
+  user_id     uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  body        text not null check (char_length(body) between 1 and 500),
+  created_at  timestamptz not null default now()
+);
+create index if not exists trip_chat_trip_idx on public.trip_chat(trip_id, created_at);
+alter table public.trip_chat enable row level security;
+drop policy if exists tc_read   on public.trip_chat;
+drop policy if exists tc_insert on public.trip_chat;
+drop policy if exists tc_delete on public.trip_chat;
+create policy tc_read on public.trip_chat for select to authenticated using (
+  exists (select 1 from public.trip_members m where m.trip_id = trip_chat.trip_id and m.user_id = auth.uid() and m.state in ('owner','joined')));
+create policy tc_insert on public.trip_chat for insert to authenticated with check (
+  trip_chat.user_id = auth.uid()
+  and exists (select 1 from public.trip_members m where m.trip_id = trip_chat.trip_id and m.user_id = auth.uid() and m.state in ('owner','joined')));
+create policy tc_delete on public.trip_chat for delete to authenticated using (trip_chat.user_id = auth.uid());
+
 -- Version stamp. The app calls this to tell whether (and which version of) this file is applied; it is created last,
 -- so if it exists everything above it ran too. Bump the number together with TRIPS_SQL_EXPECT in index.html.
-create or replace function public.trips_sql_version() returns int language sql stable as 'select 11';
+create or replace function public.trips_sql_version() returns int language sql stable as 'select 12';
 grant execute on function public.trips_sql_version() to authenticated;
 
 -- Owner must be able to see profiles to search friends by name: profiles already readable (used by the app).
 -- Card images are uploaded to the existing public photos bucket at {owner}/trip-{trip_id}.jpg.
 
--- When the whole file ran, the editor shows one row with installed_version = 11
+-- When the whole file ran, the editor shows one row with installed_version = 12
 select public.trips_sql_version() as installed_version;
