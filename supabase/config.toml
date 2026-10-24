@@ -1,0 +1,2 @@
+# Minimal config for the Supabase GitHub integration. Only supabase/migrations/*.sql is used for production deploys.
+project_id = "cuverrrup"

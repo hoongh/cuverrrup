@@ -1,3 +1,5 @@
+-- Deploy: the Supabase GitHub integration applies supabase/migrations/*.sql when they reach main. When this file changes,
+-- add the new version as a new timestamped file there (e.g. supabase/migrations/20261025120000_trips_v12.sql).
 -- 함께하는 커버럽 여정 (shared trips)
 -- Run this in the Supabase SQL editor (paste the whole file at once). The client works without it (solo trips stay local),
 -- and switches the shared features on as soon as these tables exist.
