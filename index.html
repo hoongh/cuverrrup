@@ -29,8 +29,8 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none}html{background:#0F0D0B}html.short-wv{background:#1B1714}html.short-wv{--safe:0px}html.short-wv .tabbar{background:#1B1714}
-/* 아이폰 설치형(black 상태바): 상태바 띠(#1B1714)와 앱 화면 위쪽이 끊겨 보이지 않게 위에서 부드럽게 이어 준다 */
-html.ios-band .phone::after{content:'';position:absolute;top:0;left:0;right:0;height:34px;background:linear-gradient(#1B1714,rgba(27,23,20,.55) 45%,rgba(27,23,20,0));z-index:60;pointer-events:none}
+/* 아이폰 설치형(black 상태바, 웹뷰가 화면 아래 끝까지): 홈 인디케이터 여백을 20pt 줄여 탭바를 아래로 붙인다 */
+html.ios-band{--safe:max(6px,calc(env(safe-area-inset-bottom,0px) - 20px))}
 body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;top:0;left:0;right:0;height:var(--app-h,100%)}
 /* body도 앱 상자와 같은 높이: inset:0이면 아이폰이 짧게 보고한 화면 높이로 body가 잘려 탭바 글자가 사라졌다 */
 button,input{font-family:inherit;color:inherit}
@@ -49,8 +49,8 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--flag);outline-o
 .screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}.reels,.rank-body,.screen.scroll,.ov-body,.sheet .body{overscroll-behavior:contain}
 
 /* tab bar */
-.tabbar{position:absolute;left:0;right:0;bottom:0;height:calc(var(--tab-h) + var(--safe));padding-bottom:var(--safe);display:flex;background:rgba(27,23,20,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:40}
-.tab{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:400;color:var(--muted)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:calc(var(--tab-h) + var(--safe));display:flex;background:rgba(27,23,20,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:40}
+.tab{flex:1;border:0;background:none;padding:0 0 var(--safe);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:400;color:var(--muted)}
 .tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .tab span{display:block;line-height:1.2;white-space:nowrap}
 .tab.active{color:var(--ink)}
@@ -937,7 +937,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-07a'; // shown in trip error sheets
+const APP_BUILD='2026-11-07b'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
