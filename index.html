@@ -570,7 +570,9 @@ h2{font-size:17px;font-weight:400;letter-spacing:-.01em;margin:28px 0 12px}
 .pp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px;padding:12px 4px}.pp-tile{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.pp-av{width:86px;height:86px;border-radius:50%;overflow:hidden;background:#3A332D;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;color:#fff}.pp-av img{width:100%;height:100%;object-fit:cover}.pp-tile b{font-size:13px;font-weight:500;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pinmk{font-style:normal;font-size:11px;margin-right:3px}.jtile .pinmk{position:absolute;right:6px;bottom:22px}.jtile{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 .fr-title{cursor:default;pointer-events:none}.pf-top{display:flex;align-items:center;justify-content:space-between}
-#video.selfie{transform:scaleX(-1)}.cam-flip svg{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#video.selfie{transform:scaleX(-1)}
+/* 아이폰: 사진 칸을 화면 가운데로, 버튼은 탭바 바로 위로 (남는 높이는 사진 위·아래로 나눈다). 다른 폰은 그대로 */
+html.ios .screen.cam:is([data-state=live],[data-state=starting]) .cam-stage{margin-top:auto}html.ios .screen.cam:is([data-state=live],[data-state=starting]) .cam-ui{flex:0 1 auto;min-height:0;margin-top:auto;justify-content:flex-end;padding-top:10px;padding-bottom:12px}.cam-flip svg{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .gv-top{position:absolute;top:calc(14px + var(--safe-top));left:14px;right:64px;z-index:6;display:flex;align-items:center;gap:10px;min-width:0}.gv-title{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 12px;border-radius:999px;background:rgba(20,18,16,.7);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);cursor:pointer;min-width:0}
 .gv-chat svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
 .gc-dim{position:fixed;inset:0;z-index:89;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s}.gc-dim.on{opacity:1;pointer-events:auto}
@@ -937,7 +939,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-07b'; // shown in trip error sheets
+const APP_BUILD='2026-11-07c'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -2972,14 +2974,14 @@ function buildFilterPop(){const sample=sampleSwatch();$('#filter-pop').innerHTML
 function sampleSwatch(){const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,'#FFD6A5');g.addColorStop(.7,'#FF8E72');x.fillStyle=g;x.fillRect(0,0,64,64);x.fillStyle='#3E3A55';x.fillRect(0,40,64,24);x.fillStyle='#FFF6DA';x.beginPath();x.arc(40,18,8,0,7);x.fill();return c.toDataURL()}
 function applyPreviewFilter(){const f=S.filter,css=cssFilter(f);$('#video').style.filter=css;$('#shot').style.filter=css;$('#fx-vig').style.setProperty('--vig',f.vig||0);$('#fx-tint').style.setProperty('--tint',f.tint?f.tint.color:'transparent');$$('#filters .fchip').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));
   $$('#filter-pop button').forEach(ch=>ch.classList.toggle('on',ch.dataset.f===f.id));const btnSw=$('#filter-btn-sw');if(btnSw)btnSw.innerHTML=`<img src="${sampleSwatch()}" alt="" style="filter:${css}">`}
-function setCamState(st){S.cam.state=st;$('#video').classList.toggle('show',st==='live');$('#phone-mode').hidden=st!=='phone';$('#cam-mode').hidden=!(st==='live'||st==='phone'||st==='fallback'||st==='starting');$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===camMode));$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
+function setCamState(st){S.cam.state=st;{const sc=$('#screen-camera');if(sc)sc.dataset.state=st}$('#video').classList.toggle('show',st==='live');$('#phone-mode').hidden=st!=='phone';$('#cam-mode').hidden=!(st==='live'||st==='phone'||st==='fallback'||st==='starting');$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===camMode));$('#cam-fallback').classList.toggle('show',st==='fallback');$('#cam-stage').classList.toggle('fb',st==='fallback');
   $('#cam-actions').hidden=st!=='live';$('#retake').hidden=$('#upload').hidden=$('#orig-row').hidden=$('#privacy-row').hidden=$('#tools').hidden=$('#caption-row').hidden=st!=='review';$('#shot-box').classList.toggle('show',st==='review');const isV=!!(S.cam.video&&st==='review');$('#shot-video').hidden=!isV;$('#shot').hidden=isV;$$('.tool[data-tool=text],.tool[data-tool=emoji],.tool[data-tool=trim]').forEach(b=>b.hidden=isV);if(isV&&tool==='trim')setTool(null);if(st!=='review'){const vd=$('#shot-video');vd.pause();vd.removeAttribute('src')}$('#filters').hidden=!(st==='review'&&tool==='filter');$('#orig-toggle').classList.toggle('on',saveOrig);$('#cam-note').hidden=st==='review';
   if(st!=='review')$('#cam-status').textContent=st==='starting'?t('cam_prep'):'';applyPreviewFilter()}
 let camMode=localStorage.getItem('ctw-cammode')||'phone';
 function setCamMode(m){camMode=m;localStorage.setItem('ctw-cammode',m);$$('[data-cammode]').forEach(b=>b.classList.toggle('on',b.dataset.cammode===m));if(S.tab!=='camera')return;if(m==='phone'){stopCamera();S.cam.stream=null;setCamState('phone')}else{startCamera()}}
 async function startCamera(){if(camMode==='phone'){setCamState('phone');return}if(S.cam.stream){setCamState(S.cam.shot?'review':'live');return}setCamState('starting');
   try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('no-media');const vc=Object.assign(CAM.dev&&CAM.facing!=='user'?{deviceId:{exact:CAM.dev}}:{facingMode:{ideal:CAM.facing==='user'?'user':'environment'}},{width:{ideal:4032},height:{ideal:3024},aspectRatio:{ideal:4/3}});let st;try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:true})}catch(e1){try{st=await navigator.mediaDevices.getUserMedia({video:vc,audio:false})}catch(e2){CAM.dev=null;st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:CAM.facing==='user'?'user':'environment'}},audio:false})}}
-    S.cam.stream=st;const v=$('#video');v.srcObject=st;v.classList.toggle('selfie',CAM.facing==='user');await v.play().catch(()=>{});CAM.cur=st.getVideoTracks()[0].getSettings().deviceId||CAM.dev;if(!CAM.defaultDev)CAM.defaultDev=CAM.cur;buildZoomChips();applyZoomValue();buildFilterPop();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
+    S.cam.stream=st;const v=$('#video');v.srcObject=st;v.classList.toggle('selfie',CAM.facing==='user');if(IS_IOS&&!v.__fit){v.__fit=1;v.addEventListener('loadedmetadata',fitCamVideo);v.addEventListener('resize',fitCamVideo);window.addEventListener('resize',()=>setTimeout(fitCamVideo,50))}await v.play().catch(()=>{});fitCamVideo();setTimeout(fitCamVideo,300);CAM.cur=st.getVideoTracks()[0].getSettings().deviceId||CAM.dev;if(!CAM.defaultDev)CAM.defaultDev=CAM.cur;buildZoomChips();applyZoomValue();buildFilterPop();listLenses();st.getVideoTracks()[0].onended=()=>{if(S.cam.stream===st&&S.tab==='camera'&&!REC.on){S.cam.stream=null;setTimeout(()=>{if(S.tab==='camera'&&!S.cam.stream)startCamera()},800)}};if(S.tab==='camera')setCamState('live');else stopCamera()}
   catch(e){console.warn('camera unavailable',e);if(S.tab==='camera')setCamState('fallback')}}
 // 셀카 ↔ 후면: 스트림을 다시 연다 (셀카는 미리보기만 거울처럼 보이고, 찍힌 사진은 그대로)
 async function flipCamera(){if(REC.on||S.cam.shot)return;CAM.facing=CAM.facing==='user'?'environment':'user';if(CAM.facing==='user'){CAM.backDev=CAM.dev;CAM.dev=null}else{CAM.dev=CAM.backDev||null}stopCamera();await startCamera()}
@@ -3160,6 +3162,11 @@ function renderUpTrips(){const box=$('#uptrips'),act=activeTrips().filter(a=>a.p
 function confirmAnon(cb){if(localStorage.getItem('ctw-anonseen')){cb();return}
   if(confirm(t('anon_warn_title')+'\n\n'+t('anon_warn_body')+'\n\n('+t('anon_warn_ok')+')')){localStorage.setItem('ctw-anonseen','1');cb()}}
 const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+document.documentElement.classList.toggle('ios',IS_IOS);
+// 아이폰 사파리는 카메라 스트림에 object-fit:cover를 무시하고 4:3 화면 전체를 좌우 여백과 함께 보여 준다(찍히는 정사각형과 달라 위아래가 잘려 보였다).
+// 그래서 아이폰에서만 영상 크기를 직접 정해 정사각형 칸을 꽉 채운다(가운데 기준) — 올라가는 사진과 같은 범위
+function fitCamVideo(){if(!IS_IOS)return;const v=$('#video'),st=$('#cam-stage');if(!v||!st||!v.videoWidth||!v.videoHeight)return;const W=st.clientWidth,H=st.clientHeight;if(!W||!H)return;
+  const r=v.videoWidth/v.videoHeight;let w=W,h=W/r;if(h<H){h=H;w=H*r}Object.assign(v.style,{inset:'auto',left:Math.round((W-w)/2)+'px',top:Math.round((H-h)/2)+'px',width:Math.round(w)+'px',height:Math.round(h)+'px',objectFit:'fill'})}
 // --- 원본 저장 시 위치(GPS) EXIF 심기 - 캔버스로 다시 인코딩한 JPEG는 EXIF가 전부 사라지므로,
 // 갤러리 앱에서 위치가 보이려면 직접 최소한의 Exif GPS 세그먼트를 만들어 파일 앞부분에 끼워 넣어야 한다.
 function gpsToDMS(v){const abs=Math.abs(v),deg=Math.floor(abs),minF=(abs-deg)*60,min=Math.floor(minF),sec=Math.round((minF-min)*60*1000);
