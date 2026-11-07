@@ -29,6 +29,8 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none}html{background:#0F0D0B}html.short-wv{background:#1B1714}html.short-wv{--safe:0px}html.short-wv .tabbar{background:#1B1714}
+/* 아이폰 설치형(black 상태바): 상태바 띠(#1B1714)와 앱 화면 위쪽이 끊겨 보이지 않게 위에서 부드럽게 이어 준다 */
+html.ios-band .phone::after{content:'';position:absolute;top:0;left:0;right:0;height:34px;background:linear-gradient(#1B1714,rgba(27,23,20,.55) 45%,rgba(27,23,20,0));z-index:60;pointer-events:none}
 body{background:#0F0D0B;font-family:var(--sans);color:var(--ink);display:flex;align-items:flex-start;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;font-weight:400;position:fixed;top:0;left:0;right:0;height:var(--app-h,100%)}
 /* body도 앱 상자와 같은 높이: inset:0이면 아이폰이 짧게 보고한 화면 높이로 body가 잘려 탭바 글자가 사라졌다 */
 button,input{font-family:inherit;color:inherit}
@@ -935,7 +937,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-06b'; // shown in trip error sheets
+const APP_BUILD='2026-11-07a'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -3377,7 +3379,7 @@ let VP_INFO='';
 // 바탕(html) 색을 탭바 색으로 맞춰 아래 띠가 탭바가 이어진 것처럼 보이게 한다.
 function fitViewport(){const vv=(window.visualViewport&&window.visualViewport.height)||0,ih=window.innerHeight;let h=vv||ih,lv=0,vh=0,sh=0;
   if(IS_STANDALONE()){h=Math.max(ih,vv);if(IS_IOS){const portrait=window.innerWidth<=window.innerHeight;sh=portrait?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
-    const st=probeTop();document.documentElement.classList.toggle('short-wv',sh-h>20&&st>20)}}
+    const st=probeTop();document.documentElement.classList.toggle('short-wv',sh-h>20&&st>20);document.documentElement.classList.toggle('ios-band',st<=20)}}
   VP_INFO=`build ${typeof APP_BUILD!=='undefined'?APP_BUILD:''} · inner ${ih} · vv ${Math.round(vv)} · lvh ${Math.round(lv)} · vh ${Math.round(vh)} · screen ${sh||screen.height} · used ${Math.round(h)} · ${IS_STANDALONE()?'standalone':'browser'}`;const d=document.getElementById('vp-diag');if(d)d.textContent=VP_INFO;
   document.documentElement.style.setProperty('--app-h',Math.round(h)+'px')}
 fitViewport();window.addEventListener('resize',fitViewport);if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>setTimeout(fitViewport,300));
