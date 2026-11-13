@@ -939,7 +939,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-07c'; // shown in trip error sheets
+const APP_BUILD='2026-11-13a'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1244,7 +1244,9 @@ function bindMapInput(){const el=map.canvas,ptrs=new Map();let last=null,tap=nul
   el.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*0.0016))},{passive:false})}
 function panBy(dx,dy){const P=pxPerDeg();S.view.lng=OLC.normLng(S.view.lng-dx/P.x);S.view.lat=clamp(S.view.lat+dy/P.y,-85,85);requestRender()}
 function zoomAt(x,y,f){if(map.ml){map.ml.easeTo({zoom:map.ml.getZoom()+Math.log2(f),duration:200});return}const before=toWorld(x,y),l=scaleLimits(),ns=clamp(S.view.scale*f,l.min,l.max);if(ns===S.view.scale)return;S.view.scale=ns;const after=toWorld(x,y);S.view.lng+=before.lng-after.lng;S.view.lat+=before.lat-after.lat;requestRender()}
-function onTap(x,y){if(S.tripMap)return;const w=toWorld(x,y),p=pairsForScale(),key=OLC.key(w.lat,w.lng,p);if(S.followMap){const k10=OLC.key(w.lat,w.lng,5);const hit=[...S.follows].filter(f=>k10.startsWith(f)).sort((a,b)=>b.length-a.length)[0];openFollowAction(hit||OLC.key(w.lat,w.lng,Math.max(2,p)),!!hit);return}S.selected=key;sheetStack.length=0;S.sheet=null;requestRender();if(p===5)openCellSheet(key);else openBlockSheet(key)}
+// 여정맵: 동그란 사진을 누르면 그 사진을 팝업으로 (그리는 자리·크기와 똑같이 맞춘다. 겹치면 가장 가까운 것)
+function tripPhotoAt(x,y){const v=tripView();if(!v)return null;let best=null,bd=26*26;for(const id of v.photos){const ph=S.photos.get(id);if(!ph)continue;const pt=v.pts.find(p=>p.photo===id),b=OLC.bounds(ph.key),q=toScreen(pt?pt.lat:b.lat,pt?pt.lng:b.lng),d=(q.x-x)**2+(q.y-y)**2;if(d<=bd){bd=d;best=id}}return best}
+function onTap(x,y){if(S.tripMap){const id=tripPhotoAt(x,y);if(id)openPhotoSheet(id);return}const w=toWorld(x,y),p=pairsForScale(),key=OLC.key(w.lat,w.lng,p);if(S.followMap){const k10=OLC.key(w.lat,w.lng,5);const hit=[...S.follows].filter(f=>k10.startsWith(f)).sort((a,b)=>b.length-a.length)[0];openFollowAction(hit||OLC.key(w.lat,w.lng,Math.max(2,p)),!!hit);return}S.selected=key;sheetStack.length=0;S.sheet=null;requestRender();if(p===5)openCellSheet(key);else openBlockSheet(key)}
 
 // ---------- 시트
 const sheetStack=[];
