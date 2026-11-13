@@ -939,7 +939,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-13a'; // shown in trip error sheets
+const APP_BUILD='2026-11-13b'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1116,8 +1116,15 @@ const userLink=p=>p.anonymous&&!p.user.me?`<span class="ulink">${avatarHTML({ano
 const sortedPhotos=cell=>cell.photos.slice().sort((a,b)=>better(a,b)?-1:1);
 
 // ---------- 데이터
+// 사진 시각: photos_public 뷰는 created_at을 '시' 단위로 잘라서 준다(같은 시간대 사진이 모두 같은 시각 → 순서가 id(무작위)로 뒤섞였다).
+// 정확한 시각은 photos 테이블의 created_at(누구나 읽을 수 있는 칸)에서 받아 사진 id별로 기억해 두고, 정렬은 언제나 이 값으로 한다
+const EXACT_TS=new Map();
+function noteExact(rows){for(const r of rows||[]){const v=Date.parse(r.created_at);if(isFinite(v))EXACT_TS.set(r.id,v)}}
+function rowTs(r){const e=EXACT_TS.get(r.id);return e!==undefined?e:new Date(r.created_at).getTime()}
+const exactQ=ids=>ids&&ids.length?sb.from('photos').select('id,created_at').in('id',ids).then(r=>{if(!r.error)noteExact(r.data);return r},()=>({data:[]})):Promise.resolve({data:[]});
 async function loadWorld(){if(!sb)return;
   const privP=loadPrivTrips();
+  const exactAll=sb.from('photos').select('id,created_at').order('created_at',{ascending:false}).limit(8000).then(r=>{if(!r.error)noteExact(r.data)},()=>{});
   const [{data:rows,error},{data:likes,error:e2},{data:profs},{data:cms},{data:fls},uf1,uf2]=await Promise.all([
     sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').order('created_at',{ascending:false}).limit(8000),
     sb.from('likes').select('photo_id,user_id'),sb.from('profiles').select('id,name,avatar_path'),sb.from('comments').select('photo_id'),S.user?sb.from('follows').select('key').eq('user_id',S.user.id):Promise.resolve({data:[]}),
@@ -1128,9 +1135,9 @@ async function loadWorld(){if(!sb)return;
   const names=new Map();S.avatars=new Map();for(const p of profs||[]){names.set(p.id,p.name);if(p.avatar_path)S.avatars.set(p.id,pubUrl(p.avatar_path))}S.names=names;
   const cnt=new Map();S.myLikes=new Set();for(const l of likes||[]){cnt.set(l.photo_id,(cnt.get(l.photo_id)||0)+1);if(S.user&&l.user_id===S.user.id)S.myLikes.add(l.photo_id)}
   S.follows=new Set((fls||[]).map(f=>f.key));S.ccount=new Map();for(const c of cms||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
-  await privP;PRIV=computePriv();
+  await privP;PRIV=computePriv();await exactAll;{const miss=(rows||[]).filter(r=>!EXACT_TS.has(r.id)).map(r=>r.id);for(let i=0;i<miss.length;i+=150)await exactQ(miss.slice(i,i+150))}
   S.world=new Map();S.photos=new Map();
-  for(const r of rows||[]){if(MUTED.has(r.id))continue;const ownerId=r.user_id||(r.path?r.path.split('/')[0]:null);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&ownerId===S.user.id},ts:new Date(r.created_at).getTime(),likes:cnt.get(r.id)||0,filter:r.filter,caption:r.caption||'',media:r.media||'photo',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path),hidden:!!r.hidden,anonymous:!!r.anonymous,priv:PRIV.has(r.id)};if(!r.hidden&&!ph.priv)ensureCell(r.cell).photos.push(ph);S.photos.set(ph.id,ph)}
+  for(const r of rows||[]){if(MUTED.has(r.id))continue;const ownerId=r.user_id||(r.path?r.path.split('/')[0]:null);const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&ownerId===S.user.id},ts:rowTs(r),likes:cnt.get(r.id)||0,filter:r.filter,caption:r.caption||'',media:r.media||'photo',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path),hidden:!!r.hidden,anonymous:!!r.anonymous,priv:PRIV.has(r.id)};if(!r.hidden&&!ph.priv)ensureCell(r.cell).photos.push(ph);S.photos.set(ph.id,ph)}
   rebuildAgg();S.lastLoad=Date.now();requestRender();updateCamPlace();if(S.tab==='feed')renderFeed(true);if(S.tab==='all')renderAll(true);if(S.tab==='follow')renderFollow(true);if(S.tab==='trips')renderTrips(true);if(S.tab==='friends')renderFriends(true);if(S.tab==='profile')renderProfile();if(S.sheet)refreshSheet()}
 function maybeReload(){if(Date.now()-S.lastLoad>30000)loadWorld()}
 
@@ -1997,7 +2004,7 @@ async function openDeepJourneyLink(data){try{
       const [{data:rows},{data:likes},{data:cmts}]=await Promise.all([
         sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').in('id',missing),
         sb.from('likes').select('photo_id,user_id').in('photo_id',missing),
-        sb.from('comments').select('photo_id').in('photo_id',missing)]);
+        sb.from('comments').select('photo_id').in('photo_id',missing),exactQ(missing)]);
       const uids=[...new Set((rows||[]).map(r=>r.user_id).filter(Boolean))];
       const {data:profs}=uids.length?await sb.from('profiles').select('id,name').in('id',uids):{data:[]};
       const names=new Map((profs||[]).map(p=>[p.id,p.name]));
@@ -2005,7 +2012,7 @@ async function openDeepJourneyLink(data){try{
       for(const c of cmts||[])S.ccount.set(c.photo_id,(S.ccount.get(c.photo_id)||0)+1);
       for(const r of rows||[]){if(S.photos.has(r.id))continue;
         const ownerId=r.user_id||(r.path?r.path.split('/')[0]:null);
-        const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&ownerId===S.user.id},ts:new Date(r.created_at).getTime(),likes:likeCnt.get(r.id)||0,filter:r.filter,caption:r.caption||'',media:r.media||'photo',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path),hidden:!!r.hidden,anonymous:!!r.anonymous};
+        const ph={id:r.id,key:r.cell,user:{id:r.user_id,name:names.get(r.user_id)||t('anon'),me:!!S.user&&ownerId===S.user.id},ts:rowTs(r),likes:likeCnt.get(r.id)||0,filter:r.filter,caption:r.caption||'',media:r.media||'photo',path:r.path,thumb:pubUrl(thumbPath(r.path)),full:pubUrl(r.path),hidden:!!r.hidden,anonymous:!!r.anonymous};
         if(!r.hidden)ensureCell(r.cell).photos.push(ph);
         S.photos.set(ph.id,ph)}}
     openJourneysReels(payload)
@@ -2550,9 +2557,9 @@ async function setTripRole(tid,uid,role){const x=TRIPS.all.find(z=>z.id===tid);i
 // 캐시(최근 8000장)에 없는 여정 사진은 id로 따로 받아 온다
 let PH_FETCHING=new Set();
 async function ensurePhotos(ids,then){const miss=[...new Set(ids)].filter(id=>id&&!S.photos.has(id)&&!PH_FETCHING.has(id)&&!MUTED.has(id));if(!miss.length||!sb)return;miss.forEach(id=>PH_FETCHING.add(id));
-  try{const [r,l]=await Promise.all([sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').in('id',miss),sb.from('likes').select('photo_id').in('photo_id',miss)]);
+  try{const [r,l]=await Promise.all([sb.from('photos_public').select('id,cell,user_id,filter,path,caption,media,created_at,hidden,anonymous').in('id',miss),sb.from('likes').select('photo_id').in('photo_id',miss),exactQ(miss)]);
     const cnt=new Map();for(const k of l.data||[])cnt.set(k.photo_id,(cnt.get(k.photo_id)||0)+1);let n=0;
-    for(const row of r.data||[]){if(S.photos.has(row.id))continue;const ph={id:row.id,key:row.cell,user:{id:row.user_id,name:(S.names&&S.names.get(row.user_id))||t('anon'),me:!!S.user&&row.user_id===S.user.id},ts:new Date(row.created_at).getTime(),likes:cnt.get(row.id)||0,filter:row.filter,caption:row.caption||'',media:row.media||'photo',path:row.path,thumb:pubUrl(thumbPath(row.path)),full:pubUrl(row.path),hidden:!!row.hidden,anonymous:!!row.anonymous,priv:PRIV.has(row.id)};
+    for(const row of r.data||[]){if(S.photos.has(row.id))continue;const ph={id:row.id,key:row.cell,user:{id:row.user_id,name:(S.names&&S.names.get(row.user_id))||t('anon'),me:!!S.user&&row.user_id===S.user.id},ts:rowTs(row),likes:cnt.get(row.id)||0,filter:row.filter,caption:row.caption||'',media:row.media||'photo',path:row.path,thumb:pubUrl(thumbPath(row.path)),full:pubUrl(row.path),hidden:!!row.hidden,anonymous:!!row.anonymous,priv:PRIV.has(row.id)};
       if(!row.hidden)ensureCell(row.cell).photos.push(ph);S.photos.set(ph.id,ph);n++}
     if(n){rebuildAgg();if(then)then()}}catch(e){console.warn('ensurePhotos',e)}}
 function buildTripList(tid){const me=S.user&&S.user.id,rows=tripPhotoRows(tid);
@@ -3286,6 +3293,8 @@ function updateCamPlace(){const key=OLC.key(S.me.lat,S.me.lng),cell=S.world.get(
   $('#cam-place').innerHTML=`<span class="mono">${OLC.short(key)}</span><span class="st">${st}</span>`;$('#shutter').disabled=S.me.src!=='gps';$('#vidbtn').disabled=S.me.src!=='gps'}
 async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();if(S.me.src!=='gps'){toast(t('need_loc'));locate();return}
   const fx=(S.cam.fix&&(S.cam.fix.press||Date.now()-S.cam.fix.ts<120000))?S.cam.fix:null;const lat=fx?fx.lat:S.me.lat,lng=fx?fx.lng:S.me.lng;const key=OLC.key(lat,lng),cell=ensureCell(key);
+  // 찍은 시각은 올리기를 누른 순간 정해 둔다 (올리는 동안 다시 찍기·다음 촬영으로 카메라 상태가 바뀌어도 이 사진의 시각은 그대로)
+  const takenTs0=S.cam.origFile?(S.cam.origTs||null):(S.cam.shotTs||null);
   const btn=$('#upload');btn.disabled=true;btn.textContent=t('uploading');await saveOriginal(lat,lng);
   try{const id=crypto.randomUUID(),isV=!!S.cam.video,path=`${S.user.id}/${id}.${isV?(S.cam.video.lo.type.includes('mp4')?'mp4':'webm'):'jpg'}`;
     const caption=$('#caption').value.trim().slice(0,200);let fb,tb;if(isV){fb=S.cam.video.lo;tb=await canvasBlob(makeThumbCanvas(S.cam.video.poster,S.filter),0.78)}else{const src=bakeStickers(bakeTrim(S.cam.shot,S.cam.trim));[fb,tb]=await Promise.all([canvasBlob(src,0.92),canvasBlob(makeThumbCanvas(src,S.filter),0.78)])}
@@ -3293,10 +3302,10 @@ async function uploadShot(){if(!S.cam.shot)return;if(!S.user)return needLogin();
     const u2=await sb.storage.from('photos').upload(thumbPath(path),tb,{contentType:'image/jpeg'});if(u2.error)throw u2.error;
     // 갤러리에서 고른 사진은 찍은 시각을 created_at으로 (여정·피드 순서 = 찍은 순서). 카메라로 바로 찍은 건 지금
     // 사진 시간 = 찍은 순간: 폰카 파일은 Exif 촬영 시각(없으면 파일 시각), 앱 카메라는 셔터를 누른 순간, 동영상은 녹화 버튼을 누른 순간
-    const takenTs=(S.cam.origFile?(S.cam.origTs||null):(S.cam.shotTs||null));
+    const takenTs=takenTs0;
     const {error}=await sb.from('photos').insert({id,cell:key,user_id:S.user.id,filter:S.filter.id,path,caption:caption||null,media:isV?'video':'photo',hidden:hideUpload,anonymous:anonUpload,...(takenTs?{created_at:new Date(takenTs).toISOString()}:{})});
     if(error){await sb.storage.from('photos').remove([path,thumbPath(path)]);throw error}
-    const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:takenTs||Date.now(),likes:0,filter:S.filter.id,caption,media:isV?'video':'photo',path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path),hidden:hideUpload,anonymous:anonUpload};const upAct=noTripUpload?[]:activeTrips().filter(a=>a.post&&UPSEL.has(a.id)),inTrip=upAct.some(a=>a.primary),upEx=upAct.filter(a=>!a.primary),privUp=upAct.some(a=>a.vis!=='open');ph.priv=privUp;if(privUp)PRIV.add(id);if(!hideUpload&&!privUp)cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();if(inTrip)tripAddPhoto(ph);if(inTrip&&TRIP.id)sb.from('trip_photos').insert({trip_id:TRIP.id,photo_id:id,user_id:S.user.id}).then(r=>{if(r.error)console.warn('trip_photos',r.error);else pollTrips(true)});
+    const first=cell.photos.length===0;const ph={id,key,user:{id:S.user.id,name:S.profile.name,me:true},ts:takenTs||Date.now(),_x:EXACT_TS.set(id,takenTs||Date.now()),likes:0,filter:S.filter.id,caption,media:isV?'video':'photo',path,thumb:pubUrl(thumbPath(path)),full:pubUrl(path),hidden:hideUpload,anonymous:anonUpload};const upAct=noTripUpload?[]:activeTrips().filter(a=>a.post&&UPSEL.has(a.id)),inTrip=upAct.some(a=>a.primary),upEx=upAct.filter(a=>!a.primary),privUp=upAct.some(a=>a.vis!=='open');ph.priv=privUp;if(privUp)PRIV.add(id);if(!hideUpload&&!privUp)cell.photos.push(ph);S.photos.set(id,ph);rebuildAgg();if(inTrip)tripAddPhoto(ph);if(inTrip&&TRIP.id)sb.from('trip_photos').insert({trip_id:TRIP.id,photo_id:id,user_id:S.user.id}).then(r=>{if(r.error)console.warn('trip_photos',r.error);else pollTrips(true)});
     linkPhotoToTrips(id,upEx.map(a=>a.id));const wentTrip=inTrip||upEx.length>0;resetShot();setCamState(camMode==='phone'?'phone':(S.cam.stream?'live':'fallback'));if(wentTrip){switchTab('trips');if(inTrip)openTripMap()}else{switchTab('map');S.selected=key;map.anims.set(key,performance.now());const b=OLC.bounds(key),gps=S.me.src==='gps';centerAfterShow(gps?S.me.lat:b.lat,gps?S.me.lng:b.lng,160)}
     toast(privUp?t('up_priv'):hideUpload?t('up_hidden'):first?t('up_first'):t('up_ok',{n:cell.photos.length}));updateCamPlace();setTimeout(()=>{S.sheet=null;sheetStack.length=0;openPhotoSheet(id);autoCloseSheet(3000)},600)}
   catch(e){console.warn(e);toast(t('up_fail',{e:e.message||e}))}
