@@ -939,7 +939,7 @@ const FILTERS=[
 
 // ---------- 설정
 const SITE_ORIGIN='https://coverrrup.com';
-const APP_BUILD='2026-11-15b'; // shown in trip error sheets
+const APP_BUILD='2026-11-18a'; // shown in trip error sheets
 const TRIPS_SQL_EXPECT=12; // must match trips_sql_version() in supabase/trips.sql
 const SUPABASE_URL='https://mhfxczuhiegysqtfnvzs.supabase.co';
 const SUPABASE_KEY='sb_publishable_P5VLvHLClCMm04Lhp4CL_Q_EtwB6E3W';
@@ -1235,6 +1235,7 @@ function drawTile(c,x,y,w,h,e,p,k){if(w<10){const m=10;x=x+w/2-m/2;y=y+h/2-m/2;w
   if(img){const sd=Math.min(rw,rh),sx2=rx+(rw-sd)/2,sy2=ry+(rh-sd)/2;c.fillStyle='#2E2823';c.fillRect(rx,ry,rw,rh);if(sd<Math.max(rw,rh)-1){c.save();c.globalAlpha=.35;const s2=Math.max(rw,rh);c.drawImage(img,rx+(rw-s2)/2,ry+(rh-s2)/2,s2,s2);c.restore()}c.drawImage(img,sx2,sy2,sd,sd)}else{c.fillStyle='#3A332D';c.fillRect(rx,ry,rw,rh)}
   c.restore();
   if(e.mine){c.save();const bw=Math.min(3,Math.max(1.5,w/40));c.lineWidth=bw;c.strokeStyle=e.vis?'#8FB6E8':'#E0876F';if(!e.mineCover)c.setLineDash([bw*2,bw*2]);c.beginPath();roundRect(c,rx+bw/2,ry+bw/2,rw-bw,rh-bw,rad);c.stroke();c.restore()}
+  if(!e.vis&&e.mine&&rw>=44){const lb=t('hidden_badge');c.save();c.font='600 10px '+SANS;const tw=c.measureText(lb).width+8,lx=rx+rw-3-tw;c.fillStyle='rgba(224,135,111,.92)';c.beginPath();roundRect(c,lx,ry+3,tw,15,3);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(lb,lx+4,ry+10.5);c.restore()}
   if(w>=44){c.font='500 10px '+SANS;const tx=p<5?e.cells+' '+t('cell'):'♥'+e.cover.likes+(e.photos>1?'  '+t('photos_n',{n:e.photos}):'');const tw=c.measureText(tx).width+10,th=16;const px=p<5?rx+rw-4-tw:rx+4,py=p<5?ry+rh-4-th:ry+4;
     c.fillStyle=C.pill;c.beginPath();roundRect(c,px,py,tw,th,8);c.fill();c.fillStyle=C.ink;c.textBaseline='middle';c.textAlign='left';c.fillText(tx,px+5,py+th/2+0.5)}}
 
@@ -1439,14 +1440,17 @@ function setFeedSort(kind,v){FEED_SORT[kind]=v==='old'?'old':'new';try{localStor
 function feedSortHTML(kind){const v=FEED_SORT[kind];return`<div class="ti-row fsort"><span>${t('sort_h')}</span><span class="chips"><button class="chip-btn${v!=='old'?' on':''}" data-fsort="${kind}:new">${t('sort_new')}</button><button class="chip-btn${v==='old'?' on':''}" data-fsort="${kind}:old">${t('sort_old')}</button></span></div>`}
 function reelState(id){return REELS[id]||(REELS[id]={id,items:[],shown:0,cur:0})}
 const scoreOf=(p,now)=>p.likes+2/(1+(now-p.ts)/86400000);
-function buildNearbyList(){const now=Date.now();
-  const blocks=new Map();for(const c of S.world.values()){if(!c.photos.length)continue;const g=c.key.slice(0,8);if(!blocks.has(g))blocks.set(g,{g,cells:[],d:Infinity});const b=blocks.get(g);b.cells.push(c);b.d=Math.min(b.d,distM(S.me.lat,S.me.lng,c.lat,c.lng))}
+// 내 피드에는 내가 숨긴 사진도 (숨김 스티커와 함께) 보인다. 다른 사람에게는 그대로 안 보인다
+function myHiddenByCell(){const m=new Map();for(const p of S.photos.values())if(p.user.me&&p.hidden&&!MUTED.has(p.id)){let a=m.get(p.key);if(!a)m.set(p.key,a=[]);a.push(p)}return m}
+function cellsWithMyHidden(HC){const out=[...S.world.values()].filter(c=>c.photos.length);for(const k of HC.keys()){const c=S.world.get(k);if(!(c&&c.photos.length)){const b=OLC.bounds(k);out.push({key:k,lat:b.lat,lng:b.lng,photos:[]})}}return out}
+function buildNearbyList(){const now=Date.now(),HC=myHiddenByCell();
+  const blocks=new Map();for(const c of cellsWithMyHidden(HC)){const g=c.key.slice(0,8);if(!blocks.has(g))blocks.set(g,{g,cells:[],d:Infinity});const b=blocks.get(g);b.cells.push(c);b.d=Math.min(b.d,distM(S.me.lat,S.me.lng,c.lat,c.lng))}
   const myG=OLC.key(S.me.lat,S.me.lng,4),items=[];
-  for(const b of [...blocks.values()].sort((a,c)=>a.d-c.d)){const ps=[];for(const c of b.cells){const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})}
+  for(const b of [...blocks.values()].sort((a,c)=>a.d-c.d)){const ps=[];for(const c of b.cells){const cov=coverOf(c);for(const p of c.photos.concat(HC.get(c.key)||[]))ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng)})}
     ps.sort((a,c)=>scoreOf(c.p,now)-scoreOf(a.p,now));ps.forEach((x,i)=>items.push({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:b.g===myG,g:b.g,isCover:x.isCover}))}
   return items}
 function buildFollowList(){const keys=orderList('follow',[...S.follows]).filter(k=>!S.followSel.size||S.followSel.has(k)),ps=[],rk=orderRank('follow',[...S.follows]);
-  for(const k of keys){for(const c of S.world.values()){if(!c.key.startsWith(k)||!c.photos.length)continue;const cov=coverOf(c);for(const p of c.photos)ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),g:k})}}
+  const HC=myHiddenByCell();for(const k of keys){for(const c of cellsWithMyHidden(HC)){if(!c.key.startsWith(k))continue;const cov=coverOf(c);for(const p of c.photos.concat(HC.get(c.key)||[]))ps.push({p,c,isCover:p===cov,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),g:k})}}
   ps.sort((a,b)=>(rk.get(a.g)-rk.get(b.g))||(FEED_SORT.follow==='old'?byTaken(a.p,b.p):byNewest(a.p,b.p)));
   return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:false,g:x.g,grp:x.g,isCover:x.isCover,followed:true}))}
 // 피드 순서: ⚙ 시트에서 ▲▼로 정한 순서 (지역 키 · 여정 id · 친구 id). 정하지 않은 건 원래 순서대로 그 뒤에. 띠와 릴스 묶음이 이 순서를 따른다
@@ -2618,7 +2622,7 @@ async function ensurePhotos(ids,then){const miss=[...new Set(ids)].filter(id=>id
       if(!row.hidden)ensureCell(row.cell).photos.push(ph);S.photos.set(ph.id,ph);n++}
     if(n){rebuildAgg();if(then)then()}}catch(e){console.warn('ensurePhotos',e)}}
 function buildTripList(tid){const me=S.user&&S.user.id,rows=tripPhotoRows(tid);
-  const ps=[];for(const r of rows){const p=S.photos.get(r.photo_id);if(!p||p.hidden)continue;let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}ps.push({p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),isCover:coverOf(c)===p})}
+  const ps=[];for(const r of rows){const p=S.photos.get(r.photo_id);if(!p||(p.hidden&&!p.user.me))continue;let c=S.world.get(p.key);if(!c){const b=OLC.bounds(p.key);c={key:p.key,lat:b.lat,lng:b.lng,photos:[p]}}ps.push({p,c,d:distM(S.me.lat,S.me.lng,c.lat,c.lng),isCover:coverOf(c)===p})}
   // 여정은 시간 순서대로 (출발 → 도착)
   ps.sort((a,b)=>byTaken(a.p,b.p));return ps.map((x,i)=>({p:x.p,c:x.c,d:x.d,idx:i,n:ps.length,mine:!!x.p.user.me,g:x.p.key.slice(0,8),isCover:x.isCover}))}
 function buildTripFeedList(){let out=[];for(const x of tripsList()){let l=buildTripList(x.id).map(it=>({...it,trip:x.id}));if(FEED_SORT.trips!=='old')l=l.reverse();out=out.concat(l)}return out}
